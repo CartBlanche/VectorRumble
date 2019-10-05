@@ -143,4 +143,7 @@ B/O Button, Esc = Cancel</value>
      <data name="Game_Enhancements" xml:space="preserve">
         <value>Game Enhancements: {0}</value>
      </data>
+    <data name="No_Input_Device_Connected" xml:space="preserve">
+        <value>No input device connected. Plug in a Keyboard or Controller to Play.</value>
+    </data>
 </root>
