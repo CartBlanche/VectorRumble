@@ -24,7 +24,7 @@ namespace VectorRumble
         /// Constructs a new laser weapon.
         /// </summary>
         /// <param name="owner">The ship that owns this weapon.</param>
-        public LaserWeapon(Ship owner)
+        public LaserWeapon(Player owner)
             : base(owner)
         {
             fireDelay = 0.15f;

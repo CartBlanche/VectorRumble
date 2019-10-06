@@ -54,7 +54,7 @@ namespace VectorRumble
 
         public override void LoadContent()
         {
-            titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/title");
+            titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/SolidOps");
             base.LoadContent();
         }
 

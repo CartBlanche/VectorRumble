@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\RocketPowerUp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\RocketProjectile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\RocketWeapon.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Gameplay\Ship.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Gameplay\Player.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\TripleLaserPowerUp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\TripleLaserWeapon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Rendering\LineBatch.cs" />
@@ -55,8 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Simulation\WorldActor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Simulation\WorldRules.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Screens\ArenaSelectionScreen.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Screens\ShipSelectionScreen.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Gameplay\ShipManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Gameplay\PlayerManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\ArenaManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Gameplay\Arena.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Screens\AboutMenuScreen.cs" />

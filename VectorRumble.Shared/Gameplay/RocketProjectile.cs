@@ -35,7 +35,7 @@ namespace VectorRumble
         /// <param name="world">The world that this projectile belongs to.</param>
         /// <param name="owner">The ship that fired this projectile, if any.</param>
         /// <param name="direction">The initial direction for this projectile.</param>
-        public RocketProjectile(World world, Ship owner, Vector2 direction)
+        public RocketProjectile(World world, Player owner, Vector2 direction)
             : base(world, owner, direction)
         {
             this.radius = 8f;

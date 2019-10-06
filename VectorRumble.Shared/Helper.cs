@@ -37,7 +37,8 @@ namespace VectorRumble
         {
             string root = string.Empty;
             string resourceFolder = Path.Combine ("..", "Resources");
-	    if (Directory.Exists (resourceFolder)) {
+
+            if (Directory.Exists (resourceFolder)) {
                 root = resourceFolder;
             }
             var directory = Path.Combine (root, Path.Combine(folders));

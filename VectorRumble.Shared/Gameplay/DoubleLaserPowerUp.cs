@@ -45,7 +45,7 @@ namespace VectorRumble
         public override bool Touch(Actor target)
         {
             // if we hit a ship, give it the weapon
-            Ship ship = target as Ship;
+            Player ship = target as Player;
             if (ship != null)
             {
                 ship.SetWeapon(new DoubleLaserWeapon(ship));

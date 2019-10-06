@@ -18,12 +18,15 @@ namespace VectorRumble
         /// </summary>
         public override void LoadContent()
         {
+            base.LoadContent();
+
             smallFont = ScreenManager.Game.Content.Load<SpriteFont>("Fonts/retroSmall");
 
             CountDown = TimeSpan.FromMilliseconds(timeGapBetweenDrawCall[timeGameIndex]);
 
             randomArena = World.ArenaManager.Random();
-            base.LoadContent();
+
+            World.PlayerManager.LoadContent(content);
         }
 
         /// <summary>

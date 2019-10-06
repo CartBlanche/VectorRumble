@@ -163,38 +163,11 @@ namespace VectorRumble
             var playerIndexes = (PlayerIndex[])Enum.GetValues(typeof(PlayerIndex));
             foreach (var index in playerIndexes)
             {
-                string message = string.Empty;
+                string message = "Used for Testing for now";
                 var caps = GamePad.GetState(index);
 
-                // Only Draw Join message if no one is playing yet.
-                if (!World.ShipManager.Players.Any())
-                {
-                    switch (index)
-                    {
-                        case PlayerIndex.One:
-                            message = caps.IsConnected ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad;
-                            break;
-                        case PlayerIndex.Two:
-                            message = caps.IsConnected ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad;
-                            break;
-                        case PlayerIndex.Three:
-                            message = Strings.Press_W_To_Join;
-                            break;
-                        case PlayerIndex.Four:
-                            message = Strings.Press_Up_To_Join;
-                            break;
-                        default:
-                            message = "No input device connected. Plug in a Keyboard or Controller to Play.";
-                            break;
-                    }
-                }
-
-                if (World.ShipManager.SelectedPlayers.Any())
-                {
-                    var player = World.ShipManager.SelectedPlayers.Where(p => p.PlayerStringToIndex == index).ToArray();
-                    if (player != null && player.Length > 0)
-                        message = string.Format(Strings.Score, player[0].Name, player[0].Score);
-                }
+                if (World.PlayerManager.Player != null)
+                    message = string.Format(Strings.Score, World.PlayerManager.Player.Name, World.PlayerManager.Player.Score);
 
                 Vector2 size = spriteFont.MeasureString(message) * scale;
                 position.X = ((int)index + 1) * offset - size.X / 2;
@@ -274,11 +247,7 @@ namespace VectorRumble
                 }
                 if (gameOver == false)
                 {
-                    for (int i = 0; i < World.Ships.Length; i++)
-                    {
-                        World.Ships[i].ProcessInput(gameTime.TotalGameTime.Seconds,
-                            true);
-                    }
+                     World.PlayerManager.Player.ProcessInput(gameTime.TotalGameTime.Seconds, true);
                 }
             }
             else
@@ -286,17 +255,14 @@ namespace VectorRumble
                 // check for a winner
                 if (gameOver == false)
                 {
-                    for (int i = 0; i < World.Ships.Length; i++)
+                    if (World.PlayerManager.Player.Score >= WorldRules.ScoreLimit)
                     {
-                        if (World.Ships[i].Score >= WorldRules.ScoreLimit)
-                        {
-                            ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                                (i + 1))));
-                            gameOver = true;
-                            break;
-                        }
+                        ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins, 1)));
+                        gameOver = true;
                     }
+                   
                 }
+
                 // update the world
                 if (gameOver == false)
                 {

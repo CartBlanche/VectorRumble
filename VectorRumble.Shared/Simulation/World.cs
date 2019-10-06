@@ -114,14 +114,7 @@ namespace VectorRumble
             get { return starfield; }
         }
 
-
-        /// <summary>
-        /// All ships that might enter the game.
-        /// </summary>
-        [ContentSerializer(SharedResource = true)]
-        public Ship[] Ships => ShipManager.Ships.ToArray();
-
-        public ShipManager ShipManager { get; set; }
+        public PlayerManager PlayerManager { get; set; }
         public ArenaManager ArenaManager { get; set; }
 
         [ContentSerializer(SharedResource = true)]
@@ -165,25 +158,8 @@ namespace VectorRumble
 
 
             // Get our ShipManager ready
-            ShipManager = new ShipManager(this);
+            PlayerManager = new PlayerManager(this);
             ArenaManager = new ArenaManager(this);
-        }
-
-        public void AddCastOfAvailableShips()
-        {
-            for (int i = 0; i < ShipManager.AvailableShips.Length; i++)
-            {
-                actors.Add(ShipManager.AvailableShips[i]);
-            }
-        }
-
-        public void AddCastOfPlayableShips()
-        {
-            for (int i = 0; i < ShipManager.SelectedPlayers.Count; i++)
-            {
-                ShipManager.SelectedPlayers[i].PlayGame();
-                actors.Add(ShipManager.SelectedPlayers[i]);
-            }
         }
         #endregion
 
@@ -197,8 +173,8 @@ namespace VectorRumble
             WorldActor worldActor = new WorldActor(this);
             actors.Add(worldActor);
 
-            // add the players to the actor list - they won't be removed
-            AddCastOfPlayableShips();
+            // add the player to the actor list
+            actors.Add(PlayerManager.Player);
 
             // spawn asteroids
             switch (WorldRules.AsteroidDensity)
@@ -333,19 +309,8 @@ namespace VectorRumble
 
             // update the starfield
             Vector2 starfieldTarget = Vector2.Zero;
-            int playingPlayers = 0;
-            for (int i = 0; i < Ships.Length; i++)
-            {
-                if (Ships[i].Playing)
-                {
-                    starfieldTarget += Ships[i].Position;
-                    playingPlayers++;
-                }
-            }
-            if (playingPlayers > 0)
-            {
-                starfield.SetTargetPosition(starfieldTarget / playingPlayers);
-            }
+            int playingPlayers = 1;
+            starfield.SetTargetPosition(starfieldTarget / playingPlayers);
             starfield.Update(elapsedTime);
 
             // check if we can create a new power-up yet
@@ -353,7 +318,7 @@ namespace VectorRumble
             {
                 powerUpTimer = Math.Max(powerUpTimer - elapsedTime, 0f);
             }
-            if (powerUpTimer <= 0.0f && Ships.Any(s => s.Playing))
+            if (powerUpTimer <= 0.0f)
             {
                 SpawnPowerUp();
                 powerUpTimer = powerUpDelay;
@@ -600,7 +565,7 @@ namespace VectorRumble
             float radius = actor.Radius;
 
             // fudge the radius slightly so we're not right on top of another actor
-            if (actor is Ship)
+            if (actor is Player)
             {
                 radius *= 2f;
             }

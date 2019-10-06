@@ -23,7 +23,7 @@ namespace VectorRumble
         /// <summary>
         /// The ship that owns this weapon.
         /// </summary>
-        protected Ship owner = null;
+        protected Player owner = null;
 
         /// <summary>
         /// The amount of time remaining before this weapon can fire again.
@@ -46,7 +46,7 @@ namespace VectorRumble
         /// Constructs a new weapon.
         /// </summary>
         /// <param name="owner">The ship that owns this weapon.</param>
-        public Weapon(Ship owner)
+        public Weapon(Player owner)
         {
             this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
         }

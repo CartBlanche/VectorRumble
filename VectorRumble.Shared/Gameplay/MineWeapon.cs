@@ -31,7 +31,7 @@ namespace VectorRumble
         /// Constructs a new mine-laying weapon.
         /// </summary>
         /// <param name="owner">The ship that owns this weapon.</param>
-        public MineWeapon(Ship owner)
+        public MineWeapon(Player owner)
             : base(owner)
         {
             fireDelay = 2f;         

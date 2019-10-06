@@ -10,7 +10,6 @@
 #region Using Statements
 using System;
 using System.Collections.Generic;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Microsoft.Xna.Framework;
@@ -23,7 +22,7 @@ namespace VectorRumble
     /// <summary>
     /// The ship, which is the primary playing-piece in the game.
     /// </summary>
-    internal class Ship : Actor
+    internal class Player : Actor
     {
         #region Constants
         /// <summary>
@@ -101,7 +100,7 @@ namespace VectorRumble
         /// <summary>
         /// The number of radians that the shield rotates per second.
         /// </summary>
-        const float shieldRotationPeriodPerSecond = 2f;
+        const float shieldRotationPeriodPerSecond = 0.0f;
 
         /// <summary>
         /// The relationship between the shield rotation and it's scale.
@@ -282,7 +281,7 @@ namespace VectorRumble
         /// <summary>
         /// Construct a new ship.
         /// </summary>
-        public Ship()
+        public Player()
         {
             Initialize();
         }
@@ -291,8 +290,8 @@ namespace VectorRumble
         {
             mass = 32f;
             playing = false;
-            radius = 20f;
-            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, 20f, 16);
+            radius = 10f;
+            shieldPolygon = VectorPolygon.CreatePointer(Vector2.Zero, radius); //VectorPolygon.CreateTimerCircle(Vector2.Zero, radius, 12, 12);// VectorPolygon.CreateCircle(Vector2.Zero, radius, 16);
         }
         #endregion
 
@@ -420,15 +419,7 @@ namespace VectorRumble
                     Matrix.CreateRotationZ(shieldRotation) * translationMatrix);
 
                 // draw the shield
-                if (Safe)
-                {
-                    lineBatch.DrawPolygon(shieldPolygon, color);
-                }
-                else if (shieldStrength > 0f)
-                {
-                    lineBatch.DrawPolygon(shieldPolygon, new Color(color.R, color.G,
-                        color.B, (byte)(255f * shieldStrength / shieldMaximum)), true);
-                }
+                lineBatch.DrawFilledPolygon(shieldPolygon, new Color(0f, 255f, 0f, (byte)(255f * shieldStrength / shieldMaximum)));
             }
             base.Draw(elapsedTime, lineBatch);
         }
@@ -443,7 +434,6 @@ namespace VectorRumble
             if (!selected)
             {
                 selected = true;
-                World.ShipManager.UpdateSelectedList();
                 Spawn(false);
             }
         }
@@ -560,7 +550,7 @@ namespace VectorRumble
                 respawnTimer = respawnTimerOnDeath;
 
                 // change the score
-                Ship ship = source as Ship;
+                Player ship = source as Player;
                 if (ship == null)
                 {
                     Projectile projectile = source as Projectile;
@@ -875,9 +865,9 @@ namespace VectorRumble
         #endregion
 
         #region Loading
-        internal static Ship Load(XElement root)
+        internal static Player Load(XElement root)
         {
-            var result = new Ship
+            var result = new Player
             {
                 Color = Helper.ColorParse(root.Element("Color").Value),
                 Mass = int.Parse(root.Element("Mass").Value),

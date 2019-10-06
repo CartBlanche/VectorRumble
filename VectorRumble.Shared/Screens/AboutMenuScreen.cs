@@ -24,8 +24,8 @@ namespace VectorRumble
         #region Fields
         MenuEntry builtWithMonoGame = new MenuEntry(Strings.Built_With_MonoGame);
         MenuEntry fontBy = new MenuEntry(string.Format(Strings.Font_By, "Just My Type", "Chequered Ink"));
-        MenuEntry gameEnhancements = new MenuEntry(string.Format(Strings.Game_Enhancements, "Dean Ellis & Dominique Louis"));
-        MenuEntry githubRepo = new MenuEntry(string.Format(Strings.Github_Repo, "infinitespace-studios/VectorRumble"));
+        MenuEntry gameEnhancements = new MenuEntry(string.Format("Created By: {0}", "Dominique Louis"));
+        MenuEntry githubRepo = new MenuEntry(string.Format(Strings.Github_Repo, "CartBlanche/VectorRumble"));
         #endregion
 
         #region Initialization

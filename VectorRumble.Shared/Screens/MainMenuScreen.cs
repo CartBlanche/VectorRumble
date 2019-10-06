@@ -75,11 +75,11 @@ namespace VectorRumble
                 }
             }
 
-            var shipSelection = new ShipSelectionScreen {
+            var arenaSelection = new ArenaSelectionScreen {
                 ScreenManager = this.ScreenManager
             };
-            shipSelection.Initialize();
-            ScreenManager.AddScreen(shipSelection);
+            arenaSelection.Initialize();
+            ScreenManager.AddScreen(arenaSelection);
         }
 
         /// <summary>

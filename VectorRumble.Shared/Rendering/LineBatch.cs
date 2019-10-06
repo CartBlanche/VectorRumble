@@ -78,6 +78,7 @@ namespace VectorRumble
             this.effect.VertexColorEnabled = true;
             this.effect.TextureEnabled = false;
             this.effect.LightingEnabled = false;
+
             // configure the effect
             this.effect.World = Matrix.Identity;
             this.effect.View = Matrix.CreateLookAt(Vector3.Zero, Vector3.Forward,
@@ -215,6 +216,41 @@ namespace VectorRumble
         }
 
         /// <summary>
+        /// Draws the given polygon.
+        /// </summary>
+        /// <param name="polygon">The polygon to render.</param>
+        /// <param name="color">The color to use when drawing the polygon.</param>
+        public void DrawFilledPolygon(VectorPolygon polygon, Color color)
+        {
+            if (polygon == null)
+            {
+                throw new ArgumentNullException(nameof(polygon));
+            }
+
+            for (int i = 0; i < polygon.TransformedPoints.Length; i += 1)
+            {
+                if (currentIndex >= (vertices.Length / 3) - 2)
+                {
+                    EndFill();
+                    Begin();
+                }
+                vertices[currentIndex].Position.X =
+                    polygon.TransformedPoints[i % polygon.TransformedPoints.Length].X;
+                vertices[currentIndex].Position.Y =
+                    polygon.TransformedPoints[i % polygon.TransformedPoints.Length].Y;
+                vertices[currentIndex++].Color = color;
+                vertices[currentIndex].Position.X =
+                    polygon.TransformedPoints[(i + 1) %
+                        polygon.TransformedPoints.Length].X;
+                vertices[currentIndex].Position.Y =
+                    polygon.TransformedPoints[(i + 1) %
+                        polygon.TransformedPoints.Length].Y;
+                vertices[currentIndex++].Color = color;
+                lineCount++;
+            }
+        }
+
+        /// <summary>
         /// Draws the given polygon, in defined segments.
         /// </summary>
         /// <param name="aPolygon">The polygon to render.</param>
@@ -256,7 +292,7 @@ namespace VectorRumble
         /// <summary>
         /// Ends the batch of lines, submitting them to the graphics device.
         /// </summary>
-        public void End()
+        public void End(bool filled = false)
         {
             // if we don't have any vertices, then we can exit early
             if (currentIndex == 0)
@@ -270,9 +306,31 @@ namespace VectorRumble
             // run the effect
 			foreach (EffectPass pass in effect.CurrentTechnique.Passes)
 			{
-				pass.Apply();
-				graphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineList, vertices, 0, lineCount);
+                pass.Apply();
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, lineCount);
 			}
+        }
+
+        /// <summary>
+        /// Ends the batch of lines as filled, submitting them to the graphics device.
+        /// </summary>
+        public void EndFill()
+        {
+            // if we don't have any vertices, then we can exit early
+            if (currentIndex == 0)
+            {
+                return;
+            }
+
+            // configure the graphics device to render our lines			
+            graphicsDevice.BlendState = LineBlendState;
+
+            // run the effect
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length / 3, VertexPositionColor.VertexDeclaration);
+            }
         }
         #endregion
 

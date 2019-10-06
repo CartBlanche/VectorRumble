@@ -100,7 +100,7 @@ namespace VectorRumble
         public override bool Touch(Actor target)
         {
             // if the asteroid has touched a player, then damage it
-            Ship player = target as Ship;
+            Player player = target as Player;
             if (player != null)
             {
                 // calculate damage as a function of how much the two actor's

@@ -145,7 +145,7 @@
 /processorParam:TextureFormat=Color
 /build:Textures/gamepad-controls.png
 
-#begin Textures/title.png
+#begin Textures/SolidOps.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -155,4 +155,4 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Textures/title.png
+/build:Textures/SolidOps.png

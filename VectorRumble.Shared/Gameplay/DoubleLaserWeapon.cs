@@ -31,7 +31,7 @@ namespace VectorRumble
         /// Constructs a new double-laser weapon.
         /// </summary>
         /// <param name="owner">The ship that owns this weapon.</param>
-        public DoubleLaserWeapon(Ship owner)
+        public DoubleLaserWeapon(Player owner)
             : base(owner) { }
         #endregion
 

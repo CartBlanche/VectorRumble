@@ -29,7 +29,8 @@ namespace VectorRumble
         public Vector2[] Points
         {
             get { return points; }
-            set { 
+            set
+            {
                 points = value;
                 transformedPoints = (Vector2[])points.Clone();
             }
@@ -78,8 +79,8 @@ namespace VectorRumble
 
         #region Static Constructors
         private static Random random = new Random();
-        
-        
+
+
         /// <summary>
         /// Creates a polygon in the shape of a circle.
         /// </summary>
@@ -87,7 +88,7 @@ namespace VectorRumble
         /// <param name="radius">The radius of the circle.</param>
         /// <param name="segments">The number of segments used in the circle.</param>
         /// <returns>A new VectorPolygon object in the shape of a circle.</returns>
-        public static VectorPolygon CreateCircle(Vector2 center, float radius, 
+        public static VectorPolygon CreateCircle(Vector2 center, float radius,
             int segments)
         {
             Vector2[] points = new Vector2[segments];
@@ -96,13 +97,13 @@ namespace VectorRumble
             for (int i = 0; i <= points.Length - 1; i++)
             {
                 points[i] = new Vector2(
-                    center.X + radius * (float)Math.Round(Math.Sin(angle * i), 4), 
+                    center.X + radius * (float)Math.Round(Math.Sin(angle * i), 4),
                     center.Y + radius * (float)Math.Round(Math.Cos(angle * i), 4));
             }
 
             return new VectorPolygon(points);
         }
-        
+
         /// <summary>
         /// Create a polygon shaped like a rocket.
         /// </summary>
@@ -159,11 +160,50 @@ namespace VectorRumble
             for (int i = 0; i < polygon.Points.Length; ++i)
             {
                 Vector2 normal = Vector2.Normalize(polygon.Points[i]);
-                polygon.Points[i] += normal * ((radius * 0.2f) * 
+                polygon.Points[i] += normal * ((radius * 0.2f) *
                     (float)random.NextDouble() - (radius * 0.1f));
             }
 
             return polygon;
+        }
+
+        /// <summary>
+        /// Create a polygon shaped like a pointer.
+        /// </summary>
+        /// <param name="center">The offset of the center of the circle.</param>
+        /// <param name="radius">The radius from the centre of the pointer.</param>
+        /// <returns>A new VectorPolygon object in the shape of a point.</returns>
+        public static VectorPolygon CreatePointer(Vector2 center, float radius)
+        {
+            Vector2[] points = new Vector2[4];
+
+            points[0] = new Vector2(center.X + radius + 8, center.Y + radius + 8);
+            points[1] = new Vector2(center.X + radius + 4, center.Y + radius);
+            points[2] = new Vector2(center.X + radius + 4, center.Y + radius + 4);
+            points[3] = new Vector2(center.X + radius, center.Y + radius + 4);
+
+            return new VectorPolygon(points);
+        }
+
+        /// <summary>
+        /// Create a polygon shaped like a circle.
+        /// </summary>
+        /// <param name="center">The offset of the center of the circle.</param>
+        /// <param name="radius">The radius from the centre of the pointer.</param>
+        /// <returns>A new VectorPolygon object in the shape of a circle.</returns>
+        public static VectorPolygon CreateTimerCircle(Vector2 center, float radius, int XPos, int YPos)
+        {
+            Vector2[] points = new Vector2[32];
+            float angle = MathHelper.TwoPi / points.Length;
+
+            for (int i = 0; i <= points.Length - 1; i++)
+            {
+                points[i] = new Vector2(
+                    center.X + (5 * (float)Math.Round(Math.Sin(angle * i), 2)) - XPos,
+                    center.Y + (5 * (float)Math.Round(Math.Cos(angle * i), 2)) - YPos);
+            }
+
+            return new VectorPolygon(points);
         }
         #endregion
     }

@@ -34,7 +34,7 @@ namespace VectorRumble
         /// <param name="world">The world that this projectile belongs to.</param>
         /// <param name="owner">The ship that fired this projectile, if any.</param>
         /// <param name="direction">The initial direction for this projectile.</param>
-        public LaserProjectile(World world, Ship owner, Vector2 direction)
+        public LaserProjectile(World world, Player owner, Vector2 direction)
             : base(world, owner, direction)
         {
             this.radius = 0.5f;
@@ -81,7 +81,7 @@ namespace VectorRumble
             if (base.Touch(target))
             {
                 // make the particle effect slightly more significant if it was a ship
-                if (target is Ship)
+                if (target is Player)
                 {
                     world.ParticleSystems.Add(new ParticleSystem(this.position,
                         Vector2.Zero, 16, 32f, 64f, 1f, 0.1f, explosionColors));

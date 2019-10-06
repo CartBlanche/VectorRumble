@@ -70,7 +70,7 @@ namespace VectorRumble
         public override void LoadContent()
         {
             lineBatch = new LineBatch(ScreenManager.GraphicsDevice);
-            titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/title");
+            titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/SolidOps");
 
             int viewportWidth = ScreenManager.GraphicsDevice.Viewport.Width;
             int viewportHeight = ScreenManager.GraphicsDevice.Viewport.Height;

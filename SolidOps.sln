@@ -2,13 +2,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.329
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "VectorRumble.Shared", "VectorRumble.Shared\VectorRumble.Shared.shproj", "{8C4932C0-BE33-47FA-835E-601E3E69E924}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SolidOps.Shared", "VectorRumble.Shared\SolidOps.Shared.shproj", "{8C4932C0-BE33-47FA-835E-601E3E69E924}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorRumble.Desktop", "VectorRumble.Desktop\VectorRumble.Desktop.csproj", "{63A1D505-1512-4469-93D3-87FCAF4618EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolidOps.Desktop", "VectorRumble.Desktop\SolidOps.Desktop.csproj", "{63A1D505-1512-4469-93D3-87FCAF4618EF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorRumble.UWP", "VectorRumble.UWP\VectorRumble.UWP.csproj", "{24B7D6C0-0ED3-4689-9846-078BFAF5BDC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorRumble.OSX", "VectorRumble.OSX\VectorRumble.OSX.csproj", "{73B21C9F-C17E-4908-A726-408F36353BAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolidOps.OSX", "VectorRumble.OSX\SolidOps.OSX.csproj", "{73B21C9F-C17E-4908-A726-408F36353BAC}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

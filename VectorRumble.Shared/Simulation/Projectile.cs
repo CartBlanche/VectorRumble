@@ -24,7 +24,7 @@ namespace VectorRumble
         /// <summary>
         /// The player who fired this projectile.
         /// </summary>
-        protected Ship owner;
+        protected Player owner;
 
         /// <summary>
         /// The speed that the projectile will move at.
@@ -63,7 +63,7 @@ namespace VectorRumble
         #endregion
 
         #region Properties
-        public Ship Owner
+        public Player Owner
         {
             get { return owner; }
         }
@@ -76,7 +76,7 @@ namespace VectorRumble
         /// <param name="world">The world that this projectile belongs to.</param>
         /// <param name="owner">The ship that fired this projectile, if any.</param>
         /// <param name="direction">The initial direction for this projectile.</param>
-        public Projectile(World world, Ship owner, Vector2 direction)
+        public Projectile(World world, Player owner, Vector2 direction)
             : base(world) 
         {
             this.owner = owner;

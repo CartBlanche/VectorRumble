@@ -146,7 +146,7 @@ namespace VectorRumble
         public override bool Touch(Actor target)
         {
             // if it touched a ship, then create a particle system and play a sound
-            Ship ship = target as Ship;
+            Player ship = target as Player;
             if (ship != null)
             {
                 // tickle the ship's vibration motors
