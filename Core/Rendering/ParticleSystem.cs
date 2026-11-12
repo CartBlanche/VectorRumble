@@ -225,7 +225,7 @@ namespace VectorRumble
 
                 for (int i = 0; i < particles.Length; i++)
                 {
-                    lineBatch.DrawLine(particles[i].Position,
+                    lineBatch.DrawLineList(particles[i].Position,
                         particles[i].Position - particles[i].Velocity * tailLength,
                         particles[i].Color);
                 }

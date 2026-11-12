@@ -444,11 +444,11 @@ namespace VectorRumble
                 // draw the shield
                 if (Safe)
                 {
-                    lineBatch.DrawPolygon(shieldPolygon, color);
+                    lineBatch.DrawEmptyPolygon(shieldPolygon, color);
                 }
                 else if (shieldStrength > 0f)
                 {
-                    lineBatch.DrawPolygon(shieldPolygon, new Color(color.R, color.G,
+                    lineBatch.DrawEmptyPolygon(shieldPolygon, new Color(color.R, color.G,
                         color.B, (byte)(255f * shieldStrength / shieldMaximum)), true);
                 }
             }

@@ -165,7 +165,7 @@ namespace VectorRumble
                 // transform the polygon
                 polygon.Transform(worldMatrix);
                 // draw the polygon
-                lineBatch.DrawPolygon(polygon, color);
+                lineBatch.DrawEmptyPolygon(polygon, color);
 
                 // draw the motion blur
                 if (useMotionBlur && velocity.LengthSquared() > 1024f)
@@ -191,7 +191,7 @@ namespace VectorRumble
                             break;
 
                         // draw the "blur" polygon
-                        lineBatch.DrawPolygon(polygon,
+                        lineBatch.DrawEmptyPolygon(polygon,
                             new Color(color.R, color.G, color.B, alpha));
                     }
                 }
