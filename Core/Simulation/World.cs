@@ -125,7 +125,7 @@ namespace VectorRumble
         /// All ships that might enter the game.
         /// </summary>
         [ContentSerializer(SharedResource = true)]
-        public Ship[] Ships => ShipManager.Ships.ToArray();
+        public Ship[] Ships => ShipManager.Ships;
 
         public ShipManager ShipManager { get; set; }
         public ArenaManager ArenaManager { get; set; }
@@ -253,7 +253,8 @@ namespace VectorRumble
         {
             var ws = MatchRules.Current.Arena;
 			if (ws == Strings.Arena_Random) {
-                ws = ArenaManager.Arenas.ToArray()[random.Next(0, ArenaManager.Arenas.Length - 1)].Name;
+                var arenas = ArenaManager.Arenas;
+                ws = arenas[random.Next(0, arenas.Length - 1)].Name;
 			}
             selectedArena = ArenaManager.Arenas.First(a => a.Name == ws);
         }
@@ -346,11 +347,12 @@ namespace VectorRumble
             // update the starfield
             Vector2 starfieldTarget = Vector2.Zero;
             int playingPlayers = 0;
-            for (int i = 0; i < Ships.Length; i++)
+            Ship[] allShips = ShipManager.Ships;
+            for (int i = 0; i < allShips.Length; i++)
             {
-                if (Ships[i].Playing)
+                if (allShips[i].Playing)
                 {
-                    starfieldTarget += Ships[i].Position;
+                    starfieldTarget += allShips[i].Position;
                     playingPlayers++;
                 }
             }
@@ -366,7 +368,7 @@ namespace VectorRumble
                 powerUpTimer = Math.Max(powerUpTimer - elapsedTime, 0f);
             }
             // (in a network match only the host makes power-ups, and the others hear of them)
-            if (powerUpTimer <= 0.0f && Ships.Any(s => s.Playing) && (Match == null || Match.IsHost))
+            if (powerUpTimer <= 0.0f && playingPlayers > 0 && (Match == null || Match.IsHost))
             {
                 SpawnPowerUp();
                 powerUpTimer = powerUpDelay;
