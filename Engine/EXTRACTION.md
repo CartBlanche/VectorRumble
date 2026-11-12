@@ -26,7 +26,7 @@ Repos: /Users/dominique/Development/CartBlanche/VectorRumble (engine lives in `E
 
 ## Extraction order (mark status)
 - [x] 0 Scaffold DONE: Engine/VectorEngine.Core + VectorEngine.Tests, Engine/Directory.Build.props, ProjectReference in both games, SolidOps pinned to 3.8.6.1, golden runs recorded (see Findings)
-- [ ] 1 Collision, CollisionResult, WorldActor, CollectCollection
+- [x] 1 DONE (partial by design): Collision, CollectCollection moved. CollisionResult + WorldActor depend on Actor, so they move in step 5
 - [ ] 2 Rendering: LineBatch(GraphicsDevice ctor), VectorPolygon, ParticleSystem, ParticleManager, Bloom + shaders (Engine.mgcb fragment)
 - [ ] 3 AudioManager, settings storage (inject app name), LocalizationManager, Display, IdleFade, Accelerometer
 - [ ] 4 ScreenManager (ScreenManagerOptions), GameScreen, InputState, ActionBindings, MenuScreen/MenuStyle, MessageBox, LoadingScreen, VectorEngineGame base class
@@ -65,3 +65,4 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - `dotnet sln add` fails on both .sln files (duplicate project names Desktop/Android both "VectorRumble"/"SolidOps"; pre-existing). Engine and test projects are NOT in either .sln yet; they build via ProjectReference. Fix the .sln by hand later.
 - SolidOps.Tests needs InternalsVisibleTo (added in Core/Properties/AssemblyInfo.cs).
 - Verify commands: `dotnet build VectorRumble/Desktop/VectorRumble.csproj`; `dotnet test VectorRumble/Tests/VectorRumble.Tests`; `dotnet test VectorRumble/Engine/VectorEngine.Tests`; `dotnet build SolidOps/Platforms/Desktop/SolidOps.csproj`; `dotnet test SolidOps/Tests/SolidOps.Tests`.
+- Step 1: engine namespaces are VectorEngine.Simulation / VectorEngine.Collections. Each game exposes them via a global using (VR: Core/EngineUsings.cs; SO: Core/GlobalUsings.cs). CollectCollection<T> no longer takes a World (nobody read it): `new CollectCollection<T>()`. SO's O(n) Collect used. Golden runs unchanged. Engine tests: 8.

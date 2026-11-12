@@ -164,10 +164,10 @@ namespace VectorRumble
                 (int)this.dimensions.Y + starfieldBuffer * 2));
 
             // create a new list of actors
-            actors = new CollectCollection<Actor>(this);
+            actors = new CollectCollection<Actor>();
 
             // create a new list of particle systems
-            particleSystems = new CollectCollection<ParticleSystem>(this);
+            particleSystems = new CollectCollection<ParticleSystem>();
 
 
             // Get our ShipManager ready

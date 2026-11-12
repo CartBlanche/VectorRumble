@@ -72,7 +72,7 @@ namespace VectorRumble
             TransitionOffTime = TimeSpan.FromSeconds(1.0);
 
 			random = new Random();
-            particleSystems = new CollectCollection<ParticleSystem>(null);
+            particleSystems = new CollectCollection<ParticleSystem>();
 
             ShowParticles = true;
         }

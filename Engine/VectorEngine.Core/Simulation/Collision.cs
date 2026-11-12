@@ -12,12 +12,12 @@ using System;
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace VectorRumble
+namespace VectorEngine.Simulation
 {
     /// <summary>
     /// A code container for collision-related mathematical functions.
     /// </summary>
-    static class Collision
+    public static class Collision
     {
         /// <summary>
         /// Determines the point of intersection between two line segments, 
