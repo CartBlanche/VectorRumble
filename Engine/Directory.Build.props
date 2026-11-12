@@ -1,0 +1,10 @@
+<Project>
+  <!-- Engine-local props: stops VectorRumble/Directory.Build.props (title, version) leaking in, and
+       gives SolidOps (which has no props file) the same MonoGame pin when it references the engine. -->
+  <PropertyGroup>
+    <MonoGameVersion>3.8.6.1</MonoGameVersion>
+    <AssemblyCompany>CartBlanche</AssemblyCompany>
+    <AssemblyProduct>VectorEngine</AssemblyProduct>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>
