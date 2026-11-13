@@ -30,7 +30,7 @@ Repos: /Users/dominique/Development/CartBlanche/VectorRumble (engine lives in `E
 - [x] 2 Rendering DONE (ParticleManager moved in step 2c): LineBatch, VectorPolygon, ParticleSystem, Bloom + shaders (Engine/Content/Engine.mgcb). ParticleManager (SO-only, 840 lines, ScreenManager-coupled) deferred until a second game wants it
 - [x] 3 DONE: AudioManager (+AudioLevels, ClipCache), settings storage + SettingsManager<T> (app name injected), LocalizationManager, Display (configurable, default 720p), IdleFade, Accelerometer
 - [ ] 4 (in sub-steps: 4a ActionBindings DONE; 4b InputState DONE; 4c GameScreen+ScreenManager DONE; 4d menus/MenuStyle DONE (MenuScreen, MenuEntry, MessageBoxScreen, LoadingScreen; VirtualGamePad, localization fallback, Starfield still open); 4e VectorEngineGame: step 1 graphics+window DONE on VectorRumble, step 2 screen manager+audio DONE on VectorRumble, step 3 SolidOps adopts DONE; solution folders DONE) ScreenManager (ScreenManagerOptions), GameScreen, InputState, ActionBindings, MenuScreen/MenuStyle, MessageBox, LoadingScreen, VectorEngineGame base class
-- [ ] 5 WorldBase + Actor core, wall-hit policy replacing `actors[0]` hack
+- [x] 5 DONE: WorldBase, Actor, CollisionResult, WorldActor in engine (Walls, WallBehavior and WallActor replace the actors[0] hack, Random is settable). SolidOps keeps waypoint code in its own WaypointActor : Actor. TODO later: move waypoint code to engine if a second game wants it.
 - [ ] 6 VectorEngine.Networking
 - [ ] 7 Cleanup: namespaces, docs
 
