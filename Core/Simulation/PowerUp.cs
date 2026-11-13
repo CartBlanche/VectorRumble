@@ -31,6 +31,9 @@ namespace VectorRumble
     /// </summary>
     abstract class PowerUp : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
         #region Constants
         /// <summary>
         /// The scalar between time elapsed and the scale period.

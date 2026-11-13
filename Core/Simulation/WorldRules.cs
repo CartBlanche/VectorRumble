@@ -26,8 +26,19 @@ namespace VectorRumble
     /// </summary>
     public static class WorldRules
     {
-        public static int BlurIntensity = 5;
-        public static bool MotionBlur = true;
+        public static int BlurIntensity
+        {
+            get => VectorEngine.Simulation.Actor.BlurIntensity;
+            set => VectorEngine.Simulation.Actor.BlurIntensity = value;
+        }
+
+        public static bool MotionBlur
+        {
+            get => VectorEngine.Simulation.Actor.MotionBlur;
+            set => VectorEngine.Simulation.Actor.MotionBlur = value;
+        }
+
+
         public static bool NeonEffect = true;
     }
 }

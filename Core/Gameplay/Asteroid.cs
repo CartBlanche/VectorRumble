@@ -21,6 +21,9 @@ namespace VectorRumble
     /// </summary>
     class Asteroid : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
         #region Constants
         /// <summary>
         /// The ratio between the mass and the radius of an asteroid.

@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.Xna.Framework;
+using VectorEngine.Simulation;
 using Xunit;
 
 namespace VectorRumble.Tests

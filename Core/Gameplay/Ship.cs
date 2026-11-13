@@ -27,6 +27,16 @@ namespace VectorRumble
     /// </summary>
     internal class Ship : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
+        /// <summary>The Vector Rumble world that owns this ship.</summary>
+        public new World World
+        {
+            get { return (World)base.World; }
+            set { base.World = value; }
+        }
+
         #region Constants
         /// <summary>
         /// The value of the spawn timer set when the ship dies.
