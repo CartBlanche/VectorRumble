@@ -64,11 +64,12 @@ namespace VectorRumble
         {
             base.Initialize();
 
-            // add the background screen to the screen manager
-            ScreenManager.AddScreen(new BackgroundScreen());
-
-            // add the main menu screen to the screen manager
-            ScreenManager.AddScreen(new MainMenuScreen());
+            // the VectorEngine splash, then the background and main menu screens
+            VectorEngine.Splash.SplashScreen.Start(ScreenManager, () =>
+            {
+                ScreenManager.AddScreen(new BackgroundScreen());
+                ScreenManager.AddScreen(new MainMenuScreen());
+            });
         }
 
 
