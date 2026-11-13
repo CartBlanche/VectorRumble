@@ -103,7 +103,11 @@ namespace VectorRumble
         public ScreenManager(Game game)
             : base(game)
         {
-			BloomComponent = new BloomComponent(Game);
+			BloomComponent = new BloomComponent(Game)
+			{
+				// the scene is drawn at the fixed virtual size, then scaled to the window
+				RenderSize = new Point(Display.BaseWidth, Display.BaseHeight)
+			};
 			Game.Components.Add(BloomComponent);
 			// do not automatically draw the bloom component
 			BloomComponent.Visible = false;

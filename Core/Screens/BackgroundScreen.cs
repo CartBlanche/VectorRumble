@@ -169,7 +169,7 @@ namespace VectorRumble
                 lineBatch.Begin();
                 for (int i = 0; i < particleSystems.Count; i++)
                 {
-                    particleSystems[i].Draw(lineBatch);
+                    particleSystems[i].DrawExplosions(lineBatch);
                 }
                 lineBatch.End();
 

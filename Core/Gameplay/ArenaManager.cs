@@ -68,7 +68,7 @@ namespace VectorRumble
         internal Arena Random()
         {
             int length = Arenas.Length;
-            var index = ParticleSystem.random.Next(length);
+            var index = ParticleSystem.Random.Next(length);
             return Arenas[index];
         }
     }

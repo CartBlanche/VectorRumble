@@ -27,7 +27,7 @@ Repos: /Users/dominique/Development/CartBlanche/VectorRumble (engine lives in `E
 ## Extraction order (mark status)
 - [x] 0 Scaffold DONE: Engine/VectorEngine.Core + VectorEngine.Tests, Engine/Directory.Build.props, ProjectReference in both games, SolidOps pinned to 3.8.6.1, golden runs recorded (see Findings)
 - [x] 1 DONE (partial by design): Collision, CollectCollection moved. CollisionResult + WorldActor depend on Actor, so they move in step 5
-- [ ] 2 Rendering: LineBatch(GraphicsDevice ctor), VectorPolygon, ParticleSystem, ParticleManager, Bloom + shaders (Engine.mgcb fragment)
+- [x] 2 Rendering DONE except ParticleManager: LineBatch, VectorPolygon, ParticleSystem, Bloom + shaders (Engine/Content/Engine.mgcb). ParticleManager (SO-only, 840 lines, ScreenManager-coupled) deferred until a second game wants it
 - [ ] 3 AudioManager, settings storage (inject app name), LocalizationManager, Display, IdleFade, Accelerometer
 - [ ] 4 ScreenManager (ScreenManagerOptions), GameScreen, InputState, ActionBindings, MenuScreen/MenuStyle, MessageBox, LoadingScreen, VectorEngineGame base class
 - [ ] 5 WorldBase + Actor core, wall-hit policy replacing `actors[0]` hack
@@ -66,3 +66,9 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - SolidOps.Tests needs InternalsVisibleTo (added in Core/Properties/AssemblyInfo.cs).
 - Verify commands: `dotnet build VectorRumble/Desktop/VectorRumble.csproj`; `dotnet test VectorRumble/Tests/VectorRumble.Tests`; `dotnet test VectorRumble/Engine/VectorEngine.Tests`; `dotnet build SolidOps/Platforms/Desktop/SolidOps.csproj`; `dotnet test SolidOps/Tests/SolidOps.Tests`.
 - Step 1: engine namespaces are VectorEngine.Simulation / VectorEngine.Collections. Each game exposes them via a global using (VR: Core/EngineUsings.cs; SO: Core/GlobalUsings.cs). CollectCollection<T> no longer takes a World (nobody read it): `new CollectCollection<T>()`. SO's O(n) Collect used. Golden runs unchanged. Engine tests: 8.
+- Step 2: engine namespace VectorEngine.Rendering (global using in both games). LineBatch(GraphicsDevice, IRenderContext? = null, maxVertexCount = 8192): VR default, SO passes 4096. SO ScreenManager implements IRenderContext; SO code uses `lineBatch.Context.BaseScreenSize`. VR call sites renamed to SO's API (DrawLine->DrawLineList, DrawPolygon->DrawEmptyPolygon, Draw->DrawExplosions). Game shapes moved to the games: VR `Shapes` (rocket, mine, asteroid), SO `SolidOpsShapes` (rocket, timer circle). Polygons with <2 points are now skipped silently (SO used to throw).
+- ParticleSystem.random is now `ParticleSystem.Random` (static, settable, visual only; games also use it for non-sim colour picks). The Particle struct is nested (SO has a separate Core.Effects.Particle class that would clash).
+- Bloom: BloomComponent(Game, SpriteBatch? = null, contentFolder = "Effects") with RenderSize (null = back buffer; VR sets 1280x720) and OutputTarget (null = back buffer; VR sets its game target). Preset 6 renamed "Neon" (nothing read the old name). Includes SO's blur-weight cache.
+- Shaders: Engine/Content/Engine.mgcb + Effects/{BloomCombine,BloomExtract,GaussianBlur}.fx + Macros.fxh. Each head adds it as a 2nd MonoGameContentReference. Desktop heads verified (xnb built from engine mgcb, games launch). Android/iOS/WebGL/Windows heads edited the same way but NOT built. SO keeps its own Macros.fxh for ZoneSurface.fx.
+- Line endings: many files are CRLF. Scripts that rewrite files must preserve them (git diff --stat should show small diffs).
+- Smoke run: both Desktop games stay up 8s at the menu, no crash. Gameplay not visually verified.

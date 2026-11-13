@@ -13,6 +13,9 @@
     <MonoGameContentReference Include="..\Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
     </MonoGameContentReference>
+    <MonoGameContentReference Include="..\Engine\Content\Engine.mgcb">
+      <Link>Content\Engine.mgcb</Link>
+    </MonoGameContentReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\VectorRumble.Core.csproj" />

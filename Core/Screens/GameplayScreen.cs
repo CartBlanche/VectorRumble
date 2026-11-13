@@ -452,7 +452,7 @@ namespace VectorRumble
             {
                 if (particleSystem.IsActive)
                 {
-                    particleSystem.Draw(lineBatch);
+                    particleSystem.DrawExplosions(lineBatch);
                 }
             }
 
