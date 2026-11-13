@@ -32,7 +32,7 @@ namespace VectorRumble
         List<GameScreen> screens = new List<GameScreen>();
         List<GameScreen> screensToUpdate = new List<GameScreen>();
 
-        InputState input = new InputState();
+        InputState input = new InputState { GamePadFilter = VirtualGamePad.Apply };
 
         /// <summary>
         /// What the player's devices did this update.
@@ -197,7 +197,9 @@ namespace VectorRumble
             Display.Update(pp.BackBufferWidth, pp.BackBufferHeight);
 
             // Read the keyboard and gamepad.
-            input.Update();
+            // pointer positions read in the game's own units: window pixels back through the picture's offset and scale
+            input.UpdateInputTransformation(Matrix.CreateTranslation(-Display.Offset.X, -Display.Offset.Y, 0f) * Matrix.CreateScale(1f / Display.Scale));
+            input.Update(gameTime, GraphicsDevice.Viewport);
             perfOverlay.HandleInput(input);
 
             // Make a copy of the master screen list, to avoid confusion if

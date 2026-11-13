@@ -23,6 +23,9 @@ public static class Accelerometer
     // we want to prevent the Accelerometer from being initialized twice.
     private static bool isInitialized = false;
 
+    /// <summary>Whether <see cref="Initialize"/> has been called, so <see cref="GetState"/> is safe to call.</summary>
+    public static bool IsInitialized => isInitialized;
+
     // whether or not the accelerometer is active
     private static bool isActive = false;
 

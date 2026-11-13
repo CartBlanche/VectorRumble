@@ -131,7 +131,7 @@ namespace VectorRumble
                 if (virtualGamePad != null)
                 {
                     virtualGamePad.CanFade = CanFadeVirtualGamePad;
-                    virtualGamePad.Update(ScreenManager.Input.Touches, (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    virtualGamePad.Update(ScreenManager.Input.CurrentTouchState, (float)gameTime.ElapsedGameTime.TotalSeconds);
                 }
             }
         }
