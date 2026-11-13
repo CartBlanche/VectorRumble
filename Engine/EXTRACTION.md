@@ -105,3 +105,5 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - Step 7a: the games' own IsMobile/IsDesktop copies are gone; both use `VectorEngine.Platform`.
 - Step 7b: .resx check. Embedded names match the Designer ResourceManager names in both games (VR "VectorRumble.Core.Strings", SO "Core.Localization.Resources"/"Voices"); VR satellite assemblies are in the output and its 355 tests, which read translations per culture, pass. The engine has no .resx of its own yet (localization fallback still open).
 - Localisation: user confirmed SolidOps still switches language. VR follows the device language (it shows Spanish on the user's machine) and has no language picker yet. TODO: a language option in VR settings using the engine LocalizationManager.
+- Localization fallback dropped: the engine has no player-visible strings, so each game owns its strings and languages.
+- Step 7c: docs. Engine/README.md written, short VectorEngine sections added to both game READMEs.

@@ -62,6 +62,10 @@ VectorRumble includes shader effects that require compilation. The project uses 
 dotnet build
 ```
 
+## VectorEngine
+
+The reusable parts of the game (screens and menus, input, rendering, audio, settings, world simulation and optional LAN networking) live in [Engine](Engine/README.md) as `VectorEngine`, shared with SolidOps. VectorRumble keeps what is specific to it: ships, weapons, arenas, match rules and the lobby.
+
 ## Helpful Links
 
  * The official MonoGame website is [monogame.net](http://www.monogame.net).
