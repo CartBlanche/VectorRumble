@@ -25,7 +25,7 @@ namespace VectorRumble
     /// topmost active screen.
     /// </summary>
     /// <remarks>Based on a class in the Game State Management sample.</remarks>
-    public class ScreenManager : DrawableGameComponent
+    public class ScreenManager : DrawableGameComponent, IRenderContext
     {
         #region Fields
 
@@ -55,6 +55,18 @@ namespace VectorRumble
 
         #region Properties
 
+
+        /// <summary>The size the game is drawn at (see <see cref="Display"/>).</summary>
+        public Vector2 BaseScreenSize => Display.BaseSize;
+
+        /// <summary>
+        /// Identity: the game is drawn to a fixed-size target, which is then scaled to the window as a whole,
+        /// so nothing drawn into it needs its own window transform.
+        /// </summary>
+        public Matrix GlobalTransformation => Matrix.Identity;
+
+        /// <summary>A small plain white texture, for tinted rectangles and particles.</summary>
+        public Texture2D BlankTexture => blankTexture;
 
         /// <summary>
         /// A default SpriteBatch shared by all the screens. This saves

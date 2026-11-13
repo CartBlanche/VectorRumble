@@ -5,3 +5,4 @@ global using VectorEngine.Audio;
 global using VectorEngine.Input;
 global using VectorEngine.Localization;
 global using VectorEngine.Settings;
+global using VectorEngine.Effects;

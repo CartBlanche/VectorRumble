@@ -360,7 +360,7 @@ namespace VectorRumble
                     if (World.Match.Winner >= 0)
                     {
                         ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                            (World.Match.Winner + 1)), false));
+                            (World.Match.Winner + 1)), false, celebrate: true));
                         gameOver = true;
                     }
                     else if (World.Match.HasEnded)
@@ -377,7 +377,7 @@ namespace VectorRumble
                         if (World.Ships[i].Score >= MatchRules.Current.ScoreLimit)
                         {
                             ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                                (i + 1))));
+                                (i + 1)), celebrate: true));
                             gameOver = true;
                             break;
                         }
