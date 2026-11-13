@@ -23,6 +23,7 @@ public class SplashScreen : GameScreen
     SplashAnimation animation;
     float elapsed;
     bool finished;
+    bool waiting;
 
     /// <param name="options">How it looks; null for the engine's own colours</param>
     /// <param name="onFinished">Called once, when the splash is over (after it fades, or at once if it is skipped through to the end)</param>
@@ -30,20 +31,27 @@ public class SplashScreen : GameScreen
     {
         this.options = options ?? new SplashOptions();
         this.onFinished = onFinished;
+        waiting = this.options.WaitForSpace;
         TransitionOnTime = TimeSpan.Zero;
         TransitionOffTime = TimeSpan.Zero;
     }
 
     /// <summary>
     /// Shows the splash, then runs <paramref name="first"/> (which adds the game's first screens). Setting the environment variable
-    /// <c>VECTORENGINE_NO_SPLASH=1</c> skips it, for quick test runs.
+    /// <c>VECTORENGINE_NO_SPLASH=1</c> skips it, for quick test runs, and <c>VECTORENGINE_SPLASH_WAIT=1</c> holds on the first frame until Space (for recording).
     /// </summary>
     public static void Start(ScreenManager manager, Action first, SplashOptions options = null, PlayerIndex? player = null)
     {
         if (Environment.GetEnvironmentVariable("VECTORENGINE_NO_SPLASH") == "1")
+        {
             first();
-        else
-            manager.AddScreen(new SplashScreen(options, first), player);
+            return;
+        }
+
+        var screen = new SplashScreen(options, first);
+        if (Environment.GetEnvironmentVariable("VECTORENGINE_SPLASH_WAIT") == "1")
+            screen.waiting = true;
+        manager.AddScreen(screen, player);
     }
 
     float FadeStart => SplashAnimation.Seconds + options.HoldSeconds;
@@ -58,7 +66,7 @@ public class SplashScreen : GameScreen
     {
         base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
-        if (finished)
+        if (finished || waiting)
             return;
 
         elapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -68,6 +76,16 @@ public class SplashScreen : GameScreen
 
     public override void HandleInput(GameTime gameTime, InputState input)
     {
+        // recording: stay on the first frame until Space, and never skip once it runs
+        if (waiting)
+        {
+            if (input.IsNewKeyPress(Keys.Space))
+                waiting = false;
+            return;
+        }
+        if (options.WaitForSpace || Environment.GetEnvironmentVariable("VECTORENGINE_SPLASH_WAIT") == "1")
+            return;
+
         if (options.Skippable && !finished && elapsed < FadeStart && AnyNewInput(input))
             Skip();
     }

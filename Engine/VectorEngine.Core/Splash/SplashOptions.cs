@@ -32,4 +32,8 @@ public sealed class SplashOptions
     /// <summary>Draws through the screen manager's bloom component for the glow. Turn off for a game that draws straight to the back buffer
     /// (the splash then glows from layered wide, faint strokes only).</summary>
     public bool UseBloom { get; init; } = true;
+
+    /// <summary>For recording: holds on the first frame until Space is pressed, then runs through without skipping.
+    /// <c>SplashScreen.Start</c> also turns it on when the environment variable <c>VECTORENGINE_SPLASH_WAIT=1</c> is set.</summary>
+    public bool WaitForSpace { get; init; }
 }
