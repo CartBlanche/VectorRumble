@@ -112,3 +112,4 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - Splash recording mode: `VECTORENGINE_SPLASH_WAIT=1` (or `SplashOptions.WaitForSpace`) holds on the first frame until Space, then runs without skipping.
 - Step 10 (Android): both Android heads build in Debug with 0 errors (VR `Android/VectorRumble.csproj`, SO `Platforms/Android/*.csproj`; the only warnings are the manifest targetSdk 35 vs API 36, XA4211/XA1006). Nothing installed or run on a device yet; the virtual pad and the splash are untested on a phone. iOS, WebGL and Windows heads are still unbuilt.
 - Android verified on the user's phone (both games): works, VR VirtualGamePad works and fades in/out as designed, a tap skips the splash, menus respond.
+- iOS: deliberately left for later. SolidOps iOS head fails only because .NET for iOS 26.5.10315 needs Xcode 26.6 and the Mac has 27.2 (fix: `sudo dotnet workload update`, or install Xcode 26.6). VectorRumble has no iOS head.
