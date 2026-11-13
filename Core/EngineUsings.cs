@@ -9,3 +9,4 @@ global using VectorEngine.Effects;
 global using VectorEngine.Screens;
 global using VectorEngine.Diagnostics;
 global using VectorEngine;
+global using VectorEngine.Networking;

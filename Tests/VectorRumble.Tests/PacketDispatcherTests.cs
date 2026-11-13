@@ -1,4 +1,5 @@
 using System.IO;
+using VectorEngine.Networking;
 using VectorRumble.Networking;
 using Xunit;
 
@@ -11,7 +12,8 @@ namespace VectorRumble.Tests
             using (MemoryStream stream = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(stream))
             {
-                writer.Write((byte)packet.Type);
+                writer.Write((byte)1);   // the protocol version
+                writer.Write(packet.Type);
                 packet.Serialize(writer);
                 writer.Flush();
                 return stream.ToArray();
@@ -23,7 +25,7 @@ namespace VectorRumble.Tests
         {
             PacketDispatcher dispatcher = new PacketDispatcher();
             uint token = 0;
-            dispatcher.Register(PacketType.Ping, PacketAudience.Any,
+            dispatcher.Register(EnginePacketIds.Ping, PacketAudience.Any,
                 (sender, reader) => token = PingPacket.Deserialize(reader).Token);
 
             dispatcher.Dispatch(null, Payload(new PingPacket { Token = 42 }), false);
@@ -36,7 +38,7 @@ namespace VectorRumble.Tests
         {
             PacketDispatcher dispatcher = new PacketDispatcher();
 
-            dispatcher.Dispatch(null, new byte[] { 200, 1, 2 }, false);
+            dispatcher.Dispatch(null, new byte[] { 1, 200, 1, 2 }, false);
             dispatcher.Dispatch(null, new byte[0], false);
 
             Assert.Equal(1, dispatcher.UnknownCount);
@@ -76,7 +78,7 @@ namespace VectorRumble.Tests
         public void A_handler_that_throws_is_counted_and_the_game_carries_on()
         {
             PacketDispatcher dispatcher = new PacketDispatcher();
-            dispatcher.Register(PacketType.Ping, PacketAudience.Any,
+            dispatcher.Register(EnginePacketIds.Ping, PacketAudience.Any,
                 (s, r) => throw new System.InvalidOperationException("boom"));
 
             dispatcher.Dispatch(null, Payload(new PingPacket()), false);
@@ -88,10 +90,10 @@ namespace VectorRumble.Tests
         public void A_truncated_packet_is_counted_as_an_error()
         {
             PacketDispatcher dispatcher = new PacketDispatcher();
-            dispatcher.Register(PacketType.Ping, PacketAudience.Any,
+            dispatcher.Register(EnginePacketIds.Ping, PacketAudience.Any,
                 (s, r) => PingPacket.Deserialize(r));
 
-            dispatcher.Dispatch(null, new byte[] { (byte)PacketType.Ping, 1 }, false);
+            dispatcher.Dispatch(null, new byte[] { 1, EnginePacketIds.Ping, 1 }, false);
 
             Assert.Equal(1, dispatcher.ErrorCount);
         }
@@ -100,8 +102,8 @@ namespace VectorRumble.Tests
         public void An_unregistered_type_is_unknown_again()
         {
             PacketDispatcher dispatcher = new PacketDispatcher();
-            dispatcher.Register(PacketType.Ping, PacketAudience.Any, (s, r) => { });
-            dispatcher.Unregister(PacketType.Ping);
+            dispatcher.Register(EnginePacketIds.Ping, PacketAudience.Any, (s, r) => { });
+            dispatcher.Unregister(EnginePacketIds.Ping);
 
             dispatcher.Dispatch(null, Payload(new PingPacket()), false);
 

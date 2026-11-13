@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
+using VectorEngine.Networking;
 using VectorRumble.Networking;
 using Xunit;
 
@@ -54,12 +55,12 @@ namespace VectorRumble.Tests
         [Fact]
         public void Packet_types_match_what_the_dispatcher_registers()
         {
-            Assert.Equal(PacketType.Ping, new PingPacket().Type);
-            Assert.Equal(PacketType.Pong, new PongPacket().Type);
-            Assert.Equal(PacketType.LobbyUpdate, new LobbyUpdatePacket().Type);
-            Assert.Equal(PacketType.LobbySync, new LobbySyncPacket().Type);
-            Assert.Equal(PacketType.MatchStart, new MatchStartPacket().Type);
-            Assert.Equal(PacketType.JoinRefused, new JoinRefusedPacket().Type);
+            Assert.Equal(EnginePacketIds.Ping, new PingPacket().Type);
+            Assert.Equal(EnginePacketIds.Pong, new PongPacket().Type);
+            Assert.Equal((byte)PacketType.LobbyUpdate, new LobbyUpdatePacket().Type);
+            Assert.Equal((byte)PacketType.LobbySync, new LobbySyncPacket().Type);
+            Assert.Equal((byte)PacketType.MatchStart, new MatchStartPacket().Type);
+            Assert.Equal((byte)PacketType.JoinRefused, new JoinRefusedPacket().Type);
         }
 
         [Fact]
@@ -123,6 +124,16 @@ namespace VectorRumble.Tests
             System.Array.Copy(bytes, cut, cut.Length);
 
             Assert.ThrowsAny<System.Exception>(() => LobbySyncPacket.Deserialize(Reader(cut)));
+        }
+
+        [Fact]
+        public void The_game_packet_ids_keep_their_numbers()
+        {
+            Assert.Equal(70, (byte)PacketType.LobbyUpdate);
+            Assert.Equal(72, (byte)PacketType.MatchStart);
+            Assert.Equal(80, (byte)PacketType.ShipState);
+            Assert.Equal(86, (byte)PacketType.MatchEnd);
+            Assert.Equal(90, (byte)PacketType.AsteroidSync);
         }
     }
 }

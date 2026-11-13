@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VectorEngine.Core\VectorEngine.Core.csproj" />
+    <ProjectReference Include="..\VectorEngine.Networking\VectorEngine.Networking.csproj" />
   </ItemGroup>
 </Project>

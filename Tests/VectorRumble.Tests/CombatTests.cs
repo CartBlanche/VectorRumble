@@ -2,6 +2,7 @@ using VectorEngine.Rendering;
 using System;
 using System.IO;
 using Microsoft.Xna.Framework;
+using VectorEngine.Networking;
 using VectorRumble.Networking;
 using Xunit;
 

@@ -5,41 +5,6 @@ using Microsoft.Xna.Framework;
 namespace VectorRumble.Networking
 {
     /// <summary>
-    /// Connectivity test: sent to a peer, who answers with a <see cref="PongPacket"/> carrying the same token
-    /// </summary>
-    public class PingPacket : INetworkPacket
-    {
-        public PacketType Type { get { return PacketType.Ping; } }
-        public uint Token { get; set; }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Token);
-        }
-
-        public static PingPacket Deserialize(BinaryReader reader)
-        {
-            return new PingPacket { Token = reader.ReadUInt32() };
-        }
-    }
-
-    public class PongPacket : INetworkPacket
-    {
-        public PacketType Type { get { return PacketType.Pong; } }
-        public uint Token { get; set; }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Token);
-        }
-
-        public static PongPacket Deserialize(BinaryReader reader)
-        {
-            return new PongPacket { Token = reader.ReadUInt32() };
-        }
-    }
-
-    /// <summary>
     /// One player in the lobby or in a starting match
     /// </summary>
     public class LobbyPlayerInfo
@@ -93,7 +58,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class LobbyUpdatePacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.LobbyUpdate; } }
+        public byte Type { get { return (byte)PacketType.LobbyUpdate; } }
         public byte Ship { get; set; }
         public Color Color { get; set; }
         public bool Ready { get; set; }
@@ -116,7 +81,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class LobbySyncPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.LobbySync; } }
+        public byte Type { get { return (byte)PacketType.LobbySync; } }
         public MatchRules Rules { get; set; }
         public List<LobbyPlayerInfo> Players { get; set; }
 
@@ -138,7 +103,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class MatchStartPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.MatchStart; } }
+        public byte Type { get { return (byte)PacketType.MatchStart; } }
         public MatchRules Rules { get; set; }
         public int Seed { get; set; }                       // for anything every machine must random the same way
         public List<LobbyPlayerInfo> Players { get; set; }
@@ -168,7 +133,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class ShipStatePacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.ShipState; } }
+        public byte Type { get { return (byte)PacketType.ShipState; } }
         public byte Slot { get; set; }                  // player index in the match
         public ushort Sequence { get; set; }            // wraps; orders unreliable packets
         public Vector2 Position { get; set; }
@@ -206,7 +171,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class ProjectileFiredPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.ProjectileFired; } }
+        public byte Type { get { return (byte)PacketType.ProjectileFired; } }
         public byte Slot { get; set; }
         public byte Weapon { get; set; }                // a WeaponKind
         public Vector2 Direction { get; set; }
@@ -237,7 +202,7 @@ namespace VectorRumble.Networking
         /// <summary>The attacker when nobody fired the shot (an asteroid, for instance)</summary>
         public const byte NoAttacker = 255;
 
-        public PacketType Type { get { return PacketType.Damage; } }
+        public byte Type { get { return (byte)PacketType.Damage; } }
         public byte Attacker { get; set; }
         public byte Defender { get; set; }
         public float Amount { get; set; }
@@ -266,7 +231,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class ShipDestroyedPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.ShipDestroyed; } }
+        public byte Type { get { return (byte)PacketType.ShipDestroyed; } }
         public byte Attacker { get; set; }              // DamagePacket.NoAttacker if nobody
         public byte Defender { get; set; }
 
@@ -287,7 +252,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class ScoreSyncPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.ScoreSync; } }
+        public byte Type { get { return (byte)PacketType.ScoreSync; } }
         public short[] Scores { get; set; }
 
         public void Serialize(BinaryWriter writer)
@@ -315,7 +280,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class PowerupSpawnedPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.PowerupSpawned; } }
+        public byte Type { get { return (byte)PacketType.PowerupSpawned; } }
         public ushort Id { get; set; }
         public byte Kind { get; set; }                  // a PowerUpKind
         public Vector2 Position { get; set; }
@@ -338,7 +303,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class PowerupTakenPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.PowerupTaken; } }
+        public byte Type { get { return (byte)PacketType.PowerupTaken; } }
         public ushort Id { get; set; }
         public byte Player { get; set; }
 
@@ -359,7 +324,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class MatchEndPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.MatchEnd; } }
+        public byte Type { get { return (byte)PacketType.MatchEnd; } }
         public byte Winner { get; set; }
 
         public void Serialize(BinaryWriter writer)
@@ -378,7 +343,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class PlayerLeftPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.PlayerLeft; } }
+        public byte Type { get { return (byte)PacketType.PlayerLeft; } }
         public byte Slot { get; set; }
 
         public void Serialize(BinaryWriter writer)
@@ -400,7 +365,7 @@ namespace VectorRumble.Networking
     {
         public const int MaxAsteroids = 64;
 
-        public PacketType Type { get { return PacketType.AsteroidSync; } }
+        public byte Type { get { return (byte)PacketType.AsteroidSync; } }
         public ushort Sequence { get; set; }
         public Vector2[] Positions { get; set; }
         public Vector2[] Velocities { get; set; }
@@ -439,7 +404,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public class JoinRefusedPacket : INetworkPacket
     {
-        public PacketType Type { get { return PacketType.JoinRefused; } }
+        public byte Type { get { return (byte)PacketType.JoinRefused; } }
 
         public void Serialize(BinaryWriter writer)
         {

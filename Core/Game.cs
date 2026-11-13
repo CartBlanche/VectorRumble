@@ -52,7 +52,8 @@ namespace VectorRumble
             })
         {
             // keeps this game from listing, or joining, the sessions of other games on the network
-            Networking.MultiplayerSessionService.Initialize();
+            // protocol 2: the packets carry a version byte now, so older builds neither join nor misread
+            VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 2);
         }
 
 

@@ -31,7 +31,7 @@ Repos: /Users/dominique/Development/CartBlanche/VectorRumble (engine lives in `E
 - [x] 3 DONE: AudioManager (+AudioLevels, ClipCache), settings storage + SettingsManager<T> (app name injected), LocalizationManager, Display (configurable, default 720p), IdleFade, Accelerometer
 - [ ] 4 (in sub-steps: 4a ActionBindings DONE; 4b InputState DONE; 4c GameScreen+ScreenManager DONE; 4d menus/MenuStyle DONE (MenuScreen, MenuEntry, MessageBoxScreen, LoadingScreen; VirtualGamePad, localization fallback, Starfield still open); 4e VectorEngineGame: step 1 graphics+window DONE on VectorRumble, step 2 screen manager+audio DONE on VectorRumble, step 3 SolidOps adopts DONE; solution folders DONE) ScreenManager (ScreenManagerOptions), GameScreen, InputState, ActionBindings, MenuScreen/MenuStyle, MessageBox, LoadingScreen, VectorEngineGame base class
 - [x] 5 DONE: WorldBase, Actor, CollisionResult, WorldActor in engine (Walls, WallBehavior and WallActor replace the actors[0] hack, Random is settable). SolidOps keeps waypoint code in its own WaypointActor : Actor. TODO later: move waypoint code to engine if a second game wants it.
-- [ ] 6 VectorEngine.Networking
+- [x] 6 DONE (generic part: NetworkManager, PacketDispatcher (byte ids, protocol version byte), MultiplayerSessionService.Initialize(game, protocol, maxPlayers), NetLog, Ping/Pong, serialization; game keeps lobby, match, ship sync, packets; NOT yet tested between two machines)
 - [ ] 7 Cleanup: namespaces, docs
 
 ## Engine vs game map (summary)
