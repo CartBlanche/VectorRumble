@@ -148,6 +148,8 @@ public abstract class GameScreen
     /// Called when the screen manager adds the screen, before <see cref="LoadContent"/>. A game's own screen base
     /// class uses it to set up what its screens share (for example the world they play in).
     /// </summary>
+    internal bool initializedByManager;
+
     public virtual void Initialize()
     {
     }

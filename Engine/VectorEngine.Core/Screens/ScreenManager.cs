@@ -436,7 +436,12 @@ public class ScreenManager : DrawableGameComponent, IRenderContext
         // If we have a graphics device, tell the screen to load content.
         if (isInitialized)
         {
-            screen.Initialize();
+            // once only: a screen a game already initialised by hand must not set up its world twice
+            if (!screen.initializedByManager)
+            {
+                screen.initializedByManager = true;
+                screen.Initialize();
+            }
             screen.LoadContent();
         }
 

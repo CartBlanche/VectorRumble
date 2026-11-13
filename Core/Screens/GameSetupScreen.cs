@@ -134,7 +134,6 @@ namespace VectorRumble
             var shipSelection = new ShipSelectionScreen {
                 ScreenManager = this.ScreenManager
             };
-            shipSelection.Initialize();
             ScreenManager.AddScreen(shipSelection);
         }
 

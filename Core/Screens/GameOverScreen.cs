@@ -138,7 +138,6 @@ namespace VectorRumble
         {
             GameplayScreen gameplayScreen = new GameplayScreen();
             gameplayScreen.ScreenManager = this.ScreenManager;
-            gameplayScreen.Initialize();
             ScreenManager.AddScreen(gameplayScreen);
         }
 

@@ -42,7 +42,6 @@ namespace VectorRumble
                 {
                     ScreenManager = this.ScreenManager
                 };
-                arenaSelection.Initialize();
                 ScreenManager.AddScreen(arenaSelection);
             }
 
