@@ -36,8 +36,14 @@ public class VectorEngineGameOptions
     /// <summary>Go full screen on a phone or tablet (the game is drawn at a fixed size and scaled to the device's screen).</summary>
     public bool FullScreenOnMobile { get; set; } = true;
 
-    /// <summary>The orientations a phone or tablet may use. The default is landscape.</summary>
-    public DisplayOrientation MobileOrientations { get; set; } = DisplayOrientation.LandscapeLeft;
+    /// <summary>The orientations a phone or tablet may use. The default is landscape; null leaves the platform's default.</summary>
+    public DisplayOrientation? MobileOrientations { get; set; } = DisplayOrientation.LandscapeLeft;
+
+    /// <summary>
+    /// Whether going full screen on desktop changes the display's mode (true) or just fills the screen with a borderless window
+    /// (false, the default).
+    /// </summary>
+    public bool HardwareModeSwitch { get; set; }
 
     /// <summary>The orientations the desktop window reports. Null leaves MonoGame's default.</summary>
     public DisplayOrientation? DesktopOrientations { get; set; }
@@ -92,13 +98,14 @@ public abstract class VectorEngineGame : Game
             {
                 // the device's own screen: the game is drawn at a fixed size and scaled to it (see Display)
                 Graphics.IsFullScreen = options.FullScreenOnMobile;
-                Graphics.SupportedOrientations = options.MobileOrientations;
+                if (options.MobileOrientations.HasValue)
+                    Graphics.SupportedOrientations = options.MobileOrientations.Value;
             }
             else
             {
                 Graphics.PreferredBackBufferWidth = options.WindowWidth > 0 ? options.WindowWidth : Rendering.Display.BaseWidth;
                 Graphics.PreferredBackBufferHeight = options.WindowHeight > 0 ? options.WindowHeight : Rendering.Display.BaseHeight;
-                Graphics.HardwareModeSwitch = false;
+                Graphics.HardwareModeSwitch = options.HardwareModeSwitch;
                 Graphics.IsFullScreen = false;
                 IsMouseVisible = options.MouseVisible;
                 if (options.DesktopOrientations.HasValue)
@@ -128,7 +135,10 @@ public abstract class VectorEngineGame : Game
     /// <summary>Updates the audio first, then the components (the screens).</summary>
     protected override void Update(GameTime gameTime)
     {
-        Audio?.Update(gameTime);
+        UpdateAudio(gameTime);
         base.Update(gameTime);
     }
+
+    /// <summary>Updates the audio manager. A game can override it to measure or wrap the audio update.</summary>
+    protected virtual void UpdateAudio(GameTime gameTime) => Audio?.Update(gameTime);
 }
