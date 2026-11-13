@@ -138,7 +138,7 @@ VectorRumble.sln                 # Main solution file
 ### CI/CD Integration
 - GitHub Actions builds for Windows (x64/ARM64), macOS (universal), Linux (x64)
 - Uses MonoGame wine setup actions from https://github.com/MonoGame/monogame-actions for content building
-- Currently implemented via `infinitespace-studios/monogame-actions/install-wine@v1.0` action
+- Currently implemented via `monogame/monogame-actions/install-wine@v1.0` action
 - Publishes to itch.io automatically on tagged releases
 - Build artifacts are packaged with MonoPack tool
 

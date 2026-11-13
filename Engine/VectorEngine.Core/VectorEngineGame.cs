@@ -1,4 +1,6 @@
 using Microsoft.Xna.Framework;
+using VectorEngine.Audio;
+using VectorEngine.Screens;
 
 namespace VectorEngine;
 
@@ -40,6 +42,18 @@ public class VectorEngineGameOptions
     /// <summary>The orientations the desktop window reports. Null leaves MonoGame's default.</summary>
     public DisplayOrientation? DesktopOrientations { get; set; }
 
+    /// <summary>
+    /// How the screen manager is set up. Null skips creating one (the game makes its own and adds it to
+    /// <see cref="Game.Components"/>).
+    /// </summary>
+    public ScreenManagerOptions ScreenManager { get; set; } = new ScreenManagerOptions();
+
+    /// <summary>
+    /// The name of the game's audio project: the engine loads <c>Content/Audio/{name}.xgs</c>, <c>.xwb</c> and <c>.xsb</c>.
+    /// Null or empty skips creating an <see cref="Audio.AudioManager"/>.
+    /// </summary>
+    public string AudioProject { get; set; }
+
     /// <summary>Leave the window and device settings to the platform's defaults (for debugging device problems).</summary>
     public bool UseDefaultDeviceSettings { get; set; }
 }
@@ -53,6 +67,12 @@ public abstract class VectorEngineGame : Game
 {
     /// <summary>The graphics device manager; it is also registered in <see cref="Game.Services"/>.</summary>
     protected GraphicsDeviceManager Graphics { get; }
+
+    /// <summary>The screen manager (null when <see cref="VectorEngineGameOptions.ScreenManager"/> was null).</summary>
+    protected Screens.ScreenManager ScreenManager { get; }
+
+    /// <summary>The audio manager (null when no <see cref="VectorEngineGameOptions.AudioProject"/> was given); also in <see cref="Game.Services"/>.</summary>
+    protected AudioManager Audio { get; }
 
     protected VectorEngineGame(VectorEngineGameOptions options = null)
     {
@@ -88,5 +108,27 @@ public abstract class VectorEngineGame : Game
 
         Graphics.SynchronizeWithVerticalRetrace = options.VSync;
         Window.AllowUserResizing = options.AllowUserResizing;
+
+        if (options.ScreenManager != null)
+        {
+            ScreenManager = new Screens.ScreenManager(this, options.ScreenManager);
+            Components.Add(ScreenManager);
+        }
+
+        if (!string.IsNullOrEmpty(options.AudioProject))
+        {
+            Audio = new AudioManager(this,
+                $"Content/Audio/{options.AudioProject}.xgs",
+                $"Content/Audio/{options.AudioProject}.xwb",
+                $"Content/Audio/{options.AudioProject}.xsb");
+            Services.AddService(typeof(AudioManager), Audio);
+        }
+    }
+
+    /// <summary>Updates the audio first, then the components (the screens).</summary>
+    protected override void Update(GameTime gameTime)
+    {
+        Audio?.Update(gameTime);
+        base.Update(gameTime);
     }
 }
