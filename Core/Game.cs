@@ -70,6 +70,12 @@ namespace VectorRumble
                 // the game is drawn at a fixed 1280x720 into a target, bloom included, then scaled to the window
                 RenderToVirtualTarget = true,
                 PerfOverlay = true,
+                MenuStyle = new MenuStyle
+                {
+                    LoadSmallFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroSmall"),
+                    MessageBoxUsageText = () => Strings.MessageBox_Usage,
+                    LoadingText = () => Strings.Loading,
+                },
             });
             Components.Add(screenManager);
 

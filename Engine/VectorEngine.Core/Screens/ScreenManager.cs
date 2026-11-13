@@ -36,6 +36,9 @@ public class ScreenManagerOptions
     /// <summary>Draw an on-screen cursor for the mouse (and the pad, when the pad pointer is on), instead of the system pointer.</summary>
     public bool DrawCursor { get; set; }
 
+    /// <summary>How the engine's menus, message boxes and loading screen look and sound.</summary>
+    public MenuStyle MenuStyle { get; set; } = new MenuStyle();
+
     /// <summary>Show the frame time / GC / draw call readout (F3 toggles it); only present in Debug and PerfOverlay builds.</summary>
     public bool PerfOverlay { get; set; }
 }
@@ -51,6 +54,9 @@ public class ScreenManager : DrawableGameComponent, IRenderContext
     readonly List<GameScreen> screens = new();
     readonly List<GameScreen> screensToUpdate = new();
     readonly ScreenManagerOptions options;
+
+    /// <summary>How the engine's menus, message boxes and loading screen look and sound.</summary>
+    public MenuStyle MenuStyle => options.MenuStyle;
 
     readonly InputState inputState = new();
 

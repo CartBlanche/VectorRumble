@@ -24,7 +24,7 @@ namespace VectorRumble
         {
             // an entry is drawn centred on its line, so the first one's text starts half a line above the menu's top
             float lineHeight = screenManager.Font.LineSpacing;
-            int top = (int)(Display.BaseHeight * MenuScreen.MenuTop - lineHeight / 2f + lineHeight * 0.1f);
+            int top = (int)(Display.BaseHeight * MenuStyle.DefaultMenuTop - lineHeight / 2f + lineHeight * 0.1f);
             return new Rectangle(Display.BaseWidth - 240 - 24, top, 240, 135);
         }
 

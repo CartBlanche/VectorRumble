@@ -13,13 +13,18 @@ namespace VectorRumble
 
         public override void Initialize()
         {
-            // create the world
+            EnsureWorld(ScreenManager);
+        }
+
+        /// <summary>Creates the world the first time any screen needs it.</summary>
+        internal static void EnsureWorld(ScreenManager screenManager)
+        {
             if (World == null)
             {
                 World = new World(Display.BaseSize)
                 {
                     // retrieve the audio manager
-                    AudioManager = (AudioManager)ScreenManager.Game.Services.GetService(typeof(AudioManager))
+                    AudioManager = (AudioManager)screenManager.Game.Services.GetService(typeof(AudioManager))
                 };
             }
         }
