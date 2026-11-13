@@ -77,7 +77,7 @@ namespace VectorRumble
         /// <summary>
         /// Responds to user input, accepting or cancelling the message box.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input.MenuSelect)
             {
@@ -117,7 +117,7 @@ namespace VectorRumble
         public override void Draw(GameTime gameTime)
         {
             // Darken down any other screens that were drawn beneath the popup.
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
 
             // Center the message text in the viewport.
             Viewport viewport = Display.Viewport;
@@ -144,12 +144,12 @@ namespace VectorRumble
             Rectangle rect2 = new Rectangle(rect.X - 1, rect.Y - 1, 
                 rect.Width + 2, rect.Height + 2); 
             ScreenManager.DrawRectangle(rect2, new Color(World.SelectedArena.Color.R, World.SelectedArena.Color.G, World.SelectedArena.Color.B, 
-                (int)(192.0f * (float)TransitionAlpha / 255.0f)));
+                (int)(192.0f * TransitionAlpha)));
             ScreenManager.DrawRectangle(rect, new Color(0, 0, 0, 
-                (int)(232.0f * (float)TransitionAlpha / 255.0f)));
+                (int)(232.0f * TransitionAlpha)));
 
             // Fade the popup alpha during transitions.
-            Color color = new Color(255, 255, 255, (int)TransitionAlpha);
+            Color color = new Color(255, 255, 255, (int)TransitionAlphaByte);
 
             // Draw the message box text.
             ScreenManager.SpriteBatch.Begin();

@@ -181,7 +181,7 @@ namespace VectorRumble
         public override void Draw(GameTime gameTime)
         {
             // Darken down any other screens that were drawn beneath the popup.
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
 
             Viewport viewport = Display.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
@@ -207,9 +207,9 @@ namespace VectorRumble
             // draw the texture and text
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition, 
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlpha));
+                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
             ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, message,
-			    textPosition, new Color(0, 255, 0, (int)TransitionAlpha), 0.0f, textSize,
+			    textPosition, new Color(0, 255, 0, (int)TransitionAlphaByte), 0.0f, textSize,
                 textScale, SpriteEffects.None, 1.0f);
             ScreenManager.SpriteBatch.End();
 

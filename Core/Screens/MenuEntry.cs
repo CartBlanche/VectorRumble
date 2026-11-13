@@ -160,7 +160,7 @@ namespace VectorRumble
             float scale = 1 + pulsate * 0.05f * selectionFade;
 
             // Modify the alpha to fade text out during transitions.
-            color = new Color(color.R, color.G, color.B, screen.TransitionAlpha);
+            color = new Color(color.R, color.G, color.B, screen.TransitionAlphaByte);
 
             // Draw text, centered on the middle of each line.
             ScreenManager screenManager = screen.ScreenManager;

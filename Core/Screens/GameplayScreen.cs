@@ -166,7 +166,7 @@ namespace VectorRumble
 
             // If the game is transitioning on or off, fade it out to black.
             if (TransitionPosition > 0)
-                ScreenManager.FadeBackBufferToBlack(255 - TransitionAlpha);
+                ScreenManager.FadeBackBufferToBlack(1f - TransitionAlpha);
         }
 
         /// <summary>
@@ -421,7 +421,7 @@ namespace VectorRumble
         /// Lets the game respond to player input. Unlike the Update method,
         /// this will only be called when the gameplay screen is active.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input == null)
             {

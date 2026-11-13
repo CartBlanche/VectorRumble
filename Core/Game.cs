@@ -63,7 +63,14 @@ namespace VectorRumble
             Window.AllowUserResizing = false;
 
             // create the screen manager
-            screenManager = new ScreenManager(this);
+            screenManager = new ScreenManager(this, new ScreenManagerOptions
+            {
+                LoadFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroLarge"),
+                BlankTexturePath = "Textures/blank",
+                // the game is drawn at a fixed 1280x720 into a target, bloom included, then scaled to the window
+                RenderToVirtualTarget = true,
+                PerfOverlay = true,
+            });
             Components.Add(screenManager);
 
             // create the audio manager

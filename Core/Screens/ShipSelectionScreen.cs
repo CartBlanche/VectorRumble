@@ -29,7 +29,7 @@ namespace VectorRumble
         /// <summary>
         /// Responds to user input, accepting or cancelling the message box.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input.MenuCancel)
             {
@@ -118,7 +118,7 @@ namespace VectorRumble
                     rect.X = (int)(pos.X - (World.ShipManager.AvailableShips[i].Radius * 4) - 5);
 
                     // Fade the popup alpha during transitions.
-                    Color shipColor = new Color(World.ShipManager.AvailableShips[i].Color.R, World.ShipManager.AvailableShips[i].Color.G, World.ShipManager.AvailableShips[i].Color.B, (int)TransitionAlpha);
+                    Color shipColor = new Color(World.ShipManager.AvailableShips[i].Color.R, World.ShipManager.AvailableShips[i].Color.G, World.ShipManager.AvailableShips[i].Color.B, (int)TransitionAlphaByte);
 
                     // Offset the Name's X/Y positions a little
                     pos.X -= World.ShipManager.AvailableShips[i].Radius + 8; // TODO Centre correctly based on name length
@@ -197,7 +197,7 @@ namespace VectorRumble
             }
 
             // Fade the popup alpha during transitions.
-            Color textColor = new Color(255, 255, 255, (int)TransitionAlpha);
+            Color textColor = new Color(255, 255, 255, (int)TransitionAlphaByte);
 
             // Center the message text in the viewport.
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);

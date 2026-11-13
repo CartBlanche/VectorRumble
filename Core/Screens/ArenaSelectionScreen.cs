@@ -41,7 +41,7 @@ namespace VectorRumble
         /// <summary>
         /// Responds to user input, accepting or cancelling the screen.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input.MenuCancel)
             {
@@ -89,7 +89,7 @@ namespace VectorRumble
             }
 
             // Fade the popup alpha during transitions.
-            Color color = new Color(255, 255, 255, (int)TransitionAlpha);
+            Color color = new Color(255, 255, 255, (int)TransitionAlphaByte);
 
             // Center the message text in the viewport.
             Viewport viewport = Display.Viewport;

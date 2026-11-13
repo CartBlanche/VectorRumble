@@ -12,6 +12,10 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  <PropertyGroup Condition="'$(PerfOverlay)' == 'true'">
+    <!-- dotnet build -c Release -p:PerfOverlay=true: puts the frame time / GC / draw call overlay in a Release build -->
+    <DefineConstants>$(DefineConstants);PERF_OVERLAY</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="VectorEngine.Tests" />
     <InternalsVisibleTo Include="VectorRumble.Tests" />

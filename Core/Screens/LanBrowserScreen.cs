@@ -211,7 +211,7 @@ namespace VectorRumble
                 var viewport = Display.Viewport;
                 Vector2 size = ScreenManager.Font.MeasureString(status);
                 Vector2 position = new Vector2((viewport.Width - size.X) / 2f, viewport.Height * 0.15f);
-                Color color = new Color(255, 255, 255, (int)TransitionAlpha);
+                Color color = new Color(255, 255, 255, (int)TransitionAlphaByte);
 
                 ScreenManager.SpriteBatch.Begin();
                 ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, status, position, color);

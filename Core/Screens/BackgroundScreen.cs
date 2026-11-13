@@ -190,7 +190,7 @@ namespace VectorRumble
 
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition,
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlpha));
+                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
             ScreenManager.SpriteBatch.End();
         }
 

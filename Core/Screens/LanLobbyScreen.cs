@@ -295,7 +295,7 @@ namespace VectorRumble
             var viewport = Display.Viewport;
             var font = ScreenManager.Font;
             var spriteBatch = ScreenManager.SpriteBatch;
-            int alpha = TransitionAlpha;
+            int alpha = TransitionAlphaByte;
 
             // who is in: a card for each player, with their ship in their colour
             const float cardWidth = 280f;

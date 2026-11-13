@@ -63,7 +63,7 @@ namespace VectorRumble
                                 bool loadingIsSlow)
         {
             // Tell all the current screens to transition off.
-            foreach (GameScreen screen in screenManager.Screens)
+            foreach (GameScreen screen in screenManager.GetScreens())
                 screen.ExitScreen();
 
             // Create and activate the loading screen.
@@ -111,7 +111,7 @@ namespace VectorRumble
             // screens to be gone: in order for the transition to look good we must
             // have actually drawn a frame without them before we perform the load.
             if ((ScreenState == ScreenState.Active) &&
-                (ScreenManager.Screens.Length == 1))
+                (ScreenManager.GetScreens().Length == 1))
             {
                 otherScreensAreGone = true;
             }
@@ -131,7 +131,7 @@ namespace VectorRumble
 				Vector2 textSize = ScreenManager.Font.MeasureString(message);
                 Vector2 textPosition = (viewportSize - textSize) / 2;
 
-				Color color = new Color(255, 255, 255, (int)TransitionAlpha);
+				Color color = new Color(255, 255, 255, (int)TransitionAlphaByte);
 
                 // Draw the text.
                 ScreenManager.SpriteBatch.Begin();

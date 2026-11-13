@@ -96,7 +96,7 @@ namespace VectorRumble
         /// Responds to user input, changing the selected entry and accepting
         /// or cancelling the menu.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             // Touch or click on an entry selects it
             if (input.PointerPressed)
@@ -256,7 +256,7 @@ namespace VectorRumble
                 }
 
                 // Modify the alpha to fade text out during transitions.
-                color = new Color(color.R, color.G, color.B, TransitionAlpha);
+                color = new Color(color.R, color.G, color.B, TransitionAlphaByte);
 
                 // Draw text, centered on the middle of each line.
                 Vector2 origin = new Vector2(0, ScreenManager.Font.LineSpacing / 2);

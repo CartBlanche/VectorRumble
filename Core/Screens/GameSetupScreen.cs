@@ -93,7 +93,7 @@ namespace VectorRumble
             base.Draw(gameTime);
 
             previews.DrawArena(ScreenManager, PreviewPainter.FindArena(MatchRules.Current.Arena),
-                PreviewPainter.ArenaAreaAbove, TransitionAlpha);
+                PreviewPainter.ArenaAreaAbove, TransitionAlphaByte);
         }
 
         void ChangeArena(int direction)
