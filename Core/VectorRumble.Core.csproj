@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- a method that silently hides an inherited one is never called through the base class (this broke the waypoint actors once) -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS0114;CS0108</WarningsAsErrors>
     <DefineConstants>$(DefineConstants);AUDIO;SHADER_EFFECTS</DefineConstants>
     <AssemblyDescription>Vector Rumble Core</AssemblyDescription>
   </PropertyGroup>
