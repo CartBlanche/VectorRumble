@@ -26,7 +26,7 @@
     <MonoGameContentReference Include="..\Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
     </MonoGameContentReference>
-    <MonoGameContentReference Include="..\Engine\Content\Engine.mgcb">
+    <MonoGameContentReference Include="$(EngineDir)Content\Engine.mgcb">
       <Link>Content\Engine.mgcb</Link>
     </MonoGameContentReference>
     <EmbeddedResource Include="..\Core\Icon.bmp">

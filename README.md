@@ -64,7 +64,9 @@ dotnet build
 
 ## VectorEngine
 
-The reusable parts of the game (screens and menus, input, rendering, audio, settings, world simulation and optional LAN networking) live in [Engine](Engine/README.md) as `VectorEngine`, shared with SolidOps. VectorRumble keeps what is specific to it: ships, weapons, arenas, match rules and the lobby.
+The reusable parts of the game (screens and menus, input, rendering, audio, settings, world simulation and optional LAN networking) live in [VectorEngine](https://github.com/CartBlanche/VectorEngine), shared with [Solid Ops](https://github.com/CartBlanche/SolidOps). VectorRumble keeps what is specific to it: ships, weapons, arenas, match rules and the lobby.
+
+Clone the engine **next to** this repo before building (`CartBlanche/VectorEngine` beside `CartBlanche/VectorRumble`); pass `-p:EngineDir=/path/to/VectorEngine/` to use it from somewhere else.
 
 ## Helpful Links
 

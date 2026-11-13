@@ -13,9 +13,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Engine\VectorEngine.Core\VectorEngine.Core.csproj" />
+    <ProjectReference Include="$(EngineDir)VectorEngine.Core\VectorEngine.Core.csproj" />
     <!-- optional engine part: LAN networking (the only one that needs the Net package) -->
-    <ProjectReference Include="..\Engine\VectorEngine.Networking\VectorEngine.Networking.csproj" />
+    <ProjectReference Include="$(EngineDir)VectorEngine.Networking\VectorEngine.Networking.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(PerfOverlay)' == 'true'">
     <!-- dotnet build -c Release -p:PerfOverlay=true: puts the frame time / GC / draw call overlay in a Release build -->

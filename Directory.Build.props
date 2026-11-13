@@ -11,5 +11,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <MonoGameVersion>3.8.6.1</MonoGameVersion>
+    <!-- VectorEngine lives in its own repo, cloned next to this one; pass -p:EngineDir=/path/to/VectorEngine/ to use another copy -->
+    <EngineDir Condition="'$(EngineDir)' == ''">$(MSBuildThisFileDirectory)..\VectorEngine\</EngineDir>
   </PropertyGroup>
 </Project>
