@@ -80,8 +80,9 @@ namespace VectorRumble
 
             if (VectorEngine.Platform.IsMobile)
             {
-                virtualGamePad = new VirtualGamePad(content.Load<Texture2D>("Textures/gamepad"),
-                    Display.Viewport);
+                virtualGamePad = new VirtualGamePad(null, content.Load<Texture2D>("Textures/gamepad"),
+                    new Vector2(Display.Viewport.Width, Display.Viewport.Height),
+                    startHidden: GamePad.GetState(PlayerIndex.One).IsConnected);
                 VirtualGamePad.Instance = virtualGamePad;
             }
         }

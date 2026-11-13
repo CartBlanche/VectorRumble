@@ -58,7 +58,7 @@ public class ScreenManager : DrawableGameComponent, IRenderContext
     /// <summary>How the engine's menus, message boxes and loading screen look and sound.</summary>
     public MenuStyle MenuStyle => options.MenuStyle;
 
-    readonly InputState inputState = new();
+    readonly InputState inputState = new() { GamePadFilter = VirtualGamePad.Apply };
 
     SpriteFont font;
     Texture2D blankTexture;
