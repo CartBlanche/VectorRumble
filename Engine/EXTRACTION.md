@@ -103,3 +103,4 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - Engine tests: 31. Both Desktop games smoke-run; VR's draw/prim/sprite counts at the menu (7/858/39) and on the forced game-over screen (11/1397/235) match the earlier runs. Look of SO's menus, hints, toasts and cursor not visually verified.
 - Step 6 check: LAN verified by the user on one machine with two instances (discovery, lobby, synced play). Two separate machines and an old-build refusal are still untested.
 - Step 7a: the games' own IsMobile/IsDesktop copies are gone; both use `VectorEngine.Platform`.
+- Step 7b: .resx check. Embedded names match the Designer ResourceManager names in both games (VR "VectorRumble.Core.Strings", SO "Core.Localization.Resources"/"Voices"); VR satellite assemblies are in the output and its 355 tests, which read translations per culture, pass. The engine has no .resx of its own yet (localization fallback still open).
