@@ -78,7 +78,7 @@ namespace VectorRumble
                 Display.Viewport.Width,
                 Display.Viewport.Height, 0.0f, 0.0f, 1.0f));
 
-            if (Helper.IsMobile)
+            if (VectorEngine.Platform.IsMobile)
             {
                 virtualGamePad = new VirtualGamePad(content.Load<Texture2D>("Textures/gamepad"),
                     Display.Viewport);
@@ -198,7 +198,7 @@ namespace VectorRumble
                     switch (index)
                     {
                         case PlayerIndex.One:
-                            message = WrapText(caps.IsConnected || Helper.IsMobile ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
+                            message = WrapText(caps.IsConnected || VectorEngine.Platform.IsMobile ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
                             break;
                         case PlayerIndex.Two:
                             message = WrapText(caps.IsConnected ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
@@ -322,7 +322,7 @@ namespace VectorRumble
             }
             else if ((otherScreenHasFocus == true) || (coveredByOtherScreen == true))
             {    
-                if (!Helper.IsMobile)
+                if (!VectorEngine.Platform.IsMobile)
                 {
                     // make sure nobody's controller is vibrating
                     for (int i = 0; i < 4; i++)

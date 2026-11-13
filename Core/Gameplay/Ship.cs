@@ -408,7 +408,7 @@ namespace VectorRumble
             smallMotorTimer -= elapsedTime;
             largeMotorTimer -= elapsedTime;
 
-            if (!Helper.IsMobile)
+            if (!VectorEngine.Platform.IsMobile)
             {
                 GamePad.SetVibration((Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Pad,
                     (largeMotorTimer > 0f) ? largeMotorSpeed : 0f,
@@ -813,7 +813,7 @@ namespace VectorRumble
         /// <param name="smallMotorTime">The time to run the small motor.</param>
         public void FireGamepadMotors(float largeMotorTime, float smallMotorTime)
         {
-            if (!Helper.IsMobile)
+            if (!VectorEngine.Platform.IsMobile)
             {
                 // use the maximum timer value
                 this.largeMotorTimer = Math.Max(this.largeMotorTimer, largeMotorTime);

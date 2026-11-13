@@ -101,3 +101,5 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - API unification: GameScreen.TransitionAlpha is now float 0..1 (SO's), plus engine `TransitionAlphaByte` (0..255). All VR sites were converted by hand (a bare `(int)TransitionAlpha` would silently compile to 0/1). HandleInput is `(GameTime, InputState)`; `GetScreens()` replaces VR's `Screens`; `FadeBackBufferToBlack(float)`; AddScreen(screen, playerIndex = null).
 - PerfOverlay in the engine needs PERF_OVERLAY too: the engine csproj has the same `-p:PerfOverlay=true` PropertyGroup. VR passes PerfOverlay=true in its options, SO does not.
 - Engine tests: 31. Both Desktop games smoke-run; VR's draw/prim/sprite counts at the menu (7/858/39) and on the forced game-over screen (11/1397/235) match the earlier runs. Look of SO's menus, hints, toasts and cursor not visually verified.
+- Step 6 check: LAN verified by the user on one machine with two instances (discovery, lobby, synced play). Two separate machines and an old-build refusal are still untested.
+- Step 7a: the games' own IsMobile/IsDesktop copies are gone; both use `VectorEngine.Platform`.
