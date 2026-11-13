@@ -1,3 +1,5 @@
+using VectorEngine.Input;
+using VectorEngine.Rendering;
 using Xunit;
 
 namespace VectorRumble.Tests

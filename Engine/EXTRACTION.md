@@ -28,7 +28,7 @@ Repos: /Users/dominique/Development/CartBlanche/VectorRumble (engine lives in `E
 - [x] 0 Scaffold DONE: Engine/VectorEngine.Core + VectorEngine.Tests, Engine/Directory.Build.props, ProjectReference in both games, SolidOps pinned to 3.8.6.1, golden runs recorded (see Findings)
 - [x] 1 DONE (partial by design): Collision, CollectCollection moved. CollisionResult + WorldActor depend on Actor, so they move in step 5
 - [x] 2 Rendering DONE except ParticleManager: LineBatch, VectorPolygon, ParticleSystem, Bloom + shaders (Engine/Content/Engine.mgcb). ParticleManager (SO-only, 840 lines, ScreenManager-coupled) deferred until a second game wants it
-- [ ] 3 AudioManager, settings storage (inject app name), LocalizationManager, Display, IdleFade, Accelerometer
+- [x] 3 DONE: AudioManager (+AudioLevels, ClipCache), settings storage + SettingsManager<T> (app name injected), LocalizationManager, Display (configurable, default 720p), IdleFade, Accelerometer
 - [ ] 4 ScreenManager (ScreenManagerOptions), GameScreen, InputState, ActionBindings, MenuScreen/MenuStyle, MessageBox, LoadingScreen, VectorEngineGame base class
 - [ ] 5 WorldBase + Actor core, wall-hit policy replacing `actors[0]` hack
 - [ ] 6 VectorEngine.Networking
@@ -72,3 +72,9 @@ GAME: Ship/weapons/arena/powerups (VR); Player/Enemy/Level/stealth/Trophies/repl
 - Shaders: Engine/Content/Engine.mgcb + Effects/{BloomCombine,BloomExtract,GaussianBlur}.fx + Macros.fxh. Each head adds it as a 2nd MonoGameContentReference. Desktop heads verified (xnb built from engine mgcb, games launch). Android/iOS/WebGL/Windows heads edited the same way but NOT built. SO keeps its own Macros.fxh for ZoneSurface.fx.
 - Line endings: many files are CRLF. Scripts that rewrite files must preserve them (git diff --stat should show small diffs).
 - Smoke run: both Desktop games stay up 8s at the menu, no crash. Gameplay not visually verified.
+- Step 3: new engine namespaces VectorEngine.Audio / .Settings / .Localization / .Input (Display is in .Rendering); both games have global usings for them. SO's empty Core.Audio / Core.Inputs namespaces are gone (their usings removed).
+- AudioManager is SO's version: no `#if AUDIO` guard (VR defined AUDIO everywhere, so behaviour is unchanged). VoiceSynth stays in SO (VoiceNote/VoiceProfile are game types).
+- Settings: storages take the app name: `new DesktopSettingsStorage("SolidOps")`; storage no longer uses a static folder property. VR has no settings storage yet (nothing to wire).
+- LocalizationManager.GetSupportedCultures(ResourceManager) now takes the game's resources; SO passes `Core.Localization.Resources.ResourceManager`. The .resx files and Resources.Designer.cs stay in SO unrenamed, so no runtime resource-name change happened (decision 10 still matters for later steps). Accelerometer's 3 error texts are now English literals (were SO resx entries ErrorAccelerometer*, now unused there).
+- Display: `BaseWidth/BaseHeight` are now static properties (were consts), default 1280x720, `Display.Configure(w,h)`. VR uses it; SO does NOT yet (SO's ScreenManager still has its own 800x480 BaseScreenSize: step 4).
+- Engine tests: 16. VR tests 354. SO golden 2. Both games smoke-run 8s.

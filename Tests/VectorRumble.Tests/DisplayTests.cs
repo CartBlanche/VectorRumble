@@ -1,3 +1,5 @@
+using VectorEngine.Input;
+using VectorEngine.Rendering;
 using Microsoft.Xna.Framework;
 using Xunit;
 
