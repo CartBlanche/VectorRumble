@@ -77,6 +77,28 @@ namespace VectorRumble
         #endregion
 
         #region Properties
+        NavGrid navigation;
+        Arena navigationArena;
+
+        /// <summary>
+        /// What the computer's pilots navigate by: a grid over the selected arena, built the first time it is asked for
+        /// and again if the arena changes. Null when the arena has no walls to speak of.
+        /// </summary>
+        internal NavGrid Navigation
+        {
+            get
+            {
+                Arena arena = SelectedArena;
+                if (navigation == null || !ReferenceEquals(arena, navigationArena))
+                {
+                    navigation = NavGrid.Build(arena.Walls, Dimensions, SafeDimensions, 30f);
+                    navigationArena = arena;
+                }
+
+                return navigation;
+            }
+        }
+
         /// <summary>
         /// The network match this world is part of, or null in a game on this machine alone.
         /// </summary>

@@ -197,6 +197,7 @@ namespace VectorRumble
             {
                 ship.PlayerIndex = string.Empty;
                 ship.Selected = false;
+                ship.Pilot = null;
             }
 
             Ship pilot = CurrentShip;
@@ -205,6 +206,7 @@ namespace VectorRumble
             pilot.SetColor(CurrentColour);
             pilot.Controls = ShipControls.ForLocalPlayer();
             pilot.Selected = true;
+            AddComputerPilots(manager, pilot);
             manager.UpdateSelectedList();
 
             // a new match picks its arena afresh (and a "Random" arena picks again)
@@ -212,6 +214,46 @@ namespace VectorRumble
             World.Match = null;
 
             LoadingScreen.Load(ScreenManager, LoadGameplayScreen, true);
+        }
+
+        /// <summary>
+        /// Puts the computer's pilots into the match: each flies one of the ships that come with the game (never the
+        /// player's own), in a colour nobody else has, and takes the next player slot.
+        /// </summary>
+        void AddComputerPilots(ShipManager manager, Ship human)
+        {
+            int count = Math.Max(0, Math.Min(MatchRules.MaxAIPilots, MatchRules.Current.AIPilots));
+            AIDifficulty difficulty = UserSettings.Current.AIDifficulty;
+            int seed = Environment.TickCount;
+
+            int nextShip = shipIndex;
+            int nextColour = colourIndex;
+            for (int i = 0; i < count; i++)
+            {
+                Ship ship = null;
+                for (int tries = 0; tries < manager.BuiltInCount && ship == null; tries++)
+                {
+                    nextShip = Wrap(nextShip + 1, manager.BuiltInCount);
+                    Ship candidate = manager.Ships[nextShip];
+                    if (candidate != human && !candidate.Selected)
+                    {
+                        ship = candidate;
+                    }
+                }
+
+                if (ship == null)
+                {
+                    break;
+                }
+
+                nextColour = Wrap(nextColour + 1, ShipPalette.Colours.Length);
+                ship.PlayerIndex = playerNames[i + 1];
+                ship.PilotName = string.Format(Strings.AI_Pilot_Name, i + 1);
+                ship.SetColor(ShipPalette.Colours[nextColour]);
+                ship.Controls = null;
+                ship.Pilot = new AIPilot(ship, World, difficulty, seed + i);
+                ship.Selected = true;
+            }
         }
 
         void ToggleReady()
@@ -256,6 +298,7 @@ namespace VectorRumble
             {
                 ship.PlayerIndex = string.Empty;
                 ship.Selected = false;
+                ship.Pilot = null;
             }
 
             Ship[] ships = new Ship[start.Players.Count];

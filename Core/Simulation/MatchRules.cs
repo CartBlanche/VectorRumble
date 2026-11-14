@@ -23,6 +23,14 @@ namespace VectorRumble
         public string Arena = Strings.Arena_Random;
         public int ScoreLimit = 10;
 
+        public const int MaxAIPilots = 3;
+
+        /// <summary>
+        /// How many computer pilots fly against the player in a game on this machine alone, 0 to <see cref="MaxAIPilots"/>.
+        /// Not sent on the network: a network match has only people in it.
+        /// </summary>
+        public int AIPilots = 1;
+
         public bool IsRandomArena => Arena == Strings.Arena_Random;
 
         public MatchRules Clone() => (MatchRules)MemberwiseClone();
@@ -60,6 +68,7 @@ namespace VectorRumble
                 Arena = arena.Length == 0 ? Strings.Arena_Random : arena,
                 AsteroidDensity = (AsteroidDensity)density,
                 ScoreLimit = scoreLimit,
+                AIPilots = 0,
                 ControllersCanShootInAllDirections = shootInAllDirections,
             };
         }

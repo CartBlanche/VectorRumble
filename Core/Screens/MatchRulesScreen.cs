@@ -23,6 +23,8 @@ namespace VectorRumble
 
         const int ScoreLimitStep = 5;
 
+        static string AIPilotsText(int count) => count == 0 ? Strings.Value_None : count.ToString(System.Globalization.CultureInfo.CurrentCulture);
+
         readonly bool hosting;
         bool moreRules;
 
@@ -35,6 +37,17 @@ namespace VectorRumble
             this.hosting = hosting;
             Heading = hosting ? Strings.Lan_Host_A_Game : Strings.Single_Player;
             Layout = FrameLayout.Rows;
+
+            // a game on this machine has the player and up to three computer pilots; a network game only people
+            if (!hosting)
+            {
+                var pilots = new FrameRow(Strings.Label_AIPilots, FrameRowKind.Choice)
+                {
+                    Value = () => AIPilotsText(MatchRules.Current.AIPilots),
+                };
+                pilots.Adjusted += ChangeAIPilots;
+                Rows.Add(pilots);
+            }
 
             var firstTo = new FrameRow(Strings.Label_FirstTo, FrameRowKind.Choice)
             {
@@ -108,6 +121,12 @@ namespace VectorRumble
             }
 
             ScreenManager.AddScreen(new ShipArenaScreen(new NetworkManager(task.Result)));
+        }
+
+        static void ChangeAIPilots(int direction)
+        {
+            int count = MatchRules.MaxAIPilots + 1;
+            MatchRules.Current.AIPilots = (MatchRules.Current.AIPilots + direction + count) % count;
         }
 
         static void ChangeScoreLimit(int direction)

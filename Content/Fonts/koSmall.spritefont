@@ -129,6 +129,10 @@
         <End>&#45208;</End>
       </CharacterRegion>
       <CharacterRegion>
+        <Start>&#45212;</Start>
+        <End>&#45212;</End>
+      </CharacterRegion>
+      <CharacterRegion>
         <Start>&#45224;</Start>
         <End>&#45224;</End>
       </CharacterRegion>
@@ -427,6 +431,10 @@
       <CharacterRegion>
         <Start>&#49692;</Start>
         <End>&#49692;</End>
+      </CharacterRegion>
+      <CharacterRegion>
+        <Start>&#49772;</Start>
+        <End>&#49772;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#49828;</Start>

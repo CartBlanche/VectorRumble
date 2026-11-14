@@ -422,4 +422,25 @@ Botón B/O, Tecla Esc = Cancelar</value>
     <data name="Confirm_ExitButton" xml:space="preserve">
         <value>¡Salir!</value>
     </data>
+    <data name="Label_AIPilots" xml:space="preserve">
+        <value>Pilotos IA</value>
+    </data>
+    <data name="Label_AIDifficulty" xml:space="preserve">
+        <value>Dificultad de la IA</value>
+    </data>
+    <data name="Value_None" xml:space="preserve">
+        <value>Ninguno</value>
+    </data>
+    <data name="AI_Easy" xml:space="preserve">
+        <value>Fácil</value>
+    </data>
+    <data name="AI_Medium" xml:space="preserve">
+        <value>Medio</value>
+    </data>
+    <data name="AI_Hard" xml:space="preserve">
+        <value>Difícil</value>
+    </data>
+    <data name="AI_Pilot_Name" xml:space="preserve">
+        <value>IA {0}</value>
+    </data>
 </root>

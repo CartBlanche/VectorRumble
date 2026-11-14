@@ -26,6 +26,9 @@ namespace VectorRumble
         public int BlurIntensity { get; set; } = 5;
 
         public bool MotionBlur { get; set; } = true;
+
+        /// <summary>How well the computer's pilots fly in a game on this machine alone.</summary>
+        public AIDifficulty AIDifficulty { get; set; } = AIDifficulty.Medium;
     }
 
     /// <summary>

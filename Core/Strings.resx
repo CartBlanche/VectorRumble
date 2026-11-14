@@ -425,4 +425,25 @@ B/O Button, Esc = Cancel</value>
     <data name="Confirm_ExitButton" xml:space="preserve">
         <value>Exit!</value>
     </data>
+    <data name="Label_AIPilots" xml:space="preserve">
+        <value>AI pilots</value>
+    </data>
+    <data name="Label_AIDifficulty" xml:space="preserve">
+        <value>AI difficulty</value>
+    </data>
+    <data name="Value_None" xml:space="preserve">
+        <value>None</value>
+    </data>
+    <data name="AI_Easy" xml:space="preserve">
+        <value>Easy</value>
+    </data>
+    <data name="AI_Medium" xml:space="preserve">
+        <value>Medium</value>
+    </data>
+    <data name="AI_Hard" xml:space="preserve">
+        <value>Hard</value>
+    </data>
+    <data name="AI_Pilot_Name" xml:space="preserve">
+        <value>AI {0}</value>
+    </data>
 </root>

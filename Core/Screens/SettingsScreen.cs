@@ -58,6 +58,15 @@ namespace VectorRumble
             }
 #endif
 
+            var difficulty = new FrameRow(Strings.Label_AIDifficulty, FrameRowKind.Choice) { Value = () => DifficultyName(UserSettings.Current.AIDifficulty) };
+            difficulty.Adjusted += d =>
+            {
+                int count = Enum.GetValues(typeof(AIDifficulty)).Length;
+                UserSettings.Current.AIDifficulty = (AIDifficulty)(((int)UserSettings.Current.AIDifficulty + d + count) % count);
+                UserSettings.Save();
+            };
+            Rows.Add(difficulty);
+
             var neon = new FrameRow(Strings.Label_NeonGlow, FrameRowKind.Toggle) { Value = () => OnOff(WorldRules.NeonEffect) };
             neon.Adjusted += d =>
             {
@@ -101,6 +110,16 @@ namespace VectorRumble
         }
 
         protected override void RebuildForLanguage() => BuildRows();
+
+        static string DifficultyName(AIDifficulty level)
+        {
+            switch (level)
+            {
+                case AIDifficulty.Easy: return Strings.AI_Easy;
+                case AIDifficulty.Hard: return Strings.AI_Hard;
+                default: return Strings.AI_Medium;
+            }
+        }
 
         static string OnOff(bool on) => on ? Strings.Value_On : Strings.Value_Off;
 

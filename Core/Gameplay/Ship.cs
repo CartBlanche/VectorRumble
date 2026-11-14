@@ -188,6 +188,15 @@ namespace VectorRumble
         public ShipControls Controls { get; set; }
 
         /// <summary>
+        /// The computer's pilot, for a ship that flies itself; null for a ship a person (or the network) flies.
+        /// It takes the place of <see cref="Controls"/>: the ship reads what it asks for like any player's input.
+        /// </summary>
+        internal AIPilot Pilot { get; set; }
+
+        /// <summary>The shield, from 0 (gone) to 1 (full).</summary>
+        public float ShieldFraction => shieldStrength / shieldMaximum;
+
+        /// <summary>
         /// What the player asked of this ship at the last <see cref="ProcessInput"/>.
         /// </summary>
         public ShipInput Input { get; private set; }
@@ -414,7 +423,8 @@ namespace VectorRumble
             smallMotorTimer -= elapsedTime;
             largeMotorTimer -= elapsedTime;
 
-            if (!VectorEngine.Platform.IsMobile)
+            // a computer's ship has no pad to shake (and must not shake the pad of the player in its slot)
+            if (!VectorEngine.Platform.IsMobile && Pilot == null)
             {
                 GamePad.SetVibration((Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Pad,
                     (largeMotorTimer > 0f) ? largeMotorSpeed : 0f,
@@ -469,6 +479,11 @@ namespace VectorRumble
                 }
             }
             base.Draw(elapsedTime, lineBatch);
+
+            if (Pilot != null && AIPilot.ShowDebug && !dead)
+            {
+                Pilot.DebugDraw(lineBatch);
+            }
         }
         #endregion
 
@@ -564,6 +579,9 @@ namespace VectorRumble
 
             // tickle the gamepad vibration motors
             FireGamepadMotors(0f, 0.25f);
+
+            // a computer's pilot turns to whoever shot it
+            Pilot?.Hurt((source as Projectile)?.Owner ?? source as Ship);
 
             // once you're hit, the shield-recharge timer starts over
             shieldRechargeTimer = 2.5f;
@@ -841,7 +859,15 @@ namespace VectorRumble
             // If this Ship doesn't have a PlayerIndex set, it is spare
             if (!string.IsNullOrEmpty(PlayerIndex))
             {
-                Input = (Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Read();
+                if (Pilot != null)
+                {
+                    // nothing to think about while a menu is over the game
+                    Input = overlayPresent ? default(ShipInput) : Pilot.Think(elapsedTime);
+                }
+                else
+                {
+                    Input = (Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Read();
+                }
 
                 if (!overlayPresent)
                 {

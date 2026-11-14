@@ -589,6 +589,41 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Value_Kills", resourceCulture);
             }
         }
+        internal static string Label_AIPilots {
+            get {
+                return ResourceManager.GetString("Label_AIPilots", resourceCulture);
+            }
+        }
+        internal static string Label_AIDifficulty {
+            get {
+                return ResourceManager.GetString("Label_AIDifficulty", resourceCulture);
+            }
+        }
+        internal static string Value_None {
+            get {
+                return ResourceManager.GetString("Value_None", resourceCulture);
+            }
+        }
+        internal static string AI_Easy {
+            get {
+                return ResourceManager.GetString("AI_Easy", resourceCulture);
+            }
+        }
+        internal static string AI_Medium {
+            get {
+                return ResourceManager.GetString("AI_Medium", resourceCulture);
+            }
+        }
+        internal static string AI_Hard {
+            get {
+                return ResourceManager.GetString("AI_Hard", resourceCulture);
+            }
+        }
+        internal static string AI_Pilot_Name {
+            get {
+                return ResourceManager.GetString("AI_Pilot_Name", resourceCulture);
+            }
+        }
         internal static string Label_MoreRules {
             get {
                 return ResourceManager.GetString("Label_MoreRules", resourceCulture);
