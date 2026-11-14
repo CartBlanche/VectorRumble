@@ -30,7 +30,8 @@ namespace VectorRumble
     {
         #region Fields
         Random random;
-        CollectCollection<ParticleSystem> particleSystems;
+        // the menu fireworks: VectorEngine particle effects (ParticleEffects.Burst is the classic Vector Rumble explosion as data)
+        ParticleManager fireworks;
         float addTimer;
         Color[] explosionColors = new Color[] 
             {
@@ -72,7 +73,6 @@ namespace VectorRumble
             TransitionOffTime = TimeSpan.FromSeconds(1.0);
 
 			random = new Random();
-            particleSystems = new CollectCollection<ParticleSystem>();
 
             ShowParticles = true;
         }
@@ -97,14 +97,11 @@ namespace VectorRumble
             lineBatch.SetProjection(Matrix.CreateOrthographicOffCenter(0.0f,
                 viewportWidth, viewportHeight, 0.0f, 0.0f, 1.0f));
 
-            // recreate the particle systems
-            particleSystems.Clear();
+            // recreate the fireworks, drawn exactly as before: through this screen's own line batch with the identity transform
+            fireworks = new ParticleManager(ScreenManager, ScreenManager.SpriteBatch, lineBatch) { Transform = Matrix.Identity };
             for (int i = 0; i < 4; i++)
             {
-                particleSystems.Add(new ParticleSystem(
-                   new Vector2(random.Next(viewportWidth), random.Next(viewportHeight)),
-                   Vector2.Zero, 64, 256, 128,
-                   1f + 2f * (float)random.NextDouble(), 0.05f, explosionColors));
+                AddFirework(random.Next(viewportWidth), random.Next(viewportHeight));
             }
 
             base.LoadContent();
@@ -115,6 +112,15 @@ namespace VectorRumble
 
         #region Update and Draw
 
+
+        /// <summary>
+        /// One firework: 64 particles, speed from 256 to 384, a lifetime of one to three seconds, as the old ParticleSystem call was.
+        /// </summary>
+        void AddFirework(int x, int y)
+        {
+            float life = 1f + 2f * (float)random.NextDouble();
+            fireworks.Emit(ParticleEffects.Burst(64, 256, 128, life, 0.05f, explosionColors), new Vector2(x, y));
+        }
 
         /// <summary>
         /// Updates the background screen. Unlike most screens, this should not
@@ -132,21 +138,9 @@ namespace VectorRumble
                 if (addTimer > 0.25f)
                 {
                     addTimer -= 0.15f;
-                    particleSystems.Add(new ParticleSystem(
-                       new Vector2(random.Next(Display.Viewport.Width),
-                           random.Next(Display.Viewport.Height)),
-                       Vector2.Zero, 64, 256, 128,
-                       1f + 2f * (float)random.NextDouble(), 0.05f, explosionColors));
+                    AddFirework(random.Next(Display.Viewport.Width), random.Next(Display.Viewport.Height));
                 }
-                for (int i = 0; i < particleSystems.Count; i++)
-                {
-                    particleSystems[i].Update((float)gameTime.ElapsedGameTime.TotalSeconds);
-                    if (particleSystems[i].IsActive == false)
-                    {
-                        particleSystems.Garbage.Add(particleSystems[i]);
-                    }
-                }
-                particleSystems.Collect();
+                fireworks.Update(gameTime);
             }
 
             base.Update(gameTime, otherScreenHasFocus, false);
@@ -166,12 +160,7 @@ namespace VectorRumble
                 // Apply bloom to the explosions 
                 ScreenManager.BloomComponent.BeginDraw();
 
-                lineBatch.Begin();
-                for (int i = 0; i < particleSystems.Count; i++)
-                {
-                    particleSystems[i].DrawExplosions(lineBatch);
-                }
-                lineBatch.End();
+                fireworks.Draw(gameTime);
 
                 ScreenManager.BloomComponent.Draw(gameTime);
             }
