@@ -132,8 +132,6 @@ namespace VectorRumble
             if (arena?.Walls != null && arena.Walls.Length >= 2)
             {
                 const float ix = x + 90, iy = 420, iw = w - 180, ih = 124;
-                var outline = FrameCanvas.Chamfer(ix, iy, iw, ih, 8);
-                c.Poly(outline, true, new Color(90, 90, 120), 1.2f, 0f);
                 for (int i = 0; i + 1 < arena.Walls.Length; i += 2)
                 {
                     Vector2 a = new Vector2(ix + arena.Walls[i].X * iw, iy + arena.Walls[i].Y * ih);
@@ -147,16 +145,12 @@ namespace VectorRumble
         {
             var theme = FrameScreen.Theme;
             const float x = 740, w = 440;
-            c.Text(c.Display, CurrentShip.Name.ToUpperInvariant(), new Vector2(x + w / 2, 352), CurrentColour, 15f, FrameAlign.Centre);
-
             Arena arena = PreviewPainter.FindArena(MatchRules.Current.Arena);
             if (arena?.Walls == null || arena.Walls.Length < 2)
             {
                 // a "Random" arena has no walls to show
                 c.Text(c.Display, "?", new Vector2(x + w / 2, 458), theme.Text, 48f, FrameAlign.Centre);
             }
-
-            c.Text(c.Display, MatchRules.Current.Arena.ToUpperInvariant(), new Vector2(x + w / 2, 574), theme.Dim, 17f, FrameAlign.Centre);
         }
 
         #endregion
