@@ -21,6 +21,10 @@ env:
   # once the package's "Manage Actions access" lists this repository; otherwise add a PACKAGES_TOKEN secret
   # (a personal access token with read:packages) and it is used instead.
   PackagesFeed: https://nuget.pkg.github.com/CartBlanche/index.json
+  # VectorEngine is its own repo. The projects find it through EngineDir (a checkout can only go inside the workspace,
+  # so the sibling-folder default does not apply here). Pinned to a tag: move it on purpose, not when the engine's main moves.
+  EngineRef: v0.1.0-preview.1
+  EngineDir: ${{ github.workspace }}/VectorEngine/
 
 jobs:
   test:
@@ -29,6 +33,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
+    - name: Checkout VectorEngine
+      uses: actions/checkout@v5
+      with:
+        repository: CartBlanche/VectorEngine
+        ref: ${{ env.EngineRef }}
+        path: VectorEngine
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
@@ -72,6 +82,12 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v5
+    - name: Checkout VectorEngine
+      uses: actions/checkout@v5
+      with:
+        repository: CartBlanche/VectorEngine
+        ref: ${{ env.EngineRef }}
+        path: VectorEngine
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
@@ -123,6 +139,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
+    - name: Checkout VectorEngine
+      uses: actions/checkout@v5
+      with:
+        repository: CartBlanche/VectorEngine
+        ref: ${{ env.EngineRef }}
+        path: VectorEngine
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
