@@ -45,6 +45,10 @@ namespace VectorRumble
                     {
                         LoadSmallFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroSmall"),
                         LoadMediumFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroMedium"),
+                        // the display font has Latin letters only: Chinese and Japanese keep the pixel font, which has their characters
+                        LoadDisplayFont = content => System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName is "zh" or "ja" or "ko"
+                            ? content.LoadLocalized<SpriteFont>("Fonts/retroLarge")
+                            : content.Load<SpriteFont>("Fonts/displayLarge"),
                         Frame = new FrameStyle
                         {
                             ChooseText = () => Strings.Hint_Choose,

@@ -43,7 +43,7 @@ namespace VectorRumble
 
         protected override void DrawBodyText(FrameCanvas c)
         {
-            c.Text(c.Large, Strings.Tagline, new Vector2(90, 164), ScreenManager.MenuStyle.Frame.Text, 22f);
+            c.Text(c.Display, Strings.Tagline, new Vector2(90, 160), ScreenManager.MenuStyle.Frame.Text, 20f);
         }
 
         /// <summary>When the user cancels the main menu, ask if they want to exit.</summary>

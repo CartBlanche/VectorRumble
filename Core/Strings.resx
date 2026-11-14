@@ -279,7 +279,7 @@ B/O Button, Esc = Cancel</value>
 		<value>See how you rank against other pilots</value>
 	</data>
 	<data name="Tagline" xml:space="preserve">
-		<value>ARENA COMBAT · 1 TO 4 PILOTS</value>
+		<value>ARENA COMBAT  |  1 TO 4 PILOTS</value>
 	</data>
 	<data name="About_Tagline" xml:space="preserve">
 		<value>Arena combat for one to four pilots</value>

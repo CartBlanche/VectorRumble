@@ -42,14 +42,14 @@ namespace VectorRumble
             var style = ScreenManager.MenuStyle.Frame;
             float x = area.X + 36, y = area.Y + 28;
             string version = typeof(Arena).Assembly.GetName().Version.ToString(3);
-            c.Text(c.Large, "VECTOR RUMBLE " + version, new Vector2(x, y), style.Hot, 30f);
+            c.Text(c.Display, "VECTOR RUMBLE " + version, new Vector2(x, y), style.Hot, 30f);
             c.Text(c.Medium, Strings.About_Tagline, new Vector2(x, y + 44), style.Text, 23f);
             c.Text(c.Small, Strings.About_Code.ToUpperInvariant(), new Vector2(x, y + 104), style.Dim, 14f);
             c.Text(c.Medium, "Dean Ellis  ·  Dominique Louis", new Vector2(x, y + 126), style.Text, 25f);
             c.Text(c.Small, Strings.About_Thanks.ToUpperInvariant(), new Vector2(x, y + 184), style.Dim, 14f);
             c.Text(c.Medium, "Christian Thode  ·  Yuan-Zzzz", new Vector2(x, y + 206), style.Text, 25f);
             c.Text(c.Small, Strings.About_Powered.ToUpperInvariant(), new Vector2(area.X + 112, area.Bottom - 80), style.Dim, 13f);
-            c.Text(c.Large, "VectorEngine", new Vector2(area.X + 112, area.Bottom - 62), new Color(53, 242, 255), 28f);
+            c.Text(c.Display, "VectorEngine", new Vector2(area.X + 112, area.Bottom - 62), new Color(53, 242, 255), 28f);
         }
 
         public static async void ProcessStart(string uri)

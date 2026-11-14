@@ -40,6 +40,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/retroSmall.spritefont
 
+#begin Fonts/displayLarge.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/displayLarge.spritefont
+
 #begin Fonts/zhLarge.spritefont
 /importer:FontDescriptionImporter
 /processor:LocalizedFontProcessor
