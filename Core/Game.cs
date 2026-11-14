@@ -44,6 +44,15 @@ namespace VectorRumble
                     MenuStyle = new MenuStyle
                     {
                         LoadSmallFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroSmall"),
+                        LoadMediumFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroMedium"),
+                        Frame = new FrameStyle
+                        {
+                            ChooseText = () => Strings.Hint_Choose,
+                            ChangeText = () => Strings.Hint_Change,
+                            SelectText = () => Strings.Hint_Select,
+                            NextText = () => Strings.Hint_Next,
+                            BackText = () => Strings.Back,
+                        },
                         MessageBoxUsageText = () => Strings.MessageBox_Usage,
                         LoadingText = () => Strings.Loading,
                     },

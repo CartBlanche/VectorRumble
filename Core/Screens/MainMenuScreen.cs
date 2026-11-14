@@ -1,153 +1,62 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// MainMenuScreen.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-#region Using Statements
 using System;
 using Microsoft.Xna.Framework;
-#endregion
 
 namespace VectorRumble
 {
     /// <summary>
-    /// The main menu screen is the first thing displayed when the game starts up.
+    /// The main menu: Play, Progress, Settings, About and Exit (Exit is left out on iOS).
     /// </summary>
-    /// <remarks>
-    /// This class is somewhat similar to one of the same name in the 
-    /// GameStateManagement sample.
-    /// </remarks>
-    class MainMenuScreen : MenuScreen
+    class MainMenuScreen : FrameMenuScreen
     {
-        #region Initialization
-
-
-        /// <summary>
-        /// Constructor fills in the menu contents.
-        /// </summary>
         public MainMenuScreen()
         {
-			MenuEntry playGameMenuEntry = new MenuEntry(Strings.Play_Game);
-            MenuEntry optionsMenuEntry = new MenuEntry(Strings.Options);
-            MenuEntry aboutMenuEntry = new MenuEntry(Strings.About);
-            MenuEntry creditsMenuEntry = new MenuEntry(Strings.Credits);
-            MenuEntry exitMenuEntry = new MenuEntry(Strings.Exit);
+            ShowBack = false;
 
-            playGameMenuEntry.Selected += PlayGameMenuEntrySelected;
-            optionsMenuEntry.Selected += OptionsMenuEntrySelected;
-            aboutMenuEntry.Selected += AboutMenuEntrySelected;
-            creditsMenuEntry.Selected += CreditsMenuEntrySelected;
-            exitMenuEntry.Selected += ExitMenuEntrySelected;
-
-            MenuEntries.Add(playGameMenuEntry);
-            MenuEntries.Add(optionsMenuEntry);
-            MenuEntries.Add(aboutMenuEntry);
-            MenuEntries.Add(creditsMenuEntry);
-            MenuEntries.Add(exitMenuEntry);
+            Rows.Add(Entry(Strings.Play_Game, Strings.Desc_Play, FrameIcon.Duel, PlayEntrySelected));
+            Rows.Add(Entry(Strings.Progress, Strings.Desc_Progress, FrameIcon.Trophy, () => ScreenManager.AddScreen(new ProgressMenuScreen())));
+            Rows.Add(Entry(Strings.Settings, Strings.Desc_Settings, FrameIcon.Gear, () => ScreenManager.AddScreen(new OptionsMenuScreen())));
+            Rows.Add(Entry(Strings.About, Strings.Desc_About, FrameIcon.Info, () => ScreenManager.AddScreen(new AboutMenuScreen())));
+            if (!OperatingSystem.IsIOS())
+            {
+                Rows.Add(Entry(Strings.Exit, Strings.Desc_Exit, FrameIcon.Exit, OnCancel));
+            }
         }
 
-        /// <summary>
-        /// Load all content.
-        /// </summary>
+        internal static FrameRow Entry(string label, string description, FrameIcon icon, Action selected)
+        {
+            var row = new FrameRow(label) { Description = description, Icon = icon };
+            row.Selected += selected;
+            return row;
+        }
+
         public override void LoadContent()
         {
-            base.Initialize(); // TODO Move this somewhere better
-
+            base.Initialize();
             World.ArenaManager.LoadContent(ScreenManager.Game.Content);
             base.LoadContent();
         }
-        #endregion
 
-        #region Handle Input
-
-
-        /// <summary>
-        /// Event handler for when the Play Game menu entry is selected.
-        /// </summary>
-        void PlayGameMenuEntrySelected(object sender, EventArgs e)
+        void PlayEntrySelected()
         {
-            // starting a game has its own screens: leave the logo and the fireworks out of them
-            SetBackgroundQuiet(true);
-            ScreenManager.AddScreen(new MultiplayerMenuScreen());
+            ScreenManager.AddScreen(new PlayMenuScreen());
         }
 
-        void SetBackgroundQuiet(bool quiet)
+        protected override void DrawBodyText(FrameCanvas c)
         {
-            foreach (var screen in ScreenManager.GetScreens())
-            {
-                if (screen is BackgroundScreen background)
-                {
-                    background.Quiet = quiet;
-                    break;
-                }
-            }
+            c.Text(c.Small, Strings.Tagline, new Vector2(90, 168), ScreenManager.MenuStyle.Frame.Dim, 14f);
         }
 
-        /// <summary>
-        /// Brings the logo and the fireworks back when the player returns here from starting a game.
-        /// </summary>
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-
-            if (IsActive)
-            {
-                SetBackgroundQuiet(false);
-            }
-        }
-
-        /// <summary>
-        /// Event handler for when the Options menu entry is selected.
-        /// </summary>
-        void OptionsMenuEntrySelected(object sender, EventArgs e)
-        {
-            ScreenManager.AddScreen(new OptionsMenuScreen());
-        }
-
-
-        /// <summary>
-        /// Event handler for when the Exit menu entry is selected.
-        /// </summary>
-        void ExitMenuEntrySelected(object sender, EventArgs e)
-        {
-            OnCancel();
-        }
-
-
-        /// <summary>
-        /// When the user cancels the main menu, ask if they want to exit the sample.
-        /// </summary>
+        /// <summary>When the user cancels the main menu, ask if they want to exit.</summary>
         protected override void OnCancel()
         {
-			MessageBoxScreen messageBox = new MessageBoxScreen(Strings.Exit_Prompt);
-            messageBox.Accepted += ExitMessageBoxAccepted;
+            if (OperatingSystem.IsIOS())
+            {
+                return;
+            }
+
+            MessageBoxScreen messageBox = new MessageBoxScreen(Strings.Exit_Prompt);
+            messageBox.Accepted += (s, e) => ScreenManager.Game.Exit();
             ScreenManager.AddScreen(messageBox);
         }
-
-        /// <summary>
-        /// Event handler for when the user selects ok on the "are you sure
-        /// you want to exit" message box.
-        /// </summary>
-        void ExitMessageBoxAccepted(object sender, EventArgs e)
-        {
-            ScreenManager.Game.Exit();
-        }
-
-        private void AboutMenuEntrySelected(object sender, EventArgs e)
-        {
-            ScreenManager.AddScreen(new AboutMenuScreen());
-        }
-
-        private void CreditsMenuEntrySelected(object sender, EventArgs e)
-        {
-            ScreenManager.AddScreen(new CreditsMenuScreen());
-        }
-
-        
-        #endregion
     }
 }

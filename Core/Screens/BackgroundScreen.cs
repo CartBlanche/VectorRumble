@@ -46,7 +46,7 @@ namespace VectorRumble
         /// Whether the game's logo is drawn. The menus for starting a game turn it off, with the
         /// fireworks, so that they do not distract.
         /// </summary>
-        public bool ShowTitle { get; set; } = true;
+        public bool ShowTitle { get; set; } = false;
 
         /// <summary>
         /// Shows or hides the logo and the fireworks together.

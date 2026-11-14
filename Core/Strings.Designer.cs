@@ -454,5 +454,130 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Lan_Connection_Lost", resourceCulture);
             }
         }
+        internal static string Progress {
+            get {
+                return ResourceManager.GetString("Progress", resourceCulture);
+            }
+        }
+        internal static string Trophies {
+            get {
+                return ResourceManager.GetString("Trophies", resourceCulture);
+            }
+        }
+        internal static string Leaderboard {
+            get {
+                return ResourceManager.GetString("Leaderboard", resourceCulture);
+            }
+        }
+        internal static string Soon {
+            get {
+                return ResourceManager.GetString("Soon", resourceCulture);
+            }
+        }
+        internal static string Settings {
+            get {
+                return ResourceManager.GetString("Settings", resourceCulture);
+            }
+        }
+        internal static string Single_Player {
+            get {
+                return ResourceManager.GetString("Single_Player", resourceCulture);
+            }
+        }
+        internal static string Multiplayer {
+            get {
+                return ResourceManager.GetString("Multiplayer", resourceCulture);
+            }
+        }
+        internal static string Hint_Choose {
+            get {
+                return ResourceManager.GetString("Hint_Choose", resourceCulture);
+            }
+        }
+        internal static string Hint_Change {
+            get {
+                return ResourceManager.GetString("Hint_Change", resourceCulture);
+            }
+        }
+        internal static string Hint_Select {
+            get {
+                return ResourceManager.GetString("Hint_Select", resourceCulture);
+            }
+        }
+        internal static string Hint_Next {
+            get {
+                return ResourceManager.GetString("Hint_Next", resourceCulture);
+            }
+        }
+        internal static string Desc_Play {
+            get {
+                return ResourceManager.GetString("Desc_Play", resourceCulture);
+            }
+        }
+        internal static string Desc_Progress {
+            get {
+                return ResourceManager.GetString("Desc_Progress", resourceCulture);
+            }
+        }
+        internal static string Desc_Settings {
+            get {
+                return ResourceManager.GetString("Desc_Settings", resourceCulture);
+            }
+        }
+        internal static string Desc_About {
+            get {
+                return ResourceManager.GetString("Desc_About", resourceCulture);
+            }
+        }
+        internal static string Desc_Exit {
+            get {
+                return ResourceManager.GetString("Desc_Exit", resourceCulture);
+            }
+        }
+        internal static string Desc_Multiplayer {
+            get {
+                return ResourceManager.GetString("Desc_Multiplayer", resourceCulture);
+            }
+        }
+        internal static string Desc_SinglePlayer {
+            get {
+                return ResourceManager.GetString("Desc_SinglePlayer", resourceCulture);
+            }
+        }
+        internal static string Desc_Trophies {
+            get {
+                return ResourceManager.GetString("Desc_Trophies", resourceCulture);
+            }
+        }
+        internal static string Desc_Leaderboard {
+            get {
+                return ResourceManager.GetString("Desc_Leaderboard", resourceCulture);
+            }
+        }
+        internal static string Tagline {
+            get {
+                return ResourceManager.GetString("Tagline", resourceCulture);
+            }
+        }
+        internal static string About_Tagline {
+            get {
+                return ResourceManager.GetString("About_Tagline", resourceCulture);
+            }
+        }
+        internal static string About_Code {
+            get {
+                return ResourceManager.GetString("About_Code", resourceCulture);
+            }
+        }
+        internal static string About_Thanks {
+            get {
+                return ResourceManager.GetString("About_Thanks", resourceCulture);
+            }
+        }
+        internal static string About_Powered {
+            get {
+                return ResourceManager.GetString("About_Powered", resourceCulture);
+            }
+        }
     }
 }

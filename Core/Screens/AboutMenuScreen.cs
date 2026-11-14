@@ -1,121 +1,60 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// OptionsMenuScreen.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-#region Using Statements
 using System;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-#endregion
 
 namespace VectorRumble
 {
     /// <summary>
-    /// The About screen is brought up over the top of the main menu
-    /// screen and tell you a bit about the game.
+    /// About: the version, who made the game and what it is built with. The links open in the browser.
     /// </summary>
-    class AboutMenuScreen : MenuScreen
+    class AboutMenuScreen : FrameMenuScreen
     {
-        #region Fields
-        MenuEntry builtWithMonoGame = new MenuEntry(Strings.Built_With_MonoGame);
-        MenuEntry fontBy = new MenuEntry(string.Format(Strings.Font_By, "GNU Unifont Glyphs", "Unifoundry.com"));
-        MenuEntry gameEnhancements = new MenuEntry(string.Format(Strings.Game_Enhancements, "Dean Ellis & Dominique Louis"));
-        MenuEntry githubRepo = new MenuEntry(string.Format(Strings.Github_Repo, "CartBlanche/VectorRumble"));
-
         const string MonoGameUri = "https://monogame.net";
         const string FontUri = "https://payhip.com/b/xNA0";
         const string GitHubUri = "https://github.com/CartBlanche/VectorRumble";
-        #endregion
+        const string EngineUri = "https://github.com/CartBlanche/VectorEngine";
 
-        #region Initialization
-
-
-        /// <summary>
-        /// Constructor populates the menu with empty strings. The real values
-        /// are filled in by the Update method to reflect the changing settings.
-        /// </summary>
         public AboutMenuScreen()
         {
-            fontBy.Selected += FontByMenuEntrySelected;
-            builtWithMonoGame.Selected += BuiltWithMonoGameMenuEntrySelected;
-            gameEnhancements.Selected += GameEnhancementsMenuEntrySelected;
-            githubRepo.Selected += GithubRepoMenuEntrySelected;
-
-            MenuEntries.Add(builtWithMonoGame);
-            MenuEntries.Add(fontBy);
-            MenuEntries.Add(gameEnhancements);
-            MenuEntries.Add(githubRepo);
-            var assembly = typeof(Arena).Assembly;
-            MenuEntries.Add(new MenuEntry(assembly.GetName().Version.ToString()));
+            Heading = Strings.About;
+            Layout = FrameLayout.Rows;
+            Rows.Add(Link(Strings.Built_With_MonoGame, MonoGameUri));
+            Rows.Add(Link(string.Format(Strings.Font_By, "GNU Unifont Glyphs", "Unifoundry.com"), FontUri));
+            Rows.Add(Link(string.Format(Strings.Github_Repo, "CartBlanche/VectorRumble"), GitHubUri));
+            Rows.Add(Link("VectorEngine", EngineUri));
         }
-        #endregion
 
-        #region Handle Input
-
-
-        /// <summary>
-        /// Updates the About screen, filling in the latest values for the menu text.
-        /// </summary>
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus,
-                                                       bool coveredByOtherScreen)
+        static FrameRow Link(string label, string uri)
         {
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-
-            // TODO Update dynamic text here 
+            var row = new FrameRow(label, FrameRowKind.Action) { Chevron = true };
+            row.Selected += () => ProcessStart(uri);
+            return row;
         }
 
-        /// <summary>
-        /// Event handler for when the Built With MonoGame menu entry is selected.
-        /// </summary>
-        void BuiltWithMonoGameMenuEntrySelected(object sender, EventArgs e)
+        protected override void DrawPanel(FrameCanvas c, Rectangle area, FrameRow selected)
         {
-            ProcessStart(MonoGameUri);
+            // the engine's mark, at the foot of the panel
+            c.Icon(FrameIcon.Mark, new Vector2(area.X + 70, area.Bottom - 56), 36f, new Color(255, 79, 208), Time, 2.4f);
         }
 
-        /// <summary>
-        /// Event handler for when the Font menu entry is selected.
-        /// </summary>
-        void FontByMenuEntrySelected(object sender, EventArgs e)
+        protected override void DrawPanelText(FrameCanvas c, Rectangle area, FrameRow selected)
         {
-            ProcessStart(FontUri);
+            var style = ScreenManager.MenuStyle.Frame;
+            float x = area.X + 36, y = area.Y + 28;
+            string version = typeof(Arena).Assembly.GetName().Version.ToString(3);
+            c.Text(c.Large, "VECTOR RUMBLE " + version, new Vector2(x, y), style.Hot, 30f);
+            c.Text(c.Medium, Strings.About_Tagline, new Vector2(x, y + 44), style.Text, 23f);
+            c.Text(c.Small, Strings.About_Code.ToUpperInvariant(), new Vector2(x, y + 104), style.Dim, 14f);
+            c.Text(c.Medium, "Dean Ellis  ·  Dominique Louis", new Vector2(x, y + 126), style.Text, 25f);
+            c.Text(c.Small, Strings.About_Thanks.ToUpperInvariant(), new Vector2(x, y + 184), style.Dim, 14f);
+            c.Text(c.Medium, "Christian Thode  ·  Yuan-Zzzz", new Vector2(x, y + 206), style.Text, 25f);
+            c.Text(c.Small, Strings.About_Powered.ToUpperInvariant(), new Vector2(area.X + 112, area.Bottom - 80), style.Dim, 13f);
+            c.Text(c.Large, "VectorEngine", new Vector2(area.X + 112, area.Bottom - 62), new Color(53, 242, 255), 28f);
         }
-
-        /// <summary>
-        /// Event handler for when the GameEnhancements menu entry is selected.
-        /// </summary>
-        private void GameEnhancementsMenuEntrySelected(object sender, EventArgs e)
-        {
-            // Just there for show :)
-        }
-
-        /// <summary>
-        /// Event handler for when the GithubRepo menu entry is selected.
-        /// </summary>
-        private void GithubRepoMenuEntrySelected(object sender, EventArgs e)
-        {
-            ProcessStart(GitHubUri);
-        }
-
-        /// <summary>
-        /// When the user cancels the options screen, go back to the main menu.
-        /// </summary>
-        protected override void OnCancel()
-        {
-            ExitScreen();
-        }
-
 
         public static async void ProcessStart(string uri)
         {
             await Task.Run(() => { try { System.Diagnostics.Process.Start(uri); } catch { } });
         }
-        #endregion
     }
 }

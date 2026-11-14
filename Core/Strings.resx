@@ -218,4 +218,79 @@ B/O Button, Esc = Cancel</value>
     <data name="Lan_Connection_Lost" xml:space="preserve">
         <value>The network game ended.</value>
     </data>
+	<data name="Progress" xml:space="preserve">
+		<value>Progress</value>
+	</data>
+	<data name="Trophies" xml:space="preserve">
+		<value>Trophies</value>
+	</data>
+	<data name="Leaderboard" xml:space="preserve">
+		<value>Leaderboard</value>
+	</data>
+	<data name="Soon" xml:space="preserve">
+		<value>Soon</value>
+	</data>
+	<data name="Settings" xml:space="preserve">
+		<value>Settings</value>
+	</data>
+	<data name="Single_Player" xml:space="preserve">
+		<value>Single Player</value>
+	</data>
+	<data name="Multiplayer" xml:space="preserve">
+		<value>Multiplayer</value>
+	</data>
+	<data name="Hint_Choose" xml:space="preserve">
+		<value>Choose</value>
+	</data>
+	<data name="Hint_Change" xml:space="preserve">
+		<value>Change</value>
+	</data>
+	<data name="Hint_Select" xml:space="preserve">
+		<value>Select</value>
+	</data>
+	<data name="Hint_Next" xml:space="preserve">
+		<value>Next</value>
+	</data>
+	<data name="Desc_Play" xml:space="preserve">
+		<value>Play online with friends, or face up to three AI pilots</value>
+	</data>
+	<data name="Desc_Progress" xml:space="preserve">
+		<value>Your trophies and the leaderboard</value>
+	</data>
+	<data name="Desc_Settings" xml:space="preserve">
+		<value>Language, sound and display</value>
+	</data>
+	<data name="Desc_About" xml:space="preserve">
+		<value>Credits and version</value>
+	</data>
+	<data name="Desc_Exit" xml:space="preserve">
+		<value>Close the game</value>
+	</data>
+	<data name="Desc_Multiplayer" xml:space="preserve">
+		<value>Host a game, or join one on your network</value>
+	</data>
+	<data name="Desc_SinglePlayer" xml:space="preserve">
+		<value>You against up to three AI pilots</value>
+	</data>
+	<data name="Desc_Trophies" xml:space="preserve">
+		<value>Earn trophies for wins, streaks and clean sweeps</value>
+	</data>
+	<data name="Desc_Leaderboard" xml:space="preserve">
+		<value>See how you rank against other pilots</value>
+	</data>
+	<data name="Tagline" xml:space="preserve">
+		<value>ARENA COMBAT · 1 TO 4 PILOTS</value>
+	</data>
+	<data name="About_Tagline" xml:space="preserve">
+		<value>Arena combat for one to four pilots</value>
+	</data>
+	<data name="About_Code" xml:space="preserve">
+		<value>Code and design</value>
+	</data>
+	<data name="About_Thanks" xml:space="preserve">
+		<value>With thanks to</value>
+	</data>
+	<data name="About_Powered" xml:space="preserve">
+		<value>Powered by</value>
+	</data>
 </root>
