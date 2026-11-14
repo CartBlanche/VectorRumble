@@ -293,4 +293,67 @@ B/O Button, Esc = Cancel</value>
 	<data name="About_Powered" xml:space="preserve">
 		<value>Powered by</value>
 	</data>
+	<data name="Label_FirstTo" xml:space="preserve">
+		<value>First to</value>
+	</data>
+	<data name="Value_Kills" xml:space="preserve">
+		<value>{0} kills</value>
+	</data>
+	<data name="Label_MoreRules" xml:space="preserve">
+		<value>More rules</value>
+	</data>
+	<data name="Label_Asteroids" xml:space="preserve">
+		<value>Asteroids</value>
+	</data>
+	<data name="Label_FreeAim" xml:space="preserve">
+		<value>Free aim</value>
+	</data>
+	<data name="Label_Ship" xml:space="preserve">
+		<value>Ship</value>
+	</data>
+	<data name="Label_Colour" xml:space="preserve">
+		<value>Colour</value>
+	</data>
+	<data name="Label_Arena" xml:space="preserve">
+		<value>Arena</value>
+	</data>
+	<data name="Hint_Start" xml:space="preserve">
+		<value>Start</value>
+	</data>
+	<data name="Value_On" xml:space="preserve">
+		<value>On</value>
+	</data>
+	<data name="Value_Off" xml:space="preserve">
+		<value>Off</value>
+	</data>
+	<data name="Ship_And_Arena" xml:space="preserve">
+		<value>Ship &amp; Arena</value>
+	</data>
+	<data name="Setup_Next_Hint" xml:space="preserve">
+		<value>Next: pick your ship and the arena</value>
+	</data>
+	<data name="Colour_Orange" xml:space="preserve">
+		<value>Orange</value>
+	</data>
+	<data name="Colour_Cyan" xml:space="preserve">
+		<value>Cyan</value>
+	</data>
+	<data name="Colour_Magenta" xml:space="preserve">
+		<value>Magenta</value>
+	</data>
+	<data name="Colour_Lime" xml:space="preserve">
+		<value>Lime</value>
+	</data>
+	<data name="Colour_Yellow" xml:space="preserve">
+		<value>Yellow</value>
+	</data>
+	<data name="Colour_Red" xml:space="preserve">
+		<value>Red</value>
+	</data>
+	<data name="Colour_Blue" xml:space="preserve">
+		<value>Blue</value>
+	</data>
+	<data name="Colour_Violet" xml:space="preserve">
+		<value>Violet</value>
+	</data>
 </root>

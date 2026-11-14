@@ -9,7 +9,7 @@ namespace VectorRumble
         {
             Heading = Strings.Play_Game;
             Rows.Add(MainMenuScreen.Entry(Strings.Multiplayer, Strings.Desc_Multiplayer, FrameIcon.Wifi, () => ScreenManager.AddScreen(new LanBrowserScreen())));
-            Rows.Add(MainMenuScreen.Entry(Strings.Single_Player, Strings.Desc_SinglePlayer, FrameIcon.Ship, () => ScreenManager.AddScreen(new GameSetupScreen())));
+            Rows.Add(MainMenuScreen.Entry(Strings.Single_Player, Strings.Desc_SinglePlayer, FrameIcon.Ship, () => ScreenManager.AddScreen(new SinglePlayerSetupScreen())));
         }
     }
 }

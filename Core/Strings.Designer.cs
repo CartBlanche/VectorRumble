@@ -579,5 +579,110 @@ namespace VectorRumble {
                 return ResourceManager.GetString("About_Powered", resourceCulture);
             }
         }
+        internal static string Label_FirstTo {
+            get {
+                return ResourceManager.GetString("Label_FirstTo", resourceCulture);
+            }
+        }
+        internal static string Value_Kills {
+            get {
+                return ResourceManager.GetString("Value_Kills", resourceCulture);
+            }
+        }
+        internal static string Label_MoreRules {
+            get {
+                return ResourceManager.GetString("Label_MoreRules", resourceCulture);
+            }
+        }
+        internal static string Label_Asteroids {
+            get {
+                return ResourceManager.GetString("Label_Asteroids", resourceCulture);
+            }
+        }
+        internal static string Label_FreeAim {
+            get {
+                return ResourceManager.GetString("Label_FreeAim", resourceCulture);
+            }
+        }
+        internal static string Label_Ship {
+            get {
+                return ResourceManager.GetString("Label_Ship", resourceCulture);
+            }
+        }
+        internal static string Label_Colour {
+            get {
+                return ResourceManager.GetString("Label_Colour", resourceCulture);
+            }
+        }
+        internal static string Label_Arena {
+            get {
+                return ResourceManager.GetString("Label_Arena", resourceCulture);
+            }
+        }
+        internal static string Hint_Start {
+            get {
+                return ResourceManager.GetString("Hint_Start", resourceCulture);
+            }
+        }
+        internal static string Value_On {
+            get {
+                return ResourceManager.GetString("Value_On", resourceCulture);
+            }
+        }
+        internal static string Value_Off {
+            get {
+                return ResourceManager.GetString("Value_Off", resourceCulture);
+            }
+        }
+        internal static string Ship_And_Arena {
+            get {
+                return ResourceManager.GetString("Ship_And_Arena", resourceCulture);
+            }
+        }
+        internal static string Setup_Next_Hint {
+            get {
+                return ResourceManager.GetString("Setup_Next_Hint", resourceCulture);
+            }
+        }
+        internal static string Colour_Orange {
+            get {
+                return ResourceManager.GetString("Colour_Orange", resourceCulture);
+            }
+        }
+        internal static string Colour_Cyan {
+            get {
+                return ResourceManager.GetString("Colour_Cyan", resourceCulture);
+            }
+        }
+        internal static string Colour_Magenta {
+            get {
+                return ResourceManager.GetString("Colour_Magenta", resourceCulture);
+            }
+        }
+        internal static string Colour_Lime {
+            get {
+                return ResourceManager.GetString("Colour_Lime", resourceCulture);
+            }
+        }
+        internal static string Colour_Yellow {
+            get {
+                return ResourceManager.GetString("Colour_Yellow", resourceCulture);
+            }
+        }
+        internal static string Colour_Red {
+            get {
+                return ResourceManager.GetString("Colour_Red", resourceCulture);
+            }
+        }
+        internal static string Colour_Blue {
+            get {
+                return ResourceManager.GetString("Colour_Blue", resourceCulture);
+            }
+        }
+        internal static string Colour_Violet {
+            get {
+                return ResourceManager.GetString("Colour_Violet", resourceCulture);
+            }
+        }
     }
 }

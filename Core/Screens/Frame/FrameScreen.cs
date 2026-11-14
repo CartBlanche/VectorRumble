@@ -54,6 +54,9 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
     /// <summary>Whether the panel on the right is drawn (rows layout: only if <see cref="DrawPanel"/> draws something).</summary>
     protected bool ShowPanel { get; set; } = true;
 
+    /// <summary>How wide the column of rows is: narrower when a panel sits beside it.</summary>
+    protected virtual float RowsWidth => ShowPanel ? 600f : 840f;
+
     /// <summary>The line the player is on, among the visible lines.</summary>
     protected int SelectedIndex
     {
@@ -319,7 +322,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
 
     void DrawRowShapes(List<FrameRow> vis, int sel, Color hot)
     {
-        float step = RowStep(vis, ShowPanel ? 70f : 74f), x = Left, w = ShowPanel ? 600f : 840f;
+        float step = RowStep(vis, ShowPanel ? 70f : 74f), x = Left, w = RowsWidth;
         for (int i = 0; i < vis.Count; i++)
         {
             float y = Style.ContentTop + i * step, dx = Slide(i);
@@ -385,7 +388,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
 
     void DrawRowText(List<FrameRow> vis, int sel, Color hot)
     {
-        float step = RowStep(vis, ShowPanel ? 70f : 74f), x = Left, w = ShowPanel ? 600f : 840f;
+        float step = RowStep(vis, ShowPanel ? 70f : 74f), x = Left, w = RowsWidth;
         for (int i = 0; i < vis.Count; i++)
         {
             float y = Style.ContentTop + i * step, dx = Slide(i);
@@ -481,8 +484,8 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
 
     float HintTotal(List<(string key, string label)> hints)
     {
-        float total = -22f;
-        foreach (var (k, l) in hints) total += KeyWidth(k) + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 22;
+        float total = -30f;
+        foreach (var (k, l) in hints) total += KeyWidth(k) + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 30;
         return total;
     }
 
@@ -497,7 +500,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
             Vector2 c = new(x + kw / 2, y - 7);
             if (k == "UD") { canvas.Poly(new[] { c + new Vector2(-9, 2), c + new Vector2(-5, -3), c + new Vector2(-1, 2) }, false, Style.Text, 1.5f, 0f); canvas.Poly(new[] { c + new Vector2(1, -3), c + new Vector2(5, 2), c + new Vector2(9, -3) }, false, Style.Text, 1.5f, 0f); }
             if (k == "LR") { canvas.Poly(new[] { c + new Vector2(-3, -5), c + new Vector2(-8, 0), c + new Vector2(-3, 5) }, false, Style.Text, 1.5f, 0f); canvas.Poly(new[] { c + new Vector2(3, -5), c + new Vector2(8, 0), c + new Vector2(3, 5) }, false, Style.Text, 1.5f, 0f); }
-            x += kw + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 22;
+            x += kw + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 30;
         }
     }
 
@@ -509,7 +512,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
             float kw = KeyWidth(k);
             if (k is not ("UD" or "LR")) canvas.Text(canvas.Small, k, new Vector2(x + kw / 2, y - 15), Style.Text, 14f, FrameAlign.Centre);
             canvas.Text(canvas.Small, l, new Vector2(x + kw + 8, y - 16), Style.Dim, 15f);
-            x += kw + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 22;
+            x += kw + 8 + FrameCanvas.Measure(canvas.Small, l, 15f) + 30;
         }
     }
 
