@@ -20,6 +20,9 @@ public class FrameStyle
     /// <summary>The preview panel and the inner rule.</summary>
     public Color Panel { get; set; } = new Color(138, 92, 255);
 
+    /// <summary>The chevron of a row that opens a web page, so it reads differently from one that opens another screen.</summary>
+    public Color Link { get; set; } = new Color(90, 140, 255);
+
     /// <summary>Text and unselected entries.</summary>
     public Color Text { get; set; } = new Color(241, 238, 252);
 

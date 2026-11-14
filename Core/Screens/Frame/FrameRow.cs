@@ -65,6 +65,9 @@ public class FrameRow
     /// <summary>Shows a chevron at the right end of an action row.</summary>
     public bool Chevron { get; set; }
 
+    /// <summary>The row leaves the game (opens a web page): its chevron is drawn in the link colour.</summary>
+    public bool External { get; set; }
+
     /// <summary>The row was chosen.</summary>
     public event Action Selected;
 

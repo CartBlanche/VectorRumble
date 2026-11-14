@@ -332,8 +332,6 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
             if (i == sel)
             {
                 canvas.Fill(new[] { new Vector2(rect.X + dx, rect.Y), new Vector2(rect.Right + dx, rect.Y), new Vector2(rect.Right + dx, rect.Bottom), new Vector2(rect.X + dx, rect.Bottom) }, hot, .08f);
-                canvas.Poly(new[] { new Vector2(rect.X + dx, rect.Y + 14), new Vector2(rect.X + dx, rect.Y), new Vector2(rect.X + 16 + dx, rect.Y) }, false, hot, 2f, .9f);
-                canvas.Poly(new[] { new Vector2(rect.Right + dx, rect.Bottom - 14), new Vector2(rect.Right + dx, rect.Bottom), new Vector2(rect.Right - 16 + dx, rect.Bottom) }, false, hot, 2f, .9f);
             }
             else canvas.Line(new Vector2(rect.X + 6 + dx, rect.Bottom), new Vector2(rect.Right - 6 + dx, rect.Bottom), Style.Panel, 1f, .16f);
 
@@ -348,7 +346,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
                     Arrows(vx1, vx2, cy, arrowCol, on);
                     break;
                 case FrameRowKind.Action:
-                    if (r.Chevron) canvas.Poly(new[] { new Vector2(vx2 - 10, cy - 11), new Vector2(vx2, cy), new Vector2(vx2 - 10, cy + 11) }, false, on ? hot : Style.Dim, 2f, on ? .8f : 0f);
+                    if (r.Chevron) canvas.Poly(new[] { new Vector2(vx2 - 10, cy - 11), new Vector2(vx2, cy), new Vector2(vx2 - 10, cy + 11) }, false, r.External ? Style.Link : on ? hot : Style.Dim, 2f, r.External || on ? .8f : 0f);
                     break;
                 case FrameRowKind.Expander:
                     bool open = r.Expanded?.Invoke() ?? false;

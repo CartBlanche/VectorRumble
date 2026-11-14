@@ -26,7 +26,7 @@ namespace VectorRumble
 
         static FrameRow Link(string label, string uri)
         {
-            var row = new FrameRow(label, FrameRowKind.Action) { Chevron = true };
+            var row = new FrameRow(label, FrameRowKind.Action) { Chevron = true, External = true };
             row.Selected += () => ProcessStart(uri);
             return row;
         }
