@@ -23,7 +23,7 @@ env:
   PackagesFeed: https://nuget.pkg.github.com/CartBlanche/index.json
   # VectorEngine is its own repo. The projects find it through EngineDir (a checkout can only go inside the workspace,
   # so the sibling-folder default does not apply here). Pinned to a tag: move it on purpose, not when the engine's main moves.
-  EngineRef: v0.1.0-preview.2
+  EngineRef: v0.1.0-preview.4
   EngineDir: ${{ github.workspace }}/VectorEngine/
 
 jobs:

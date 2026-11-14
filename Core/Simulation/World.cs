@@ -271,12 +271,6 @@ namespace VectorRumble
         }        
         #endregion
 
-        /// <summary>
-        /// The explosions and other particle effects of this world. Headless by default (tests, a server); the gameplay screen puts a
-        /// ParticleManager here while it is showing the world, so the same effects are drawn.
-        /// </summary>
-        public ParticleField Particles { get; set; } = new ParticleField();
-
         #region Update and Draw
         /// <summary>
         /// Update the world simulation.
@@ -284,9 +278,6 @@ namespace VectorRumble
         /// <param name="elapsedTime">The amount of elapsed time, in seconds.</param>
         protected override void OnUpdated(float elapsedTime)
         {
-            // the explosions and other effects (after the actors, as the old particle systems were)
-            Particles.Update(elapsedTime);
-
             // update the starfield
             Vector2 starfieldTarget = Vector2.Zero;
             int playingPlayers = 0;
