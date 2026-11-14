@@ -25,6 +25,7 @@ namespace VectorRumble
         protected ContentManager content;
 
         protected LineBatch lineBatch;
+        protected ParticleManager effects;
 
         protected SpriteBatch spriteBatch;
         SpriteFont spriteFont;
@@ -78,6 +79,10 @@ namespace VectorRumble
                 Display.Viewport.Width,
                 Display.Viewport.Height, 0.0f, 0.0f, 1.0f));
 
+            // the world's explosions are drawn by this manager, through the same line batch and (identity) transform as the walls
+            effects = new ParticleManager(ScreenManager, spriteBatch, lineBatch) { Transform = Matrix.Identity };
+            World.Particles = effects;
+
             if (VectorEngine.Platform.IsMobile)
             {
                 virtualGamePad = new VirtualGamePad(null, content.Load<Texture2D>("Textures/gamepad"),
@@ -93,6 +98,14 @@ namespace VectorRumble
         /// </summary>
         public override void UnloadContent()
         {
+            if (effects != null)
+            {
+                // the world outlives this screen: give it back a headless field, so nothing keeps the line batch disposed below
+                if (World.Particles == effects)
+                    World.Particles = new ParticleField();
+                effects = null;
+            }
+
             if (spriteBatch != null)
             {
                 spriteBatch.Dispose();
@@ -446,16 +459,10 @@ namespace VectorRumble
                 ScreenManager.BloomComponent.BeginDraw();
             }
 
-            lineBatch.Begin();
+            // the explosions (the manager has its own line batch pass: it comes first, as the particles did)
+            effects.Draw(gameTime);
 
-            // draw all particle systems
-            foreach (ParticleSystem particleSystem in World.ParticleSystems)
-            {
-                if (particleSystem.IsActive)
-                {
-                    particleSystem.DrawExplosions(lineBatch);
-                }
-            }
+            lineBatch.Begin();
 
             // draw the walls
             World.SelectedArena.DrawWalls(lineBatch);

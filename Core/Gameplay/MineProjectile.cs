@@ -84,10 +84,8 @@ namespace VectorRumble
             world.AudioManager.PlayCue("explosionLarge");
 
             // add a double-particle system effect
-            world.ParticleSystems.Add(new ParticleSystem(this.position,
-                Vector2.Zero, 64, 32f, 64f, 3f, 0.05f, explosionColors));
-            world.ParticleSystems.Add(new ParticleSystem(this.position,
-                Vector2.Zero, 16, 128f, 256f, 4f, 0.1f, explosionColors));
+            world.Particles.Emit(ParticleEffects.Burst(64, 32f, 64f, 3f, 0.05f, explosionColors), this.position);
+            world.Particles.Emit(ParticleEffects.Burst(16, 128f, 256f, 4f, 0.1f, explosionColors), this.position);
 
             base.Explode(touchedActor);
         }

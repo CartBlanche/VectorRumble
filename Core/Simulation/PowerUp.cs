@@ -219,8 +219,7 @@ namespace VectorRumble
             // tickle the ship's vibration motors
             ship.FireGamepadMotors(0f, 0.25f);
             // add a particle system for effect
-            world.ParticleSystems.Add(new ParticleSystem(this.Position, 
-                Vector2.Zero, 24, 32f, 64f, 2f, 0.1f, particleColors));
+            world.Particles.Emit(ParticleEffects.Burst(24, 32f, 64f, 2f, 0.1f, particleColors), this.Position);
             // play the "power-up picked up" cue
             world.AudioManager.PlayCue("powerUpTouch");
             // kill the power-up
@@ -255,8 +254,7 @@ namespace VectorRumble
             // recreate the particle array using the current color
             this.particleColors = new Color[] { this.color, Color.White };
             // add a particle effect and play a sound effect
-            world.ParticleSystems.Add(new ParticleSystem(this.position, 
-                Vector2.Zero, 24, 32f, 64f, 2f, 0.1f, particleColors));
+            world.Particles.Emit(ParticleEffects.Burst(24, 32f, 64f, 2f, 0.1f, particleColors), this.position);
             world.AudioManager.PlayCue("powerUpSpawn");
         }
         #endregion

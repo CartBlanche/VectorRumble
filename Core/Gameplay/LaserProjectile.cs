@@ -83,13 +83,11 @@ namespace VectorRumble
                 // make the particle effect slightly more significant if it was a ship
                 if (target is Ship)
                 {
-                    world.ParticleSystems.Add(new ParticleSystem(this.position,
-                        Vector2.Zero, 16, 32f, 64f, 1f, 0.1f, explosionColors));
+                    world.Particles.Emit(ParticleEffects.Burst(16, 32f, 64f, 1f, 0.1f, explosionColors), this.position);
                 }
                 else
                 {
-                    world.ParticleSystems.Add(new ParticleSystem(this.position,
-                        Vector2.Zero, 4, 32f, 64f, 1f, 0.05f, explosionColors));
+                    world.Particles.Emit(ParticleEffects.Burst(4, 32f, 64f, 1f, 0.05f, explosionColors), this.position);
                 }
                 return true;
             }

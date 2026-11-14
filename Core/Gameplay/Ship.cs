@@ -601,10 +601,8 @@ namespace VectorRumble
                 // play several explosion cues
                 world.AudioManager.PlayCue("playerDeath");
                 // add several particle systems for effect
-                world.ParticleSystems.Add(new ParticleSystem(this.position,
-                    Vector2.Zero, 128, 64f, 256f, 3f, 0.05f, explosionColors));
-                world.ParticleSystems.Add(new ParticleSystem(this.position,
-                    Vector2.Zero, 64, 256f, 1024f, 3f, 0.05f, explosionColors));
+                world.Particles.Emit(ParticleEffects.Burst(128, 64f, 256f, 3f, 0.05f, explosionColors), this.position);
+                world.Particles.Emit(ParticleEffects.Burst(64, 256f, 1024f, 3f, 0.05f, explosionColors), this.position);
                 // reset the respawning timer
                 respawnTimer = respawnTimerOnDeath;
 
@@ -689,8 +687,7 @@ namespace VectorRumble
                 // play the ship-spawn cue
                 world.AudioManager.PlayCue("playerSpawn");
                 // add a particle effect at the ship's new location
-                world.ParticleSystems.Add(new ParticleSystem(this.position, 
-                    Vector2.Zero, 32, 32f, 64f, 2f, 0.1f, new Color[] { this.color }));
+                world.Particles.Emit(ParticleEffects.Burst(32, 32f, 64f, 2f, 0.1f, new Color[] { this.color }), this.position);
                 // remind the player that we're spawning
                 FireGamepadMotors(0.25f, 0f);
             }
