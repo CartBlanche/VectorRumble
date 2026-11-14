@@ -413,21 +413,6 @@ B/O 按钮, Esc = 取消</value>
     <data name="Desc_QuitMatch" xml:space="preserve">
         <value>离开本场比赛并返回菜单</value>
     </data>
-    <data name="Confirm_QuitTitle" xml:space="preserve">
-        <value>退出本场比赛？</value>
-    </data>
-    <data name="Confirm_QuitBody" xml:space="preserve">
-        <value>你在本场比赛的得分将会丢失。</value>
-    </data>
-    <data name="Confirm_KeepPlaying" xml:space="preserve">
-        <value>继续游戏</value>
-    </data>
-    <data name="Confirm_QuitToMenu" xml:space="preserve">
-        <value>返回菜单</value>
-    </data>
-    <data name="Confirm_ExitTitle" xml:space="preserve">
-        <value>退出游戏？</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>留下</value>
     </data>
@@ -445,5 +430,14 @@ B/O 按钮, Esc = 取消</value>
     </data>
     <data name="Winner_Is" xml:space="preserve">
         <value>获胜者：{0}</value>
+    </data>
+    <data name="Confirm_LeaveTitle" xml:space="preserve">
+        <value>离开？</value>
+    </data>
+    <data name="Confirm_Leave" xml:space="preserve">
+        <value>离开！</value>
+    </data>
+    <data name="Confirm_ExitButton" xml:space="preserve">
+        <value>退出！</value>
     </data>
 </root>

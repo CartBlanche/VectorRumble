@@ -413,21 +413,6 @@ B/O Button, Esc = Cancel</value>
     <data name="Desc_QuitMatch" xml:space="preserve">
         <value>Leave this match and go back to the menu</value>
     </data>
-    <data name="Confirm_QuitTitle" xml:space="preserve">
-        <value>Quit this match?</value>
-    </data>
-    <data name="Confirm_QuitBody" xml:space="preserve">
-        <value>Your score in this match will be lost.</value>
-    </data>
-    <data name="Confirm_KeepPlaying" xml:space="preserve">
-        <value>Keep playing</value>
-    </data>
-    <data name="Confirm_QuitToMenu" xml:space="preserve">
-        <value>Quit to menu</value>
-    </data>
-    <data name="Confirm_ExitTitle" xml:space="preserve">
-        <value>Exit the game?</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>Stay</value>
     </data>
@@ -445,5 +430,14 @@ B/O Button, Esc = Cancel</value>
     </data>
     <data name="Winner_Is" xml:space="preserve">
         <value>Winner: {0}</value>
+    </data>
+    <data name="Confirm_LeaveTitle" xml:space="preserve">
+        <value>Leave?</value>
+    </data>
+    <data name="Confirm_Leave" xml:space="preserve">
+        <value>Leave!</value>
+    </data>
+    <data name="Confirm_ExitButton" xml:space="preserve">
+        <value>Exit!</value>
     </data>
 </root>

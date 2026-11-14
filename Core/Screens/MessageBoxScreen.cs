@@ -4,16 +4,16 @@ using Microsoft.Xna.Framework;
 namespace VectorRumble
 {
     /// <summary>
-    /// A box over the screen with a question (two buttons) or a notice (one). The safer button, which does not accept,
-    /// comes first and is the one selected when the box opens.
+    /// A box over the screen with a question (two buttons) or a notice (one). The button that backs out is on the left and
+    /// the one that goes ahead on the right; the question says which of them is selected when the box opens.
     /// </summary>
     class MessageBoxScreen : FrameMenuScreen
     {
         public event EventHandler<EventArgs> Accepted;
         public event EventHandler<EventArgs> Cancelled;
 
-        /// <summary>A question: <paramref name="cancelLabel"/> leaves things as they are, <paramref name="acceptLabel"/> goes ahead.</summary>
-        public MessageBoxScreen(string heading, string body, string acceptLabel, string cancelLabel)
+        /// <summary>A question: <paramref name="cancelLabel"/> (left) leaves things as they are, <paramref name="acceptLabel"/> (right) goes ahead, and is selected first when <paramref name="acceptIsDefault"/>.</summary>
+        public MessageBoxScreen(string heading, string body, string acceptLabel, string cancelLabel, bool acceptIsDefault = false)
         {
             Layout = FrameLayout.Modal;
             Heading = heading;
@@ -31,6 +31,11 @@ namespace VectorRumble
             var accept = new FrameRow(acceptLabel);
             accept.Selected += Accept;
             Rows.Add(accept);
+
+            if (acceptIsDefault)
+            {
+                SelectedIndex = Rows.Count - 1;
+            }
         }
 
         /// <summary>A notice, with one button.</summary>

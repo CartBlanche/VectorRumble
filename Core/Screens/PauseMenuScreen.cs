@@ -33,8 +33,7 @@ namespace VectorRumble
 
         void ConfirmQuit()
         {
-            var box = new MessageBoxScreen(Strings.Confirm_QuitTitle, Strings.Confirm_QuitBody,
-                Strings.Confirm_QuitToMenu, Strings.Confirm_KeepPlaying);
+            var box = new MessageBoxScreen(Strings.Confirm_LeaveTitle, "", Strings.Confirm_Leave, Strings.Confirm_Stay);
             box.Accepted += QuitAccepted;
             ScreenManager.AddScreen(box);
         }

@@ -410,21 +410,6 @@ Botón B/O, Tecla Esc = Cancelar</value>
     <data name="Desc_QuitMatch" xml:space="preserve">
         <value>Salir de esta partida y volver al menú</value>
     </data>
-    <data name="Confirm_QuitTitle" xml:space="preserve">
-        <value>¿Abandonar esta partida?</value>
-    </data>
-    <data name="Confirm_QuitBody" xml:space="preserve">
-        <value>Perderás tu puntuación de esta partida.</value>
-    </data>
-    <data name="Confirm_KeepPlaying" xml:space="preserve">
-        <value>Seguir jugando</value>
-    </data>
-    <data name="Confirm_QuitToMenu" xml:space="preserve">
-        <value>Salir al menú</value>
-    </data>
-    <data name="Confirm_ExitTitle" xml:space="preserve">
-        <value>¿Salir del juego?</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>Quedarme</value>
     </data>
@@ -442,5 +427,14 @@ Botón B/O, Tecla Esc = Cancelar</value>
     </data>
     <data name="Winner_Is" xml:space="preserve">
         <value>Ganador: {0}</value>
+    </data>
+    <data name="Confirm_LeaveTitle" xml:space="preserve">
+        <value>¿Salir?</value>
+    </data>
+    <data name="Confirm_Leave" xml:space="preserve">
+        <value>¡Salir!</value>
+    </data>
+    <data name="Confirm_ExitButton" xml:space="preserve">
+        <value>¡Salir!</value>
     </data>
 </root>

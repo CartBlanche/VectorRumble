@@ -163,8 +163,8 @@ namespace VectorRumble
                 c.Polygon(line.Shape, new Vector2(PanelX + 40, y), MathF.PI / 2f, 13f / Math.Max(1f, line.Shape.Max(p => p.Length())), line.Colour, 2f);
 
                 // the bar, in the pilot's colour, as long as their share of the score limit
-                float full = PanelW - 250f, length = Math.Max(6f, full * Math.Max(0, line.Score) / most);
-                var bar = new[] { new Vector2(PanelX + 190, y - 6), new Vector2(PanelX + 190 + length, y - 6), new Vector2(PanelX + 190 + length, y + 6), new Vector2(PanelX + 190, y + 6) };
+                float full = PanelW - 296f, length = Math.Max(6f, full * Math.Max(0, line.Score) / most);
+                var bar = new[] { new Vector2(PanelX + 236, y - 6), new Vector2(PanelX + 236 + length, y - 6), new Vector2(PanelX + 236 + length, y + 6), new Vector2(PanelX + 236, y + 6) };
                 c.Fill(bar, line.Colour, .85f);
             }
         }
@@ -187,14 +187,14 @@ namespace VectorRumble
                 ScoreLine line = scores[i];
                 bool winner = i == 0;
                 string name = line.Name ?? string.Empty;
-                float height = 24f, room = 112f;
+                float height = 24f, room = 150f;
                 float width = FrameCanvas.Measure(c.Medium, name, height);
                 if (width > room) height = Math.Max(12f, height * room / width);
                 c.Text(c.Medium, name, new Vector2(PanelX + 72, y - height / 2f), winner ? theme.Text : theme.Dim, height);
-                c.Text(c.Display, line.Score.ToString(), new Vector2(PanelX + PanelW - 24, y - 12), winner ? theme.Hot : theme.Dim, 24f, FrameAlign.Right);
+                c.Text(c.Medium, line.Score.ToString(), new Vector2(PanelX + PanelW - 24, y - 13), winner ? theme.Hot : theme.Dim, 26f, FrameAlign.Right);
             }
 
-            c.Text(c.Display, message.ToUpperInvariant(), new Vector2(PanelX + PanelW / 2, 562), theme.Hot, 16f, FrameAlign.Centre);
+            c.Text(c.Medium, message, new Vector2(PanelX + PanelW / 2, 556), theme.Hot, 22f, FrameAlign.Centre);
         }
 
         #endregion

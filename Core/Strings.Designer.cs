@@ -779,31 +779,6 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Desc_QuitMatch", resourceCulture);
             }
         }
-        internal static string Confirm_QuitTitle {
-            get {
-                return ResourceManager.GetString("Confirm_QuitTitle", resourceCulture);
-            }
-        }
-        internal static string Confirm_QuitBody {
-            get {
-                return ResourceManager.GetString("Confirm_QuitBody", resourceCulture);
-            }
-        }
-        internal static string Confirm_KeepPlaying {
-            get {
-                return ResourceManager.GetString("Confirm_KeepPlaying", resourceCulture);
-            }
-        }
-        internal static string Confirm_QuitToMenu {
-            get {
-                return ResourceManager.GetString("Confirm_QuitToMenu", resourceCulture);
-            }
-        }
-        internal static string Confirm_ExitTitle {
-            get {
-                return ResourceManager.GetString("Confirm_ExitTitle", resourceCulture);
-            }
-        }
         internal static string Confirm_Stay {
             get {
                 return ResourceManager.GetString("Confirm_Stay", resourceCulture);
@@ -832,6 +807,21 @@ namespace VectorRumble {
         internal static string Winner_Is {
             get {
                 return ResourceManager.GetString("Winner_Is", resourceCulture);
+            }
+        }
+        internal static string Confirm_LeaveTitle {
+            get {
+                return ResourceManager.GetString("Confirm_LeaveTitle", resourceCulture);
+            }
+        }
+        internal static string Confirm_Leave {
+            get {
+                return ResourceManager.GetString("Confirm_Leave", resourceCulture);
+            }
+        }
+        internal static string Confirm_ExitButton {
+            get {
+                return ResourceManager.GetString("Confirm_ExitButton", resourceCulture);
             }
         }
     }

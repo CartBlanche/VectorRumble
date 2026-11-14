@@ -367,7 +367,8 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         canvas.Text(canvas.Display, Heading.ToUpperInvariant(), new Vector2(88, 128), Style.Text, 50f);
     }
 
-    float Slide(int i) => (1f - MathHelper.Clamp((1f - TransitionPosition) * 1.6f - i * 0.1f, 0f, 1f)) * 70f;
+    // rows slide in one after another; the delay stops growing after the fifth row, so a long list is settled when the transition is over
+    float Slide(int i) => (1f - MathHelper.Clamp(((1f - TransitionPosition) - Math.Min(i, 5) * 0.05f) / 0.5f, 0f, 1f)) * 70f;
 
     #region list layout
 
@@ -570,7 +571,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         if (Layout == FrameLayout.Modal)
             return new List<(string key, string label)> { ("LR", Style.ChooseText()), ("Enter", Style.SelectText()) };
         var l = new List<(string, string)> { ("UD", Style.ChooseText()) };
-        if (Layout == FrameLayout.Rows) l.Add(("LR", Style.ChangeText()));
+        if (Layout == FrameLayout.Rows && rows.Any(r => !r.IsHidden && r.Steps)) l.Add(("LR", Style.ChangeText()));
         l.Add(("Enter", Next != null ? NextLabelTitle() : Style.SelectText()));
         if (ShowBack) l.Add(("Esc", Style.BackText()));
         return l;

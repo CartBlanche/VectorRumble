@@ -413,21 +413,6 @@ B/Oボタン, Esc = キャンセル</value>
     <data name="Desc_QuitMatch" xml:space="preserve">
         <value>この試合を離れてメニューに戻る</value>
     </data>
-    <data name="Confirm_QuitTitle" xml:space="preserve">
-        <value>この試合を終了しますか？</value>
-    </data>
-    <data name="Confirm_QuitBody" xml:space="preserve">
-        <value>この試合のスコアは失われます。</value>
-    </data>
-    <data name="Confirm_KeepPlaying" xml:space="preserve">
-        <value>続ける</value>
-    </data>
-    <data name="Confirm_QuitToMenu" xml:space="preserve">
-        <value>メニューへ</value>
-    </data>
-    <data name="Confirm_ExitTitle" xml:space="preserve">
-        <value>ゲームを終了しますか？</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>戻る</value>
     </data>
@@ -445,5 +430,14 @@ B/Oボタン, Esc = キャンセル</value>
     </data>
     <data name="Winner_Is" xml:space="preserve">
         <value>勝者：{0}</value>
+    </data>
+    <data name="Confirm_LeaveTitle" xml:space="preserve">
+        <value>抜ける？</value>
+    </data>
+    <data name="Confirm_Leave" xml:space="preserve">
+        <value>抜ける！</value>
+    </data>
+    <data name="Confirm_ExitButton" xml:space="preserve">
+        <value>終了！</value>
     </data>
 </root>
