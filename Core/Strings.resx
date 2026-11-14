@@ -356,4 +356,25 @@ B/O Button, Esc = Cancel</value>
 	<data name="Colour_Violet" xml:space="preserve">
 		<value>Violet</value>
 	</data>
+	<data name="Hint_Ready" xml:space="preserve">
+		<value>Ready</value>
+	</data>
+	<data name="Hint_NotReady" xml:space="preserve">
+		<value>Not ready</value>
+	</data>
+	<data name="Label_HostsPick" xml:space="preserve">
+		<value>Host's pick</value>
+	</data>
+	<data name="Desc_Host" xml:space="preserve">
+		<value>Start a game others on your network can join</value>
+	</data>
+	<data name="Desc_Join" xml:space="preserve">
+		<value>Join this game: the host picks the arena</value>
+	</data>
+	<data name="Label_Players" xml:space="preserve">
+		<value>Players</value>
+	</data>
+	<data name="Value_Ready" xml:space="preserve">
+		<value>Ready</value>
+	</data>
 </root>

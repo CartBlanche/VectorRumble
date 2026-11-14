@@ -684,5 +684,40 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Colour_Violet", resourceCulture);
             }
         }
+        internal static string Hint_Ready {
+            get {
+                return ResourceManager.GetString("Hint_Ready", resourceCulture);
+            }
+        }
+        internal static string Hint_NotReady {
+            get {
+                return ResourceManager.GetString("Hint_NotReady", resourceCulture);
+            }
+        }
+        internal static string Label_HostsPick {
+            get {
+                return ResourceManager.GetString("Label_HostsPick", resourceCulture);
+            }
+        }
+        internal static string Desc_Host {
+            get {
+                return ResourceManager.GetString("Desc_Host", resourceCulture);
+            }
+        }
+        internal static string Desc_Join {
+            get {
+                return ResourceManager.GetString("Desc_Join", resourceCulture);
+            }
+        }
+        internal static string Label_Players {
+            get {
+                return ResourceManager.GetString("Label_Players", resourceCulture);
+            }
+        }
+        internal static string Value_Ready {
+            get {
+                return ResourceManager.GetString("Value_Ready", resourceCulture);
+            }
+        }
     }
 }

@@ -278,14 +278,18 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
 
     #region list layout
 
-    float ListStep(bool main) => string.IsNullOrEmpty(Heading) ? 82f : 96f;
+    float ListStep(int count)
+    {
+        float basic = string.IsNullOrEmpty(Heading) ? 82f : 96f;
+        return count > 1 ? Math.Min(basic, (590f - ListTop) / (count - 1)) : basic;
+    }
     float ListTop => string.IsNullOrEmpty(Heading) ? 262f : 272f;
 
     void DrawListShapes(List<FrameRow> vis, int sel, Color hot)
     {
         for (int i = 0; i < vis.Count; i++)
         {
-            float y = ListTop + i * ListStep(false), dx = Slide(i);
+            float y = ListTop + i * ListStep(vis.Count), dx = Slide(i);
             rects.Add(new Rectangle(70, (int)(y - 44), 600, 76));
             if (i != sel) continue;
             string lab = vis[i].Label.ToUpperInvariant();
@@ -300,7 +304,7 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
     {
         for (int i = 0; i < vis.Count; i++)
         {
-            float y = ListTop + i * ListStep(false), dx = Slide(i);
+            float y = ListTop + i * ListStep(vis.Count), dx = Slide(i);
             bool on = i == sel && IsActive;
             canvas.Text(canvas.Display, vis[i].Label.ToUpperInvariant(), new Vector2(128 + dx, y - 34), on ? hot : Style.Text, 42f);
             if (vis[i].Meta != null)

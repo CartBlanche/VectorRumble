@@ -1,27 +1,53 @@
 using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using VectorRumble.Networking;
 
 namespace VectorRumble
 {
     /// <summary>
     /// The last step before a match: which ship, in which colour, in which arena. The ship turns in its hangar and the
-    /// arena is drawn from its own walls, so there are no pictures to ship. The Next link reads Start.
+    /// arena is drawn from its own walls, so there are no pictures to ship.
+    ///
+    /// On this machine alone the Next link reads Start. In a network game the same screen is the waiting room: it lists
+    /// who is in, the host picks the arena (everyone else sees it locked) and starts the match, and everyone else says
+    /// when they are Ready.
     /// </summary>
     class ShipArenaScreen : FrameMenuScreen
     {
+        static readonly string[] playerNames = { "One", "Two", "Three", "Four" };
+
         // what was chosen last time is what is offered next time
         static int shipIndex;
         static int colourIndex;
 
-        public ShipArenaScreen()
+        readonly NetworkManager net;
+        LanLobby lobby;                         // null on this machine alone, and once the match has started or the player has left
+        MatchStartPacket pendingStart;          // the match to start as soon as the screen can change
+        string notice;                          // why the host cannot start yet, for instance
+
+        bool Hosting => net != null && net.IsHost;
+        bool Joined => net != null && !net.IsHost;
+
+        /// <summary>A game on this machine alone.</summary>
+        public ShipArenaScreen() : this(null)
         {
+        }
+
+        /// <param name="net">The session of a network game. The screen takes it over, and ends it if the player leaves.</param>
+        public ShipArenaScreen(NetworkManager net)
+        {
+            this.net = net;
             Heading = Strings.Ship_And_Arena;
             Layout = FrameLayout.Rows;
             ShowPanel = false;
 
             var ship = new FrameRow(Strings.Label_Ship, FrameRowKind.Choice) { Value = () => CurrentShip.Name };
-            ship.Adjusted += d => shipIndex = Wrap(shipIndex + d, World.ShipManager.Ships.Length);
+            ship.Adjusted += d =>
+            {
+                shipIndex = Wrap(shipIndex + d, ShipCount);
+                lobby?.SetLocalShip(shipIndex);
+            };
             Rows.Add(ship);
 
             var colour = new FrameRow(Strings.Label_Colour, FrameRowKind.Choice)
@@ -29,19 +55,25 @@ namespace VectorRumble
                 Value = () => ShipPalette.Name(colourIndex),
                 Adornment = (canvas, at) => canvas.Polygon(CurrentShip.Shape.Points, at, MathF.PI / 2f, 11f / Reach(CurrentShip), CurrentColour, 2f),
             };
-            colour.Adjusted += d => colourIndex = Wrap(colourIndex + d, ShipPalette.Colours.Length);
+            colour.Adjusted += ChangeColour;
             Rows.Add(colour);
 
-            var arena = new FrameRow(Strings.Label_Arena, FrameRowKind.Choice) { Value = () => MatchRules.Current.Arena };
+            // the host (and a game on this machine) picks the arena; everyone else in a network game sees it, locked
+            var arena = new FrameRow(Strings.Label_Arena, FrameRowKind.Choice)
+            {
+                Value = () => ArenaName,
+                Locked = () => Joined,
+                LockedNote = Strings.Label_HostsPick,
+            };
             arena.Adjusted += ChangeArena;
             Rows.Add(arena);
 
             Next = new FrameNext
             {
-                Label = () => Strings.Hint_Start,
-                Step = 2,
-                Steps = 2,
-                Action = Start,
+                Label = () => Joined ? (lobby != null && lobby.LocalReady ? Strings.Hint_NotReady : Strings.Hint_Ready) : Strings.Hint_Start,
+                Step = net == null ? 2 : Hosting ? 3 : 2,
+                Steps = net == null ? 2 : Hosting ? 3 : 2,
+                Action = Joined ? ToggleReady : Hosting ? StartNetworkMatch : (Action)StartAlone,
             };
         }
 
@@ -52,14 +84,39 @@ namespace VectorRumble
         {
             // the ships a player can choose between are loaded fresh for each game
             World.ShipManager.LoadContent(ScreenManager.Game.Content);
-            shipIndex = Math.Min(shipIndex, World.ShipManager.Ships.Length - 1);
-            if (World.ArenaManager.Arenas.All(a => a.Name != MatchRules.Current.Arena))
+            shipIndex = Math.Min(shipIndex, ShipCount - 1);
+
+            if (net == null)
             {
-                MatchRules.Current.Arena = Strings.Arena_Random;
+                if (World.ArenaManager.Arenas.All(a => a.Name != MatchRules.Current.Arena))
+                {
+                    MatchRules.Current.Arena = Strings.Arena_Random;
+                }
+            }
+            else
+            {
+                // the host picks "Random" in the arena, so it is chosen among the arenas that come with the game
+                string[] arenas = World.ArenaManager.BuiltInArenas
+                    .Select(a => a.Name).Where(n => n != Strings.Arena_Random).ToArray();
+
+                if (Hosting && World.ArenaManager.BuiltInArenas.All(a => a.Name != MatchRules.Current.Arena))
+                {
+                    MatchRules.Current.Arena = Strings.Arena_Random;
+                }
+
+                lobby = new LanLobby(net, World.ShipManager.BuiltInCount, arenas, MatchRules.Current);
+                lobby.MatchStarting += start => pendingStart = start;
+                lobby.SetLocalShip(shipIndex);
+                lobby.SetLocalColor(ShipPalette.Colours[colourIndex]);
             }
 
             base.LoadContent();
         }
+
+        #region Choices
+
+        // a network game offers only the ships that come with the game: the others exist only on this machine
+        int ShipCount => net != null ? World.ShipManager.BuiltInCount : World.ShipManager.Ships.Length;
 
         static int Wrap(int value, int count) => ((value % count) + count) % count;
 
@@ -69,18 +126,71 @@ namespace VectorRumble
 
         static float Reach(Ship ship) => Math.Max(1f, ship.Shape.Points.Max(p => p.Length()));
 
-        static void ChangeArena(int direction)
+        // the host's choice when we are joining, ours otherwise
+        string ArenaName => Joined && lobby != null ? lobby.Rules.Arena : MatchRules.Current.Arena;
+
+        bool ColourTakenByOthers(int index)
         {
-            string[] arenas = World.ArenaManager.Arenas.Select(a => a.Name).ToArray();
+            if (lobby == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < lobby.Players.Count; i++)
+            {
+                if (i != lobby.LocalSlot && lobby.Players[i].Color == ShipPalette.Colours[index])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void ChangeColour(int direction)
+        {
+            int count = ShipPalette.Colours.Length;
+            for (int step = 1; step <= count; step++)
+            {
+                int candidate = Wrap(colourIndex + direction * step, count);
+                if (!ColourTakenByOthers(candidate))
+                {
+                    colourIndex = candidate;
+                    break;
+                }
+            }
+
+            lobby?.SetLocalColor(CurrentColour);
+        }
+
+        void ChangeArena(int direction)
+        {
+            if (Joined)
+            {
+                return;
+            }
+
+            // only the arenas that come with the game, and Random, when others will play it
+            var list = net != null ? World.ArenaManager.BuiltInArenas : World.ArenaManager.Arenas;
+            string[] arenas = list.Select(a => a.Name).ToArray();
             int index = Array.IndexOf(arenas, MatchRules.Current.Arena);
             MatchRules.Current.Arena = arenas[Wrap(index + direction, arenas.Length)];
+
+            if (lobby != null)
+            {
+                lobby.SetRules(MatchRules.Current.Clone());
+            }
         }
+
+        #endregion
+
+        #region Starting
 
         /// <summary>
         /// Puts the player's ship, alone, into the match and loads the game. A single player game has one pilot on
         /// this machine, flying with whatever they have to hand (the keyboard, a gamepad or the touch controls).
         /// </summary>
-        void Start()
+        void StartAlone()
         {
             ShipManager manager = World.ShipManager;
             foreach (Ship ship in manager.Ships)
@@ -103,18 +213,163 @@ namespace VectorRumble
             LoadingScreen.Load(ScreenManager, LoadGameplayScreen, true);
         }
 
+        void ToggleReady()
+        {
+            lobby?.SetLocalReady(!lobby.LocalReady);
+        }
+
+        // the host is ready when they start
+        void StartNetworkMatch()
+        {
+            if (lobby == null)
+            {
+                return;
+            }
+
+            lobby.SetLocalReady(true);
+            notice = lobby.TryStart() ? null : Strings.Lan_Waiting_For_Players;
+            if (notice != null)
+            {
+                // not started: the host is not ready until they say so again
+                lobby.SetLocalReady(false);
+            }
+        }
+
+        // every machine builds the same match from the host's start packet
+        void StartMatch(MatchStartPacket start)
+        {
+            int slot = start.Players.FindIndex(p => p.Id == net.LocalGamer.GamerId);
+            if (slot < 0)
+            {
+                Leave(Strings.Lan_Not_In_Match);
+                return;
+            }
+
+            MatchRules.Current = start.Rules;
+
+            // a ship flies for one player: if two chose the same, the later one gets the next along
+            ShipManager manager = World.ShipManager;
+            int[] assignment = ShipAssignment.Assign(start.Players.Select(p => (int)p.Ship).ToArray(), manager.BuiltInCount);
+
+            foreach (Ship ship in manager.Ships)
+            {
+                ship.PlayerIndex = string.Empty;
+                ship.Selected = false;
+            }
+
+            Ship[] ships = new Ship[start.Players.Count];
+            for (int i = 0; i < ships.Length; i++)
+            {
+                Ship ship = manager.Ships[assignment[i]];
+                ship.PlayerIndex = playerNames[i];
+                ship.SetColor(start.Players[i].Color);
+                ship.Selected = true;
+                ships[i] = ship;
+            }
+            manager.UpdateSelectedList();
+
+            World.SelectedArena = null;
+
+            // the match takes the session over from here, and ends it when the game is left
+            new NetworkMatch(World, net, start, slot, ships);
+            DisposeLobby();
+
+            LoadingScreen.Load(ScreenManager, LoadGameplayScreen, true);
+        }
+
         void LoadGameplayScreen(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new GameplayScreen { ScreenManager = this.ScreenManager });
         }
 
-        #region The panel: hangar above, arena below
+        #endregion
+
+        #region Update and leaving
+
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+
+            if (lobby == null)
+            {
+                return;
+            }
+
+            net.Update();
+
+            // the host's colour stands: a player who joins in the same colour moves along to a free one
+            if (Joined && ColourTakenByOthers(colourIndex))
+            {
+                ChangeColour(1);
+            }
+
+            if (pendingStart != null)
+            {
+                StartMatch(pendingStart);
+            }
+            else if (lobby.WasRefused)
+            {
+                Leave(Strings.Lan_Already_Started);
+            }
+            else if (net.HasEnded)
+            {
+                Leave(Strings.Lan_Host_Ended);
+            }
+        }
+
+        protected override void OnCancel()
+        {
+            if (net != null)
+            {
+                Leave(null);
+            }
+            else
+            {
+                ExitScreen();
+            }
+        }
+
+        // go back, ending the session
+        void Leave(string message)
+        {
+            DisposeLobby();
+            net.Dispose();
+            ExitScreen();
+
+            if (message != null)
+            {
+                ScreenManager.AddScreen(new MessageBoxScreen(message));
+            }
+        }
+
+        void DisposeLobby()
+        {
+            lobby?.Dispose();
+            lobby = null;
+            pendingStart = null;
+        }
+
+        #endregion
+
+        #region The panel: hangar above, arena below, and who is in at the bottom left
 
         static void Box(FrameCanvas c, float x, float y, float w, float h)
         {
             var frame = FrameCanvas.Chamfer(x, y, w, h, 26);
             c.Fill(frame, new Color(8, 8, 26), 0.5f);
             c.Poly(frame, true, FrameScreen.Theme.Panel, 1.8f, .7f);
+        }
+
+        // each player's choices as the lobby knows them; our own follow our changes at once
+        (string name, int ship, Color colour, bool ready) PlayerAt(int i)
+        {
+            LobbyPlayerInfo p = lobby.Players[i];
+            if (i == lobby.LocalSlot)
+            {
+                return (p.Name, lobby.LocalShip, lobby.LocalColor, lobby.LocalReady);
+            }
+
+            return (p.Name, p.Ship, p.Color, p.Ready);
         }
 
         protected override void DrawBody(FrameCanvas c)
@@ -128,7 +383,7 @@ namespace VectorRumble
             c.Polygon(ship.Shape.Points, new Vector2(x + w / 2, 291), Time * 0.7f, 52f / Reach(ship), CurrentColour, 3f);
 
             // the arena, from its own walls
-            Arena arena = PreviewPainter.FindArena(MatchRules.Current.Arena);
+            Arena arena = PreviewPainter.FindArena(ArenaName);
             if (arena?.Walls != null && arena.Walls.Length >= 2)
             {
                 const float ix = x + 90, iy = 420, iw = w - 180, ih = 124;
@@ -139,17 +394,51 @@ namespace VectorRumble
                     c.Neon(a, b, arena.Color, 2f);
                 }
             }
+
+            // who is in: a small ship in each player's colour
+            if (lobby != null)
+            {
+                for (int i = 0; i < lobby.Players.Count; i++)
+                {
+                    var p = PlayerAt(i);
+                    int index = Math.Min(p.ship, World.ShipManager.Ships.Length - 1);
+                    Ship theirs = World.ShipManager.Ships[index];
+                    c.Polygon(theirs.Shape.Points, new Vector2(100, 520 + i * 36), MathF.PI / 2f, 12f / Reach(theirs), p.colour, 2f);
+                }
+            }
         }
 
         protected override void DrawBodyText(FrameCanvas c)
         {
             var theme = FrameScreen.Theme;
             const float x = 740, w = 440;
-            Arena arena = PreviewPainter.FindArena(MatchRules.Current.Arena);
+
+            Arena arena = PreviewPainter.FindArena(ArenaName);
             if (arena?.Walls == null || arena.Walls.Length < 2)
             {
                 // a "Random" arena has no walls to show
                 c.Text(c.Display, "?", new Vector2(x + w / 2, 458), theme.Text, 48f, FrameAlign.Centre);
+            }
+
+            if (lobby == null)
+            {
+                return;
+            }
+
+            c.Text(c.Display, Strings.Label_Players.ToUpperInvariant(), new Vector2(86, 470), theme.Dim, 14f);
+            for (int i = 0; i < lobby.Players.Count; i++)
+            {
+                var p = PlayerAt(i);
+                float y = 520 + i * 36 - 11;
+                c.Text(c.Medium, LanLobby.DisplayName(p.name), new Vector2(126, y), theme.Text, 22f);
+                c.Text(c.Display, p.ready ? Strings.Value_Ready.ToUpperInvariant() : "...", new Vector2(640, y + 3), p.ready ? theme.Hot : theme.Dim, 15f, FrameAlign.Right);
+            }
+
+            // why the match cannot start, or what the others are doing
+            string status = notice ?? (Joined ? Strings.Lan_Waiting_For_Host : null);
+            if (status != null)
+            {
+                c.Text(c.Large, status, new Vector2(x + w / 2, 580), theme.Dim, 17f, FrameAlign.Centre);
             }
         }
 

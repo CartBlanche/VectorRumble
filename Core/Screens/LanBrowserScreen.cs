@@ -11,9 +11,9 @@ using VectorRumble.Networking;
 namespace VectorRumble
 {
     /// <summary>
-    /// Lists the LAN games on the network and lets the player host or join one.
+    /// Multiplayer: lists the games on the network and lets the player host one or join one.
     /// </summary>
-    class LanBrowserScreen : MenuScreen
+    class LanBrowserScreen : FrameMenuScreen
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace VectorRumble
 
         readonly List<AvailableNetworkSession> sessions = new List<AvailableNetworkSession>();
 
-        // a host or join in progress (null when idle)
+        // a join in progress (null when idle)
         Task<NetworkSession> sessionTask;
         string busyText;
 
@@ -30,7 +30,7 @@ namespace VectorRumble
         Task<AvailableNetworkSessionCollection> findTask;
         float searchTimer;
 
-        // why the last host or join failed
+        // why the last join failed
         string errorText;
 
         // what is listed now, to tell when the list has to be rebuilt
@@ -38,36 +38,29 @@ namespace VectorRumble
 
         #endregion
 
-        #region Initialization
-
         public LanBrowserScreen()
         {
+            Heading = Strings.Multiplayer;
             RebuildEntries();
         }
 
-        #endregion
-
         #region Entries
-
-        // the entries are: host, a join for each game found, back
-        int EntryHost => 0;
-        int EntryBack => sessions.Count + 1;
 
         void RebuildEntries()
         {
-            int selected = SelectedEntry;
-            MenuEntries.Clear();
+            int selected = SelectedIndex;
+            Rows.Clear();
 
-            var host = new MenuEntry(Strings.Lan_Host_A_Game);
-            host.Selected += (s, e) => Host();
-            MenuEntries.Add(host);
+            var host = MainMenuScreen.Entry(Strings.Lan_Host_A_Game, Strings.Desc_Host, FrameIcon.Wifi,
+                () => { if (!Busy) ScreenManager.AddScreen(new MatchRulesScreen(true)); });
+            Rows.Add(host);
 
             foreach (AvailableNetworkSession session in sessions)
             {
                 AvailableNetworkSession joining = session;
-                var join = new MenuEntry(string.Format(Strings.Lan_Join_Game, LanLobby.DisplayName(session.HostGamertag)));
-                join.Selected += (s, e) => Join(joining);
-                MenuEntries.Add(join);
+                var join = MainMenuScreen.Entry(LanLobby.DisplayName(session.HostGamertag), Strings.Desc_Join, FrameIcon.Ship, () => Join(joining));
+                join.Meta = (session.CurrentGamerCount) + " / " + (session.CurrentGamerCount + session.OpenPublicGamerSlots);
+                Rows.Add(join);
             }
 
             // An "Enter address..." entry would go here, to join a game whose address the player
@@ -77,16 +70,8 @@ namespace VectorRumble
             // and make it call
             //     Join(MultiplayerSessionService.DirectSession(address));
             // MultiplayerSessionService.DirectSession is kept for it.
-            //
-            // var address = new MenuEntry(Strings.Lan_Enter_Address);
-            // address.Selected += (s, e) => { /* ask for the address, then Join(...) */ };
-            // MenuEntries.Add(address);
 
-            var back = new MenuEntry(Strings.Back);
-            back.Selected += OnCancel;
-            MenuEntries.Add(back);
-
-            SelectedEntry = selected;
+            SelectedIndex = selected;
             listedKey = ListKey();
         }
 
@@ -94,19 +79,9 @@ namespace VectorRumble
 
         #endregion
 
-        #region Host and join
+        #region Join
 
         bool Busy => sessionTask != null;
-
-        void Host()
-        {
-            if (Busy)
-                return;
-
-            errorText = null;
-            busyText = Strings.Lan_Starting_Game;
-            sessionTask = MultiplayerSessionService.CreateHostSessionAsync(MultiplayerSessionService.MaxPlayers);
-        }
 
         void Join(AvailableNetworkSession session)
         {
@@ -128,7 +103,7 @@ namespace VectorRumble
             {
                 errorText = string.Format(Strings.Lan_Could_Not_Connect,
                     task.Exception?.GetBaseException().Message ?? "cancelled");
-                NetLog.Write("Host or join failed: " + errorText);
+                NetLog.Write("Join failed: " + errorText);
                 return;
             }
 
@@ -140,8 +115,7 @@ namespace VectorRumble
                 return;
             }
 
-            var lobby = new LanLobbyScreen(new NetworkManager(session));
-            ScreenManager.AddScreen(lobby);
+            ScreenManager.AddScreen(new ShipArenaScreen(new NetworkManager(session)));
         }
 
         #endregion
@@ -198,9 +172,10 @@ namespace VectorRumble
                 UpdateSearch((float)gameTime.ElapsedGameTime.TotalSeconds);
         }
 
-        public override void Draw(GameTime gameTime)
+        // what is happening: joining, a failure, searching, or that nothing was found
+        protected override void DrawPanelText(FrameCanvas c, Rectangle area, FrameRow selected)
         {
-            base.Draw(gameTime);
+            base.DrawPanelText(c, area, selected);
 
             string status = busyText ?? errorText;
             if (status == null)
@@ -208,14 +183,7 @@ namespace VectorRumble
 
             if (status != null)
             {
-                var viewport = Display.Viewport;
-                Vector2 size = ScreenManager.Font.MeasureString(status);
-                Vector2 position = new Vector2((viewport.Width - size.X) / 2f, viewport.Height * 0.15f);
-                Color color = new Color(255, 255, 255, (int)TransitionAlphaByte);
-
-                ScreenManager.SpriteBatch.Begin();
-                ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, status, position, color);
-                ScreenManager.SpriteBatch.End();
+                c.Text(c.Large, status, new Vector2(area.Center.X, area.Y + 28), FrameScreen.Theme.Dim, 18f, FrameAlign.Centre);
             }
         }
 
