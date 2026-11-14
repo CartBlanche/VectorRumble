@@ -16,25 +16,11 @@ namespace VectorRumble
         AudioManager audio;
         bool more;
 
-        readonly bool returnToPause;
-
-        /// <param name="returnToPause">Opened from the pause menu, over the game: closing it brings the pause menu back.</param>
-        public SettingsScreen(bool returnToPause = false)
+        public SettingsScreen()
         {
-            this.returnToPause = returnToPause;
-            IsPopup = returnToPause;
             Layout = FrameLayout.Rows;
             ShowPanel = false;
             BuildRows();
-        }
-
-        protected override void OnCancel()
-        {
-            ExitScreen();
-            if (returnToPause)
-            {
-                ScreenManager.AddScreen(new PauseMenuScreen());
-            }
         }
 
         public override void LoadContent()

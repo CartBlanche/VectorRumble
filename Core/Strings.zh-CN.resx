@@ -404,15 +404,6 @@ B/O 按钮, Esc = 取消</value>
     <data name="Paused" xml:space="preserve">
         <value>已暂停</value>
     </data>
-    <data name="Quit_Match" xml:space="preserve">
-        <value>退出比赛</value>
-    </data>
-    <data name="Desc_Resume" xml:space="preserve">
-        <value>返回比赛</value>
-    </data>
-    <data name="Desc_QuitMatch" xml:space="preserve">
-        <value>离开本场比赛并返回菜单</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>留下</value>
     </data>
@@ -424,12 +415,6 @@ B/O 按钮, Esc = 取消</value>
     </data>
     <data name="Rematch" xml:space="preserve">
         <value>再来一局</value>
-    </data>
-    <data name="Final_Score" xml:space="preserve">
-        <value>最终比分</value>
-    </data>
-    <data name="Winner_Is" xml:space="preserve">
-        <value>获胜者：{0}</value>
     </data>
     <data name="Confirm_LeaveTitle" xml:space="preserve">
         <value>离开？</value>

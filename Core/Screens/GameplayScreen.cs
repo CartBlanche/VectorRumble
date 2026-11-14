@@ -411,11 +411,11 @@ namespace VectorRumble
         }
 
 
-        /// <summary>Who won, by the pilot's name; the player's number when the ship cannot be found.</summary>
+        /// <summary>Who won ("dominique Wins!"), by the pilot's name; the player's number when the ship cannot be found.</summary>
         static string WinnerMessage(Ship winner, int index)
         {
             return winner != null
-                ? string.Format(Strings.Winner_Is, winner.ScoreName)
+                ? string.Format(Strings.Player_X_Wins, winner.ScoreName)
                 : string.Format(Strings.Player_X_Wins, index + 1);
         }
 

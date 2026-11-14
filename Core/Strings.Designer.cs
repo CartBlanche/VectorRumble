@@ -764,21 +764,6 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Paused", resourceCulture);
             }
         }
-        internal static string Quit_Match {
-            get {
-                return ResourceManager.GetString("Quit_Match", resourceCulture);
-            }
-        }
-        internal static string Desc_Resume {
-            get {
-                return ResourceManager.GetString("Desc_Resume", resourceCulture);
-            }
-        }
-        internal static string Desc_QuitMatch {
-            get {
-                return ResourceManager.GetString("Desc_QuitMatch", resourceCulture);
-            }
-        }
         internal static string Confirm_Stay {
             get {
                 return ResourceManager.GetString("Confirm_Stay", resourceCulture);
@@ -797,16 +782,6 @@ namespace VectorRumble {
         internal static string Rematch {
             get {
                 return ResourceManager.GetString("Rematch", resourceCulture);
-            }
-        }
-        internal static string Final_Score {
-            get {
-                return ResourceManager.GetString("Final_Score", resourceCulture);
-            }
-        }
-        internal static string Winner_Is {
-            get {
-                return ResourceManager.GetString("Winner_Is", resourceCulture);
             }
         }
         internal static string Confirm_LeaveTitle {

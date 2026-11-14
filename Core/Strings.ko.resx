@@ -404,15 +404,6 @@ B/O 버튼, Esc = 취소</value>
     <data name="Paused" xml:space="preserve">
         <value>일시 정지</value>
     </data>
-    <data name="Quit_Match" xml:space="preserve">
-        <value>경기 종료</value>
-    </data>
-    <data name="Desc_Resume" xml:space="preserve">
-        <value>경기로 돌아가기</value>
-    </data>
-    <data name="Desc_QuitMatch" xml:space="preserve">
-        <value>이 경기를 떠나 메뉴로 돌아갑니다</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>남기</value>
     </data>
@@ -424,12 +415,6 @@ B/O 버튼, Esc = 취소</value>
     </data>
     <data name="Rematch" xml:space="preserve">
         <value>재대결</value>
-    </data>
-    <data name="Final_Score" xml:space="preserve">
-        <value>최종 점수</value>
-    </data>
-    <data name="Winner_Is" xml:space="preserve">
-        <value>승자: {0}</value>
     </data>
     <data name="Confirm_LeaveTitle" xml:space="preserve">
         <value>나갈까요?</value>

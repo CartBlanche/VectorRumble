@@ -50,6 +50,21 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     /// <summary>For the modal layout: the words under the heading.</summary>
     protected string ModalMessage { get; set; } = "";
 
+    /// <summary>For the modal layout: a heading shown on the screen behind the box (the frame, the logo and this heading, as a menu screen has them), or empty for none.</summary>
+    protected string Backdrop { get; set; } = "";
+
+    /// <summary>For the modal layout: the width of the box.</summary>
+    protected virtual float ModalWidth => 640f;
+
+    /// <summary>For the modal layout: how tall the area between the heading and the buttons is. The default fits <see cref="ModalMessage"/>.</summary>
+    protected virtual float ModalBodyHeight(string[] messageLines) => messageLines.Length * 32f;
+
+    /// <summary>For the modal layout: draws shapes in the area between the heading and the buttons (a left, top, width).</summary>
+    protected virtual void DrawModalBody(FrameCanvas c, float x, float y, float width) { }
+
+    /// <summary>For the modal layout: draws text in the same area.</summary>
+    protected virtual void DrawModalBodyText(FrameCanvas c, float x, float y, float width) { }
+
     /// <summary>The wizard's Next link, or null.</summary>
     protected FrameNext Next { get; set; }
 
@@ -309,16 +324,33 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         canvas.Alpha = TransitionAlpha;
         canvas.Glow = 1f;
 
-        const float bw = 640f, buttonW = 250f, buttonH = 56f;
+        float bw = ModalWidth;
+        const float buttonW = 250f, buttonH = 56f;
         string[] message = string.IsNullOrEmpty(ModalMessage) ? new string[0] : Wrap(ModalMessage, bw - 80f, canvas.Large, 24f);
-        float bh = 132f + message.Length * 32f + buttonH + 44f;
-        float bx = (Display.BaseWidth - bw) / 2f, by = (Display.BaseHeight - bh) / 2f - 20f;
+        float body = ModalBodyHeight(message);
+        float bh = 100f + body + (body > 0 ? 24f : 0f) + buttonH + 36f;
+        float bx = (Display.BaseWidth - bw) / 2f, by = (Display.BaseHeight - bh) / 2f - 10f;
 
         rects.Clear();
+
+        // behind the box: the frame, the logo and a heading, as a menu screen has them
+        bool backdrop = !string.IsNullOrEmpty(Backdrop);
+        if (backdrop)
+        {
+            DrawTitle(false);
+            canvas.BeginShapes();
+            DrawChrome();
+            canvas.EndShapes();
+            canvas.BeginText();
+            canvas.Text(canvas.Display, Backdrop.ToUpperInvariant(), new Vector2(88, 128), Style.Text, 50f);
+            canvas.EndText();
+        }
+
         canvas.BeginShapes();
         var box = FrameCanvas.Chamfer(bx, by, bw, bh, 30);
         canvas.Fill(box, new Color(10, 10, 30), 0.96f);
         canvas.Poly(box, true, Style.Hot, 2.2f, .9f);
+        DrawModalBody(canvas, bx + 40f, by + 88f, bw - 80f);
         float buttonsY = by + bh - buttonH - 36f, total = vis.Count * buttonW + (vis.Count - 1) * 24f;
         for (int i = 0; i < vis.Count; i++)
         {
@@ -339,7 +371,8 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         if (hw > bw - 80f) heading = Math.Max(16f, heading * (bw - 80f) / hw);
         canvas.Text(canvas.Display, Heading.ToUpperInvariant(), new Vector2(Display.BaseWidth / 2f, by + 40f), Style.Text, heading, FrameAlign.Centre);
         for (int i = 0; i < message.Length; i++)
-            canvas.Text(canvas.Large, message[i], new Vector2(Display.BaseWidth / 2f, by + 100f + i * 32f), Style.Dim, 24f, FrameAlign.Centre);
+            canvas.Text(canvas.Large, message[i], new Vector2(Display.BaseWidth / 2f, by + 88f + i * 32f), Style.Dim, 24f, FrameAlign.Centre);
+        DrawModalBodyText(canvas, bx + 40f, by + 88f, bw - 80f);
         for (int i = 0; i < vis.Count; i++)
         {
             bool on = i == selected && IsActive;

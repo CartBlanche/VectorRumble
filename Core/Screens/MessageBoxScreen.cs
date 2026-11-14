@@ -68,9 +68,19 @@ namespace VectorRumble
             }
         }
 
-        // a modal has no title above it
+        /// <summary>A heading for the screen behind the box (the frame and logo come with it), such as "Paused".</summary>
+        public string BackdropHeading
+        {
+            set => Backdrop = value;
+        }
+
+        // the logo is drawn only when there is a screen behind the box to draw it on
         protected override void DrawTitle(bool large)
         {
+            if (!string.IsNullOrEmpty(Backdrop))
+            {
+                base.DrawTitle(large);
+            }
         }
     }
 }

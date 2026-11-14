@@ -15,12 +15,14 @@ namespace VectorRumble
     }
 
     /// <summary>
-    /// Shown when a match is over: the final score of every pilot, who won, and what to do next. A match on this
-    /// machine can be played again, or its ship and arena changed; a network match goes back to the menu.
+    /// Shown when a match is over, for a match on this machine and a network match alike: the game behind a box
+    /// that names the winner, lists the final score of every pilot, and offers Rematch and Leave!. A network
+    /// match cannot be restarted from here (the lobby would have to come back), so it offers Leave! alone.
     /// </summary>
     class GameOverScreen : FrameMenuScreen
     {
-        readonly string message;
+        const float RowHeight = 54f;
+
         readonly IList<ScoreLine> scores;
 
         // the winner's confetti (VectorEngine's ParticleManager): a few bursts across the top in the first couple of seconds
@@ -30,19 +32,18 @@ namespace VectorRumble
         readonly Random random = new Random();
         float confettiClock = -0.3f, nextBurst;
 
-        /// <param name="message">Who won, or why the match ended</param>
+        /// <param name="message">Who won, or why the match ended: the heading of the box</param>
         /// <param name="scores">The final score of each pilot, best first; empty when there is none to show</param>
         /// <param name="allowPlayAgain">False in a network game, which cannot be restarted from here</param>
         /// <param name="celebrate">True when somebody won, which showers the screen with confetti</param>
         public GameOverScreen(string message, IList<ScoreLine> scores, bool allowPlayAgain = true, bool celebrate = false)
         {
-            this.message = message;
             this.scores = scores ?? new List<ScoreLine>();
             this.celebrate = celebrate;
 
-            Heading = Strings.Game_Over;
-            Layout = FrameLayout.Rows;
-            ShowPanel = false;
+            Layout = FrameLayout.Modal;
+            Heading = message;
+            Backdrop = Strings.Game_Over;
             ShowBack = false;
             IsPopup = true;
             TransitionOnTime = TimeSpan.FromSeconds(0.8);
@@ -50,21 +51,15 @@ namespace VectorRumble
 
             if (allowPlayAgain)
             {
-                AddRow(Strings.Rematch, false, Rematch);
-                AddRow(Strings.Ship_And_Arena, true, () => LoadingScreen.Load(ScreenManager, LoadShipAndArena, false));
+                var rematch = new FrameRow(Strings.Rematch);
+                rematch.Selected += Rematch;
+                Rows.Add(rematch);
             }
 
-            AddRow(Strings.Return_to_Menu, true, () => LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false));
+            var leave = new FrameRow(Strings.Confirm_Leave);
+            leave.Selected += Leave;
+            Rows.Add(leave);
         }
-
-        void AddRow(string label, bool chevron, Action selected)
-        {
-            var row = new FrameRow(label, FrameRowKind.Action) { Chevron = chevron };
-            row.Selected += selected;
-            Rows.Add(row);
-        }
-
-        protected override float RowsWidth => 600f;
 
         public override void LoadContent()
         {
@@ -107,7 +102,7 @@ namespace VectorRumble
             confetti?.Draw(gameTime);
         }
 
-        #region Next
+        #region What the buttons do
 
         // the same pilots in the same arena (a "Random" arena is picked again)
         void Rematch()
@@ -122,15 +117,7 @@ namespace VectorRumble
             ScreenManager.AddScreen(new GameplayScreen { ScreenManager = this.ScreenManager });
         }
 
-        // back to the choice of ship and arena, with the screens before it in place so that Back works
-        void LoadShipAndArena(object sender, EventArgs e)
-        {
-            ScreenManager.AddScreen(new BackgroundScreen());
-            ScreenManager.AddScreen(new MainMenuScreen());
-            ScreenManager.AddScreen(new PlayMenuScreen());
-            ScreenManager.AddScreen(new MatchRulesScreen(false));
-            ScreenManager.AddScreen(new ShipArenaScreen());
-        }
+        void Leave() => LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false);
 
         void LoadMainMenuScreen(object sender, EventArgs e)
         {
@@ -138,63 +125,47 @@ namespace VectorRumble
             ScreenManager.AddScreen(new MainMenuScreen());
         }
 
-        protected override void OnCancel()
-        {
-            LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false);
-        }
+        protected override void OnCancel() => Leave();
 
         #endregion
 
-        #region The scoreboard
+        #region The scoreboard, inside the box
 
-        const float PanelX = 740, PanelW = 440;
+        protected override float ModalWidth => 600f;
 
-        protected override void DrawBody(FrameCanvas c)
+        protected override float ModalBodyHeight(string[] messageLines) => Math.Min(4, scores.Count) * RowHeight;
+
+        protected override void DrawModalBody(FrameCanvas c, float x, float y, float width)
         {
-            var frame = FrameCanvas.Chamfer(PanelX, 196, PanelW, 400, 26);
-            c.Fill(frame, new Color(8, 8, 26), 0.5f);
-            c.Poly(frame, true, FrameScreen.Theme.Panel, 1.8f, .7f);
-
             int most = Math.Max(Math.Max(1, MatchRules.Current.ScoreLimit), scores.Count == 0 ? 1 : scores.Max(s => s.Score));
             for (int i = 0; i < scores.Count && i < 4; i++)
             {
-                float y = 304 + i * 66;
+                float cy = y + 26 + i * RowHeight;
                 ScoreLine line = scores[i];
-                c.Polygon(line.Shape, new Vector2(PanelX + 40, y), MathF.PI / 2f, 13f / Math.Max(1f, line.Shape.Max(p => p.Length())), line.Colour, 2f);
+                c.Polygon(line.Shape, new Vector2(x + 18, cy), MathF.PI / 2f, 13f / Math.Max(1f, line.Shape.Max(p => p.Length())), line.Colour, 2f);
 
                 // the bar, in the pilot's colour, as long as their share of the score limit
-                float full = PanelW - 296f, length = Math.Max(6f, full * Math.Max(0, line.Score) / most);
-                var bar = new[] { new Vector2(PanelX + 236, y - 6), new Vector2(PanelX + 236 + length, y - 6), new Vector2(PanelX + 236 + length, y + 6), new Vector2(PanelX + 236, y + 6) };
+                float barX = x + 215, full = width - 215 - 56, length = Math.Max(6f, full * Math.Max(0, line.Score) / most);
+                var bar = new[] { new Vector2(barX, cy - 6), new Vector2(barX + length, cy - 6), new Vector2(barX + length, cy + 6), new Vector2(barX, cy + 6) };
                 c.Fill(bar, line.Colour, .85f);
             }
         }
 
-        protected override void DrawBodyText(FrameCanvas c)
+        protected override void DrawModalBodyText(FrameCanvas c, float x, float y, float width)
         {
             var theme = FrameScreen.Theme;
-
-            if (scores.Count == 0)
-            {
-                // no scoreboard (the network failed): just what happened
-                c.Text(c.Large, message, new Vector2(PanelX + PanelW / 2, 380), theme.Text, 22f, FrameAlign.Centre);
-                return;
-            }
-
-            c.Text(c.Display, Strings.Final_Score.ToUpperInvariant(), new Vector2(PanelX + PanelW / 2, 226), theme.Dim, 15f, FrameAlign.Centre);
             for (int i = 0; i < scores.Count && i < 4; i++)
             {
-                float y = 304 + i * 66;
+                float cy = y + 26 + i * RowHeight;
                 ScoreLine line = scores[i];
                 bool winner = i == 0;
                 string name = line.Name ?? string.Empty;
                 float height = 24f, room = 150f;
-                float width = FrameCanvas.Measure(c.Medium, name, height);
-                if (width > room) height = Math.Max(12f, height * room / width);
-                c.Text(c.Medium, name, new Vector2(PanelX + 72, y - height / 2f), winner ? theme.Text : theme.Dim, height);
-                c.Text(c.Medium, line.Score.ToString(), new Vector2(PanelX + PanelW - 24, y - 13), winner ? theme.Hot : theme.Dim, 26f, FrameAlign.Right);
+                float measured = FrameCanvas.Measure(c.Medium, name, height);
+                if (measured > room) height = Math.Max(12f, height * room / measured);
+                c.Text(c.Medium, name, new Vector2(x + 52, cy - height / 2f), winner ? theme.Text : theme.Dim, height);
+                c.Text(c.Medium, line.Score.ToString(), new Vector2(x + width - 8, cy - 13), winner ? theme.Hot : theme.Dim, 26f, FrameAlign.Right);
             }
-
-            c.Text(c.Medium, message, new Vector2(PanelX + PanelW / 2, 556), theme.Hot, 22f, FrameAlign.Centre);
         }
 
         #endregion

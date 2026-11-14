@@ -404,15 +404,6 @@ Bouton B/O, Échap = Annuler</value>
     <data name="Paused" xml:space="preserve">
         <value>Pause</value>
     </data>
-    <data name="Quit_Match" xml:space="preserve">
-        <value>Quitter la partie</value>
-    </data>
-    <data name="Desc_Resume" xml:space="preserve">
-        <value>Retour à la partie</value>
-    </data>
-    <data name="Desc_QuitMatch" xml:space="preserve">
-        <value>Quitter cette partie et revenir au menu</value>
-    </data>
     <data name="Confirm_Stay" xml:space="preserve">
         <value>Rester</value>
     </data>
@@ -424,12 +415,6 @@ Bouton B/O, Échap = Annuler</value>
     </data>
     <data name="Rematch" xml:space="preserve">
         <value>Revanche</value>
-    </data>
-    <data name="Final_Score" xml:space="preserve">
-        <value>Score final</value>
-    </data>
-    <data name="Winner_Is" xml:space="preserve">
-        <value>Vainqueur : {0}</value>
     </data>
     <data name="Confirm_LeaveTitle" xml:space="preserve">
         <value>Quitter ?</value>
