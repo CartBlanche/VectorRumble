@@ -82,7 +82,9 @@ namespace VectorRumble
             {
                 ScreenManager.AddScreen(new BackgroundScreen());
                 ScreenManager.AddScreen(new MainMenuScreen());
-            });
+            },
+            // the engine's default bloom is strong for the intro's thin lines
+            new VectorEngine.Splash.SplashOptions { BloomIntensity = 1.0f });
         }
 
 
