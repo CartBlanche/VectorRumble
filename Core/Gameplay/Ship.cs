@@ -798,7 +798,7 @@ namespace VectorRumble
 
         internal void ChangeColor()
         {
-            color = new Color(ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256));
+            color = new Color(System.Random.Shared.Next(256), System.Random.Shared.Next(256), System.Random.Shared.Next(256));
         }
         #endregion
 

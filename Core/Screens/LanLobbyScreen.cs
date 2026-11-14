@@ -66,7 +66,7 @@ namespace VectorRumble
 
         static Color RandomColor()
         {
-            return new Color(ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256));
+            return new Color(System.Random.Shared.Next(256), System.Random.Shared.Next(256), System.Random.Shared.Next(256));
         }
 
         void BuildEntries()
