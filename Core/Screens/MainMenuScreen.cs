@@ -12,7 +12,9 @@ namespace VectorRumble
         {
             ShowBack = false;
 
-            Rows.Add(Entry(Strings.Play_Game, Strings.Desc_Play, FrameIcon.Duel, PlayEntrySelected));
+            var play = Entry(Strings.Play_Game, Strings.Desc_Play, FrameIcon.Duel, PlayEntrySelected);
+            play.PanelArt = MenuDuel.Draw;
+            Rows.Add(play);
             Rows.Add(Entry(Strings.Progress, Strings.Desc_Progress, FrameIcon.Trophy, () => ScreenManager.AddScreen(new ProgressMenuScreen())));
             Rows.Add(Entry(Strings.Settings, Strings.Desc_Settings, FrameIcon.Gear, () => ScreenManager.AddScreen(new OptionsMenuScreen())));
             Rows.Add(Entry(Strings.About, Strings.Desc_About, FrameIcon.Info, () => ScreenManager.AddScreen(new AboutMenuScreen())));
@@ -43,7 +45,7 @@ namespace VectorRumble
 
         protected override void DrawBodyText(FrameCanvas c)
         {
-            c.Text(c.Display, Strings.Tagline, new Vector2(90, 160), ScreenManager.MenuStyle.Frame.Text, 20f);
+            c.Text(c.Display, Strings.Tagline, new Vector2(96, 160), ScreenManager.MenuStyle.Frame.Text, 20f);
         }
 
         /// <summary>When the user cancels the main menu, ask if they want to exit.</summary>
