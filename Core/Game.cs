@@ -54,6 +54,14 @@ namespace VectorRumble
             // keeps this game from listing, or joining, the sessions of other games on the network
             // protocol 2: the packets carry a version byte now, so older builds neither join nor misread
             VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 2);
+
+            // what the player chose last time: the language (before any content loads), the display, the glow
+            UserSettings.Initialize();
+#if USE_DEFAULT_DEVICE_SETTINGS
+            UserSettings.ApplyBeforeStart(Graphics, changeFullScreen: false);
+#else
+            UserSettings.ApplyBeforeStart(Graphics, changeFullScreen: true);
+#endif
         }
 
 
@@ -63,6 +71,8 @@ namespace VectorRumble
         protected override void Initialize()
         {
             base.Initialize();
+
+            UserSettings.ApplyAudio(Audio);
 
             // the VectorEngine splash, then the background and main menu screens
             VectorEngine.Splash.SplashScreen.Start(ScreenManager, () =>

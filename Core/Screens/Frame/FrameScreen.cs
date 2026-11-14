@@ -20,7 +20,7 @@ public enum FrameLayout
 /// points at the one you are on and a laser line under it, and a panel on the right. A step of a wizard has a
 /// "Next" link bottom right. It works with a keyboard, a mouse, a touch screen or a gamepad.
 /// </summary>
-public abstract class FrameScreen : VectorEngine.Screens.GameScreen
+public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAware
 {
     /// <summary>Where the content column starts.</summary>
     protected const float Left = 86f;
@@ -88,18 +88,32 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
         audio = (AudioManager)ScreenManager.Game.Services.GetService(typeof(AudioManager));
         lineBatch = new LineBatch(ScreenManager.GraphicsDevice);
         lineBatch.SetProjection(Matrix.CreateOrthographicOffCenter(0f, Display.Viewport.Width, Display.Viewport.Height, 0f, 0f, 1f));
-        canvas = new FrameCanvas(lineBatch, ScreenManager.SpriteBatch, Style)
-        {
-            Large = ScreenManager.Font,
-            // the display font has Latin letters only: Chinese, Japanese and Korean keep the pixel font, which has their characters
-            Display = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName is "zh" or "ja" or "ko"
-                ? ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroLarge")
-                : ScreenManager.Game.Content.Load<SpriteFont>("Fonts/displayLarge"),
-            Medium = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroMedium"),
-            Small = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroSmall"),
-        };
+        canvas = new FrameCanvas(lineBatch, ScreenManager.SpriteBatch, Style);
+        LoadFonts();
         base.LoadContent();
     }
+
+    // the fonts depend on the language: Chinese and Japanese need their own
+    void LoadFonts()
+    {
+        canvas.Large = ScreenManager.Font;
+        canvas.Display = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName is "zh" or "ja" or "ko"
+            ? ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroLarge")
+            : ScreenManager.Game.Content.Load<SpriteFont>("Fonts/displayLarge");
+        canvas.Medium = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroMedium");
+        canvas.Small = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroSmall");
+    }
+
+    /// <summary>Called after the player changes the language: the fonts are loaded again, then <see cref="RebuildForLanguage"/> runs.</summary>
+    public void OnLanguageChanged()
+    {
+        if (canvas == null) return;
+        LoadFonts();
+        RebuildForLanguage();
+    }
+
+    /// <summary>A screen whose rows hold words from its constructor builds them again here, in the new language.</summary>
+    protected virtual void RebuildForLanguage() { }
 
     /// <summary>The screen's picture panel, to the right of the lines. The default draws the selected entry's icon and description.</summary>
     protected virtual void DrawPanel(FrameCanvas c, Rectangle area, FrameRow selectedRow)
@@ -383,7 +397,8 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen
         {
             bool lit = (i + 1f) / n <= v + 0.001f;
             float x0 = x + i * (sw + gap);
-            var seg = new[] { new Vector2(x0 + 4, y + 16), new Vector2(x0 + sw, y + 16), new Vector2(x0 + sw - 4, y), new Vector2(x0, y) };
+            // clockwise, as the line batch's triangles must be to survive back-face culling
+            var seg = new[] { new Vector2(x0, y), new Vector2(x0 + sw - 4, y), new Vector2(x0 + sw, y + 16), new Vector2(x0 + 4, y + 16) };
             canvas.Fill(seg, lit ? col : Style.Dim, lit ? 1f : .22f);
         }
     }

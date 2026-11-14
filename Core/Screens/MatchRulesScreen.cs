@@ -12,7 +12,8 @@ namespace VectorRumble
     /// </summary>
     class MatchRulesScreen : FrameMenuScreen
     {
-        static readonly string[] asteroidDensities =
+        // read each time, so they follow a change of language
+        static string[] asteroidDensities => new[]
         {
             Strings.Asteroid_Density_None,
             Strings.Asteroid_Density_Low,

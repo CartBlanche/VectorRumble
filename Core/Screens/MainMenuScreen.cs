@@ -11,18 +11,30 @@ namespace VectorRumble
         public MainMenuScreen()
         {
             ShowBack = false;
+            BuildRows();
+        }
+
+        // the rows hold the words of the language they were built in, so a change of language builds them again
+        void BuildRows()
+        {
+            int selected = SelectedIndex;
+            Rows.Clear();
 
             var play = Entry(Strings.Play_Game, Strings.Desc_Play, FrameIcon.Duel, PlayEntrySelected);
             play.PanelArt = MenuDuel.Draw;
             Rows.Add(play);
             Rows.Add(Entry(Strings.Progress, Strings.Desc_Progress, FrameIcon.Trophy, () => ScreenManager.AddScreen(new ProgressMenuScreen())));
-            Rows.Add(Entry(Strings.Settings, Strings.Desc_Settings, FrameIcon.Gear, () => ScreenManager.AddScreen(new OptionsMenuScreen())));
+            Rows.Add(Entry(Strings.Settings, Strings.Desc_Settings, FrameIcon.Gear, () => ScreenManager.AddScreen(new SettingsScreen())));
             Rows.Add(Entry(Strings.About, Strings.Desc_About, FrameIcon.Info, () => ScreenManager.AddScreen(new AboutMenuScreen())));
             if (!OperatingSystem.IsIOS())
             {
                 Rows.Add(Entry(Strings.Exit, Strings.Desc_Exit, FrameIcon.Exit, OnCancel));
             }
+
+            SelectedIndex = selected;
         }
+
+        protected override void RebuildForLanguage() => BuildRows();
 
         internal static FrameRow Entry(string label, string description, FrameIcon icon, Action selected)
         {

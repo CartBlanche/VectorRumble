@@ -719,5 +719,45 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Value_Ready", resourceCulture);
             }
         }
+        internal static string Label_Language {
+            get {
+                return ResourceManager.GetString("Label_Language", resourceCulture);
+            }
+        }
+        internal static string Label_Music {
+            get {
+                return ResourceManager.GetString("Label_Music", resourceCulture);
+            }
+        }
+        internal static string Label_Effects {
+            get {
+                return ResourceManager.GetString("Label_Effects", resourceCulture);
+            }
+        }
+        internal static string Label_Fullscreen {
+            get {
+                return ResourceManager.GetString("Label_Fullscreen", resourceCulture);
+            }
+        }
+        internal static string Label_NeonGlow {
+            get {
+                return ResourceManager.GetString("Label_NeonGlow", resourceCulture);
+            }
+        }
+        internal static string Label_BlurIntensity {
+            get {
+                return ResourceManager.GetString("Label_BlurIntensity", resourceCulture);
+            }
+        }
+        internal static string Label_MotionBlur {
+            get {
+                return ResourceManager.GetString("Label_MotionBlur", resourceCulture);
+            }
+        }
+        internal static string Label_More {
+            get {
+                return ResourceManager.GetString("Label_More", resourceCulture);
+            }
+        }
     }
 }

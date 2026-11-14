@@ -377,4 +377,28 @@ B/O Button, Esc = Cancel</value>
 	<data name="Value_Ready" xml:space="preserve">
 		<value>Ready</value>
 	</data>
+	<data name="Label_Language" xml:space="preserve">
+		<value>Language</value>
+	</data>
+	<data name="Label_Music" xml:space="preserve">
+		<value>Music</value>
+	</data>
+	<data name="Label_Effects" xml:space="preserve">
+		<value>Effects</value>
+	</data>
+	<data name="Label_Fullscreen" xml:space="preserve">
+		<value>Fullscreen</value>
+	</data>
+	<data name="Label_NeonGlow" xml:space="preserve">
+		<value>Neon glow</value>
+	</data>
+	<data name="Label_BlurIntensity" xml:space="preserve">
+		<value>Blur intensity</value>
+	</data>
+	<data name="Label_MotionBlur" xml:space="preserve">
+		<value>Motion blur</value>
+	</data>
+	<data name="Label_More" xml:space="preserve">
+		<value>More</value>
+	</data>
 </root>
