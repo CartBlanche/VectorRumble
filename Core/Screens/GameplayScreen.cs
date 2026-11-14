@@ -235,7 +235,7 @@ namespace VectorRumble
                 }
 
                 if (scoreShip != null) {
-                    message = string.Format(Strings.Score, scoreShip.Name, scoreShip.Score);
+                    message = string.Format(Strings.Score, scoreShip.ScoreName, scoreShip.Score);
                 }
 
                 size = spriteFont.MeasureString(message) * scale;

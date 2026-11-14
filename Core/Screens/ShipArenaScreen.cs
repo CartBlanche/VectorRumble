@@ -201,6 +201,7 @@ namespace VectorRumble
 
             Ship pilot = CurrentShip;
             pilot.PlayerIndex = "One";
+            pilot.PilotName = LanLobby.DisplayName(Environment.UserName);
             pilot.SetColor(CurrentColour);
             pilot.Controls = ShipControls.ForLocalPlayer();
             pilot.Selected = true;
@@ -262,6 +263,7 @@ namespace VectorRumble
             {
                 Ship ship = manager.Ships[assignment[i]];
                 ship.PlayerIndex = playerNames[i];
+                ship.PilotName = start.Players[i].Name;
                 ship.SetColor(start.Players[i].Color);
                 ship.Selected = true;
                 ships[i] = ship;

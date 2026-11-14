@@ -285,6 +285,12 @@ namespace VectorRumble
 
         public string Name { get; set; }
 
+        /// <summary>The pilot flying this ship, as the scoreboard names them. Empty: the ship's own name.</summary>
+        public string PilotName { get; set; }
+
+        /// <summary>What the scoreboard calls this ship: its pilot, or the ship when nobody has been named.</summary>
+        public string ScoreName => string.IsNullOrEmpty(PilotName) ? Name : PilotName;
+
         public string PlayerIndex { get; set; }
 
         public PlayerIndex PlayerStringToIndex { get { return StringToPlayerIndexMapper[PlayerIndex]; } }
