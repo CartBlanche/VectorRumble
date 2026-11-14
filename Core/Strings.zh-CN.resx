@@ -401,4 +401,49 @@ B/O 按钮, Esc = 取消</value>
     <data name="Label_More" xml:space="preserve">
         <value>更多</value>
     </data>
+    <data name="Paused" xml:space="preserve">
+        <value>已暂停</value>
+    </data>
+    <data name="Quit_Match" xml:space="preserve">
+        <value>退出比赛</value>
+    </data>
+    <data name="Desc_Resume" xml:space="preserve">
+        <value>返回比赛</value>
+    </data>
+    <data name="Desc_QuitMatch" xml:space="preserve">
+        <value>离开本场比赛并返回菜单</value>
+    </data>
+    <data name="Confirm_QuitTitle" xml:space="preserve">
+        <value>退出本场比赛？</value>
+    </data>
+    <data name="Confirm_QuitBody" xml:space="preserve">
+        <value>你在本场比赛的得分将会丢失。</value>
+    </data>
+    <data name="Confirm_KeepPlaying" xml:space="preserve">
+        <value>继续游戏</value>
+    </data>
+    <data name="Confirm_QuitToMenu" xml:space="preserve">
+        <value>返回菜单</value>
+    </data>
+    <data name="Confirm_ExitTitle" xml:space="preserve">
+        <value>退出游戏？</value>
+    </data>
+    <data name="Confirm_Stay" xml:space="preserve">
+        <value>留下</value>
+    </data>
+    <data name="Value_OK" xml:space="preserve">
+        <value>确定</value>
+    </data>
+    <data name="Game_Over" xml:space="preserve">
+        <value>游戏结束</value>
+    </data>
+    <data name="Rematch" xml:space="preserve">
+        <value>再来一局</value>
+    </data>
+    <data name="Final_Score" xml:space="preserve">
+        <value>最终比分</value>
+    </data>
+    <data name="Winner_Is" xml:space="preserve">
+        <value>获胜者：{0}</value>
+    </data>
 </root>

@@ -401,4 +401,49 @@ B/Oボタン, Esc = キャンセル</value>
     <data name="Label_More" xml:space="preserve">
         <value>その他</value>
     </data>
+    <data name="Paused" xml:space="preserve">
+        <value>一時停止</value>
+    </data>
+    <data name="Quit_Match" xml:space="preserve">
+        <value>試合を終了</value>
+    </data>
+    <data name="Desc_Resume" xml:space="preserve">
+        <value>試合に戻る</value>
+    </data>
+    <data name="Desc_QuitMatch" xml:space="preserve">
+        <value>この試合を離れてメニューに戻る</value>
+    </data>
+    <data name="Confirm_QuitTitle" xml:space="preserve">
+        <value>この試合を終了しますか？</value>
+    </data>
+    <data name="Confirm_QuitBody" xml:space="preserve">
+        <value>この試合のスコアは失われます。</value>
+    </data>
+    <data name="Confirm_KeepPlaying" xml:space="preserve">
+        <value>続ける</value>
+    </data>
+    <data name="Confirm_QuitToMenu" xml:space="preserve">
+        <value>メニューへ</value>
+    </data>
+    <data name="Confirm_ExitTitle" xml:space="preserve">
+        <value>ゲームを終了しますか？</value>
+    </data>
+    <data name="Confirm_Stay" xml:space="preserve">
+        <value>戻る</value>
+    </data>
+    <data name="Value_OK" xml:space="preserve">
+        <value>OK</value>
+    </data>
+    <data name="Game_Over" xml:space="preserve">
+        <value>ゲームオーバー</value>
+    </data>
+    <data name="Rematch" xml:space="preserve">
+        <value>リマッチ</value>
+    </data>
+    <data name="Final_Score" xml:space="preserve">
+        <value>最終スコア</value>
+    </data>
+    <data name="Winner_Is" xml:space="preserve">
+        <value>勝者：{0}</value>
+    </data>
 </root>

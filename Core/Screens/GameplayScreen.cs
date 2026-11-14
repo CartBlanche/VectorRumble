@@ -373,14 +373,15 @@ namespace VectorRumble
                     // in a network match the host says who won
                     if (World.Match.Winner >= 0)
                     {
-                        ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                            (World.Match.Winner + 1)), false, celebrate: true));
+                        Ship[] slots = World.ShipManager.Players.OrderBy(p => p.PlayerStringToIndex).ToArray();
+                        Ship winner = World.Match.Winner < slots.Length ? slots[World.Match.Winner] : null;
+                        ScreenManager.AddScreen(new GameOverScreen(WinnerMessage(winner, World.Match.Winner), Scoreboard(), false, celebrate: true));
                         gameOver = true;
                     }
                     else if (World.Match.HasEnded)
                     {
                         // the host left, or the network failed
-                        ScreenManager.AddScreen(new GameOverScreen(Strings.Lan_Connection_Lost, false));
+                        ScreenManager.AddScreen(new GameOverScreen(Strings.Lan_Connection_Lost, Scoreboard(), false));
                         gameOver = true;
                     }
                 }
@@ -390,8 +391,7 @@ namespace VectorRumble
                     {
                         if (World.Ships[i].Score >= MatchRules.Current.ScoreLimit)
                         {
-                            ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                                (i + 1)), celebrate: true));
+                            ScreenManager.AddScreen(new GameOverScreen(WinnerMessage(World.Ships[i], i), Scoreboard(), celebrate: true));
                             gameOver = true;
                             break;
                         }
@@ -410,6 +410,23 @@ namespace VectorRumble
             }
         }
 
+
+        /// <summary>Who won, by the pilot's name; the player's number when the ship cannot be found.</summary>
+        static string WinnerMessage(Ship winner, int index)
+        {
+            return winner != null
+                ? string.Format(Strings.Winner_Is, winner.ScoreName)
+                : string.Format(Strings.Player_X_Wins, index + 1);
+        }
+
+        /// <summary>The final score of each pilot in the match, best first.</summary>
+        static System.Collections.Generic.List<ScoreLine> Scoreboard()
+        {
+            return World.ShipManager.Players
+                .OrderByDescending(p => p.Score)
+                .Select(p => new ScoreLine { Name = p.ScoreName, Score = p.Score, Colour = p.Color, Shape = p.Shape.Points })
+                .ToList();
+        }
 
         /// <summary>
         /// Leaving the game ends a network match, and its session with it.

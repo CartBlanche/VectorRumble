@@ -68,7 +68,7 @@ namespace VectorRumble
                 return;
             }
 
-            MessageBoxScreen messageBox = new MessageBoxScreen(Strings.Exit_Prompt);
+            MessageBoxScreen messageBox = new MessageBoxScreen(Strings.Confirm_ExitTitle, "", Strings.Exit, Strings.Confirm_Stay);
             messageBox.Accepted += (s, e) => ScreenManager.Game.Exit();
             ScreenManager.AddScreen(messageBox);
         }

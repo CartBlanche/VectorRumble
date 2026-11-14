@@ -1,83 +1,73 @@
-#region File Description
-//-----------------------------------------------------------------------------
-// GameOverScreen.cs
-//
-// Microsoft XNA Community Game Platform
-// Copyright (C) Microsoft Corporation. All rights reserved.
-//-----------------------------------------------------------------------------
-#endregion
-
-#region Using Statements
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-#endregion
 
 namespace VectorRumble
 {
-    /// <summary>
-    /// The GameOverScreen screen object is displayed when the game is over.
-    /// </summary>
-    class GameOverScreen : MenuScreen
+    /// <summary>One pilot's line on the final scoreboard.</summary>
+    class ScoreLine
     {
-        #region Fields
+        public string Name;
+        public int Score;
+        public Color Colour;
+        public Vector2[] Shape;
+    }
 
-
-        Texture2D titleTexture;
-        string message;
-        bool allowPlayAgain;
+    /// <summary>
+    /// Shown when a match is over: the final score of every pilot, who won, and what to do next. A match on this
+    /// machine can be played again, or its ship and arena changed; a network match goes back to the menu.
+    /// </summary>
+    class GameOverScreen : FrameMenuScreen
+    {
+        readonly string message;
+        readonly IList<ScoreLine> scores;
 
         // the winner's confetti (VectorEngine's ParticleManager): a few bursts across the top in the first couple of seconds
-        bool celebrate;
+        readonly bool celebrate;
         ParticleManager confetti;
         LineBatch confettiLines;
         readonly Random random = new Random();
         float confettiClock = -0.3f, nextBurst;
 
-
-        #endregion
-
-
-        #region Initialization
-
-
-        /// <summary>
-        /// Constructor fills in the menu contents.
-        /// </summary>
+        /// <param name="message">Who won, or why the match ended</param>
+        /// <param name="scores">The final score of each pilot, best first; empty when there is none to show</param>
         /// <param name="allowPlayAgain">False in a network game, which cannot be restarted from here</param>
         /// <param name="celebrate">True when somebody won, which showers the screen with confetti</param>
-        public GameOverScreen(string message, bool allowPlayAgain = true, bool celebrate = false)
+        public GameOverScreen(string message, IList<ScoreLine> scores, bool allowPlayAgain = true, bool celebrate = false)
         {
             this.message = message;
-            this.allowPlayAgain = allowPlayAgain;
+            this.scores = scores ?? new List<ScoreLine>();
             this.celebrate = celebrate;
 
-			MenuEntry playAgainMenuEntry = new MenuEntry(Strings.Play_Again);
-			MenuEntry returnToMenuMenuEntry = new MenuEntry(Strings.Return_to_Menu);
-
-            playAgainMenuEntry.Selected += PlayAgainMenuEntrySelected;
-            returnToMenuMenuEntry.Selected += ReturnToMenuMenuEntrySelected;
+            Heading = Strings.Game_Over;
+            Layout = FrameLayout.Rows;
+            ShowPanel = false;
+            ShowBack = false;
+            IsPopup = true;
+            TransitionOnTime = TimeSpan.FromSeconds(0.8);
+            TransitionOffTime = TimeSpan.FromSeconds(0.6);
 
             if (allowPlayAgain)
             {
-                MenuEntries.Add(playAgainMenuEntry);
+                AddRow(Strings.Rematch, false, Rematch);
+                AddRow(Strings.Ship_And_Arena, true, () => LoadingScreen.Load(ScreenManager, LoadShipAndArena, false));
             }
-            MenuEntries.Add(returnToMenuMenuEntry);
 
-            TransitionOnTime = TimeSpan.FromSeconds(1.0);
-            TransitionOffTime = TimeSpan.FromSeconds(1.0);
-            IsPopup = true;
+            AddRow(Strings.Return_to_Menu, true, () => LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false));
         }
 
+        void AddRow(string label, bool chevron, Action selected)
+        {
+            var row = new FrameRow(label, FrameRowKind.Action) { Chevron = chevron };
+            row.Selected += selected;
+            Rows.Add(row);
+        }
 
-        /// <summary>
-        /// Loads graphics content for this screen.
-        /// </summary>
+        protected override float RowsWidth => 600f;
+
         public override void LoadContent()
         {
-            titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/title");
-
             if (celebrate)
             {
                 confettiLines = new LineBatch(ScreenManager.GraphicsDevice);
@@ -90,10 +80,6 @@ namespace VectorRumble
             base.LoadContent();
         }
 
-
-        /// <summary>
-        /// Updates the menu and the confetti.
-        /// </summary>
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
@@ -115,108 +101,101 @@ namespace VectorRumble
             confetti.Update(gameTime);
         }
 
-
-        #endregion
-
-
-        #region Handle Input
-
-
-        /// <summary>
-        /// Event handler for when the Play Again menu entry is selected.
-        /// </summary>
-        void PlayAgainMenuEntrySelected(object sender, EventArgs e)
+        public override void Draw(GameTime gameTime)
         {
+            base.Draw(gameTime);
+            confetti?.Draw(gameTime);
+        }
+
+        #region Next
+
+        // the same pilots in the same arena (a "Random" arena is picked again)
+        void Rematch()
+        {
+            World.ShipManager.UpdateSelectedList();
+            World.SelectedArena = null;
             LoadingScreen.Load(ScreenManager, LoadGameplayScreen, true);
         }
 
-
-        /// <summary>
-        /// Loading screen callback for activating the gameplay screen.
-        /// </summary>
         void LoadGameplayScreen(object sender, EventArgs e)
         {
-            GameplayScreen gameplayScreen = new GameplayScreen();
-            gameplayScreen.ScreenManager = this.ScreenManager;
-            ScreenManager.AddScreen(gameplayScreen);
+            ScreenManager.AddScreen(new GameplayScreen { ScreenManager = this.ScreenManager });
         }
 
-
-        /// <summary>
-        /// Event handler for when the Return to Menu menu entry is selected.
-        /// </summary>
-        void ReturnToMenuMenuEntrySelected(object sender, EventArgs e)
+        // back to the choice of ship and arena, with the screens before it in place so that Back works
+        void LoadShipAndArena(object sender, EventArgs e)
         {
-            LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false);
+            ScreenManager.AddScreen(new BackgroundScreen());
+            ScreenManager.AddScreen(new MainMenuScreen());
+            ScreenManager.AddScreen(new PlayMenuScreen());
+            ScreenManager.AddScreen(new MatchRulesScreen(false));
+            ScreenManager.AddScreen(new ShipArenaScreen());
         }
 
-
-        /// <summary>
-        /// Event handler for when the user selects ok on the "are you sure
-        /// you want to exit" message box.
-        /// </summary>
         void LoadMainMenuScreen(object sender, EventArgs e)
         {
             ScreenManager.AddScreen(new BackgroundScreen());
             ScreenManager.AddScreen(new MainMenuScreen());
         }
 
-
-        protected override void OnCancel() 
+        protected override void OnCancel()
         {
             LoadingScreen.Load(ScreenManager, LoadMainMenuScreen, false);
         }
 
-
         #endregion
 
+        #region The scoreboard
 
-        #region Drawing
+        const float PanelX = 740, PanelW = 440;
 
-
-        /// <summary>
-        /// Draws the game-over screen.
-        /// </summary>
-        public override void Draw(GameTime gameTime)
+        protected override void DrawBody(FrameCanvas c)
         {
-            // Darken down any other screens that were drawn beneath the popup.
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
+            var frame = FrameCanvas.Chamfer(PanelX, 196, PanelW, 400, 26);
+            c.Fill(frame, new Color(8, 8, 26), 0.5f);
+            c.Poly(frame, true, FrameScreen.Theme.Panel, 1.8f, .7f);
 
-            Viewport viewport = Display.Viewport;
-            Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
+            int most = Math.Max(Math.Max(1, MatchRules.Current.ScoreLimit), scores.Count == 0 ? 1 : scores.Max(s => s.Score));
+            for (int i = 0; i < scores.Count && i < 4; i++)
+            {
+                float y = 304 + i * 66;
+                ScoreLine line = scores[i];
+                c.Polygon(line.Shape, new Vector2(PanelX + 40, y), MathF.PI / 2f, 13f / Math.Max(1f, line.Shape.Max(p => p.Length())), line.Colour, 2f);
 
-            // calculate the texture position
-            Vector2 titlePosition = new Vector2(
-                (viewportSize.X - titleTexture.Width) / 2f, 
-                viewportSize.Y * 0.18f);
-            titlePosition.Y -= (float)Math.Pow(TransitionPosition, 2) * titlePosition.Y;
-            Color titleColor = Color.White;
-
-            // calculate the message position and size
-            float textScale = 1.5f + 0.05f * 
-                (float)Math.Cos(gameTime.TotalGameTime.TotalSeconds * 8.0f);
-            Vector2 textSize = ScreenManager.Font.MeasureString(message);
-            Vector2 textPosition = new Vector2(
-                viewportSize.X / 2f - textSize.X / 2f * textScale,
-                viewportSize.Y * 0.417f);
-            titlePosition.Y -= (float)Math.Pow(TransitionPosition, 2) * titlePosition.Y;
-            textSize.X = 0f;
-            textSize.Y /= 2f;
-
-            // draw the texture and text
-            ScreenManager.SpriteBatch.Begin();
-            ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition, 
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
-            ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, message,
-			    textPosition, new Color(0, 255, 0, (int)TransitionAlphaByte), 0.0f, textSize,
-                textScale, SpriteEffects.None, 1.0f);
-            ScreenManager.SpriteBatch.End();
-
-            confetti?.Draw(gameTime);
-
-            base.Draw(gameTime);
+                // the bar, in the pilot's colour, as long as their share of the score limit
+                float full = PanelW - 250f, length = Math.Max(6f, full * Math.Max(0, line.Score) / most);
+                var bar = new[] { new Vector2(PanelX + 190, y - 6), new Vector2(PanelX + 190 + length, y - 6), new Vector2(PanelX + 190 + length, y + 6), new Vector2(PanelX + 190, y + 6) };
+                c.Fill(bar, line.Colour, .85f);
+            }
         }
 
+        protected override void DrawBodyText(FrameCanvas c)
+        {
+            var theme = FrameScreen.Theme;
+
+            if (scores.Count == 0)
+            {
+                // no scoreboard (the network failed): just what happened
+                c.Text(c.Large, message, new Vector2(PanelX + PanelW / 2, 380), theme.Text, 22f, FrameAlign.Centre);
+                return;
+            }
+
+            c.Text(c.Display, Strings.Final_Score.ToUpperInvariant(), new Vector2(PanelX + PanelW / 2, 226), theme.Dim, 15f, FrameAlign.Centre);
+            for (int i = 0; i < scores.Count && i < 4; i++)
+            {
+                float y = 304 + i * 66;
+                ScoreLine line = scores[i];
+                bool winner = i == 0;
+                string name = line.Name ?? string.Empty;
+                float height = 24f, room = 112f;
+                float width = FrameCanvas.Measure(c.Medium, name, height);
+                if (width > room) height = Math.Max(12f, height * room / width);
+                c.Text(c.Medium, name, new Vector2(PanelX + 72, y - height / 2f), winner ? theme.Text : theme.Dim, height);
+                c.Text(c.Display, line.Score.ToString(), new Vector2(PanelX + PanelW - 24, y - 12), winner ? theme.Hot : theme.Dim, 24f, FrameAlign.Right);
+            }
+
+            c.Text(c.Display, message.ToUpperInvariant(), new Vector2(PanelX + PanelW / 2, 562), theme.Hot, 16f, FrameAlign.Centre);
+        }
 
         #endregion
     }

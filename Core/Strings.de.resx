@@ -398,4 +398,49 @@ B/O Button, Esc = abbrechen</value>
     <data name="Label_More" xml:space="preserve">
         <value>Mehr</value>
     </data>
+    <data name="Paused" xml:space="preserve">
+        <value>Pause</value>
+    </data>
+    <data name="Quit_Match" xml:space="preserve">
+        <value>Spiel beenden</value>
+    </data>
+    <data name="Desc_Resume" xml:space="preserve">
+        <value>Zurück zum Spiel</value>
+    </data>
+    <data name="Desc_QuitMatch" xml:space="preserve">
+        <value>Dieses Spiel verlassen und zurück zum Menü</value>
+    </data>
+    <data name="Confirm_QuitTitle" xml:space="preserve">
+        <value>Dieses Spiel beenden?</value>
+    </data>
+    <data name="Confirm_QuitBody" xml:space="preserve">
+        <value>Dein Punktestand in diesem Spiel geht verloren.</value>
+    </data>
+    <data name="Confirm_KeepPlaying" xml:space="preserve">
+        <value>Weiterspielen</value>
+    </data>
+    <data name="Confirm_QuitToMenu" xml:space="preserve">
+        <value>Zum Menü</value>
+    </data>
+    <data name="Confirm_ExitTitle" xml:space="preserve">
+        <value>Spiel beenden?</value>
+    </data>
+    <data name="Confirm_Stay" xml:space="preserve">
+        <value>Bleiben</value>
+    </data>
+    <data name="Value_OK" xml:space="preserve">
+        <value>OK</value>
+    </data>
+    <data name="Game_Over" xml:space="preserve">
+        <value>Spiel vorbei</value>
+    </data>
+    <data name="Rematch" xml:space="preserve">
+        <value>Revanche</value>
+    </data>
+    <data name="Final_Score" xml:space="preserve">
+        <value>Endstand</value>
+    </data>
+    <data name="Winner_Is" xml:space="preserve">
+        <value>Sieger: {0}</value>
+    </data>
 </root>

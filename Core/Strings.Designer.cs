@@ -759,5 +759,80 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Label_More", resourceCulture);
             }
         }
+        internal static string Paused {
+            get {
+                return ResourceManager.GetString("Paused", resourceCulture);
+            }
+        }
+        internal static string Quit_Match {
+            get {
+                return ResourceManager.GetString("Quit_Match", resourceCulture);
+            }
+        }
+        internal static string Desc_Resume {
+            get {
+                return ResourceManager.GetString("Desc_Resume", resourceCulture);
+            }
+        }
+        internal static string Desc_QuitMatch {
+            get {
+                return ResourceManager.GetString("Desc_QuitMatch", resourceCulture);
+            }
+        }
+        internal static string Confirm_QuitTitle {
+            get {
+                return ResourceManager.GetString("Confirm_QuitTitle", resourceCulture);
+            }
+        }
+        internal static string Confirm_QuitBody {
+            get {
+                return ResourceManager.GetString("Confirm_QuitBody", resourceCulture);
+            }
+        }
+        internal static string Confirm_KeepPlaying {
+            get {
+                return ResourceManager.GetString("Confirm_KeepPlaying", resourceCulture);
+            }
+        }
+        internal static string Confirm_QuitToMenu {
+            get {
+                return ResourceManager.GetString("Confirm_QuitToMenu", resourceCulture);
+            }
+        }
+        internal static string Confirm_ExitTitle {
+            get {
+                return ResourceManager.GetString("Confirm_ExitTitle", resourceCulture);
+            }
+        }
+        internal static string Confirm_Stay {
+            get {
+                return ResourceManager.GetString("Confirm_Stay", resourceCulture);
+            }
+        }
+        internal static string Value_OK {
+            get {
+                return ResourceManager.GetString("Value_OK", resourceCulture);
+            }
+        }
+        internal static string Game_Over {
+            get {
+                return ResourceManager.GetString("Game_Over", resourceCulture);
+            }
+        }
+        internal static string Rematch {
+            get {
+                return ResourceManager.GetString("Rematch", resourceCulture);
+            }
+        }
+        internal static string Final_Score {
+            get {
+                return ResourceManager.GetString("Final_Score", resourceCulture);
+            }
+        }
+        internal static string Winner_Is {
+            get {
+                return ResourceManager.GetString("Winner_Is", resourceCulture);
+            }
+        }
     }
 }

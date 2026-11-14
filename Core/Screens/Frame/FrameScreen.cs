@@ -13,6 +13,8 @@ public enum FrameLayout
     List,
     /// <summary>Rows with values (settings, wizard steps) on the left; an optional panel on the right.</summary>
     Rows,
+    /// <summary>A box over the screen with a heading, a message and the rows as buttons side by side (a question or a notice).</summary>
+    Modal,
 }
 
 /// <summary>
@@ -44,6 +46,9 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
 
     /// <summary>How the lines are laid out.</summary>
     protected FrameLayout Layout { get; set; } = FrameLayout.List;
+
+    /// <summary>For the modal layout: the words under the heading.</summary>
+    protected string ModalMessage { get; set; } = "";
 
     /// <summary>The wizard's Next link, or null.</summary>
     protected FrameNext Next { get; set; }
@@ -210,7 +215,13 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         {
             if (input.MenuUp) { selected = (selected - 1 + vis.Count) % vis.Count; Cue(false); }
             if (input.MenuDown) { selected = (selected + 1) % vis.Count; Cue(false); }
-            if (input.SelectPrevious) vis[selected].Adjust(-1);
+            if (Layout == FrameLayout.Modal)
+            {
+                // the buttons sit side by side
+                if (input.SelectPrevious) { selected = (selected - 1 + vis.Count) % vis.Count; Cue(false); }
+                else if (input.SelectNext) { selected = (selected + 1) % vis.Count; Cue(false); }
+            }
+            else if (input.SelectPrevious) vis[selected].Adjust(-1);
             else if (input.SelectNext) vis[selected].Adjust(1);
         }
 
@@ -248,6 +259,11 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     public override void Draw(GameTime gameTime)
     {
         if (canvas == null) return;
+
+        // a popup darkens what is under it
+        if (IsPopup) ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
+        if (Layout == FrameLayout.Modal) { DrawModal(); return; }
+
         var vis = Visible();
         if (vis.Count > 0) selected = Math.Max(0, Math.Min(selected, vis.Count - 1));
         FrameRow sel = vis.Count > 0 ? vis[selected] : null;
@@ -283,6 +299,60 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
         DrawFooterText();
         canvas.EndText();
     }
+
+    #region modal
+
+    void DrawModal()
+    {
+        var vis = Visible();
+        if (vis.Count > 0) selected = Math.Max(0, Math.Min(selected, vis.Count - 1));
+        canvas.Alpha = TransitionAlpha;
+        canvas.Glow = 1f;
+
+        const float bw = 640f, buttonW = 250f, buttonH = 56f;
+        string[] message = string.IsNullOrEmpty(ModalMessage) ? new string[0] : Wrap(ModalMessage, bw - 80f, canvas.Large, 24f);
+        float bh = 132f + message.Length * 32f + buttonH + 44f;
+        float bx = (Display.BaseWidth - bw) / 2f, by = (Display.BaseHeight - bh) / 2f - 20f;
+
+        rects.Clear();
+        canvas.BeginShapes();
+        var box = FrameCanvas.Chamfer(bx, by, bw, bh, 30);
+        canvas.Fill(box, new Color(10, 10, 30), 0.96f);
+        canvas.Poly(box, true, Style.Hot, 2.2f, .9f);
+        float buttonsY = by + bh - buttonH - 36f, total = vis.Count * buttonW + (vis.Count - 1) * 24f;
+        for (int i = 0; i < vis.Count; i++)
+        {
+            float x = (Display.BaseWidth - total) / 2f + i * (buttonW + 24f);
+            rects.Add(new Rectangle((int)x, (int)buttonsY, (int)buttonW, (int)buttonH));
+            var shape = FrameCanvas.Chamfer(x, buttonsY, buttonW, buttonH, 14);
+            bool on = i == selected;
+            if (on) canvas.Fill(shape, Style.Hot, .16f);
+            canvas.Poly(shape, true, on ? Style.Hot : new Color(71, 86, 214), on ? 2.2f : 1.6f, on ? 1f : .35f);
+        }
+        backRect = Rectangle.Empty;
+        nextRect = Rectangle.Empty;
+        if (!Platform.IsMobile) DrawHintShapes();
+        canvas.EndShapes();
+
+        canvas.BeginText();
+        float heading = 34f, hw = FrameCanvas.Measure(canvas.Display, Heading.ToUpperInvariant(), heading);
+        if (hw > bw - 80f) heading = Math.Max(16f, heading * (bw - 80f) / hw);
+        canvas.Text(canvas.Display, Heading.ToUpperInvariant(), new Vector2(Display.BaseWidth / 2f, by + 40f), Style.Text, heading, FrameAlign.Centre);
+        for (int i = 0; i < message.Length; i++)
+            canvas.Text(canvas.Large, message[i], new Vector2(Display.BaseWidth / 2f, by + 100f + i * 32f), Style.Dim, 24f, FrameAlign.Centre);
+        for (int i = 0; i < vis.Count; i++)
+        {
+            bool on = i == selected && IsActive;
+            string label = vis[i].Label.ToUpperInvariant();
+            float lh = 20f, lw = FrameCanvas.Measure(canvas.Display, label, lh);
+            if (lw > buttonW - 24f) lh = Math.Max(12f, lh * (buttonW - 24f) / lw);
+            canvas.Text(canvas.Display, label, new Vector2(rects[i].Center.X, buttonsY + buttonH / 2f - lh / 2f), on ? Style.Hot : Style.Text, lh, FrameAlign.Centre);
+        }
+        if (!Platform.IsMobile) DrawHintText();
+        canvas.EndText();
+    }
+
+    #endregion
 
     void DrawChrome()
     {
@@ -497,6 +567,8 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     // key hints, bottom centre: [up down] Choose  [left right] Change  [Enter] Select/Next  [Esc] Back
     List<(string key, string label)> Hints()
     {
+        if (Layout == FrameLayout.Modal)
+            return new List<(string key, string label)> { ("LR", Style.ChooseText()), ("Enter", Style.SelectText()) };
         var l = new List<(string, string)> { ("UD", Style.ChooseText()) };
         if (Layout == FrameLayout.Rows) l.Add(("LR", Style.ChangeText()));
         l.Add(("Enter", Next != null ? NextLabelTitle() : Style.SelectText()));

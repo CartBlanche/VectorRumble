@@ -37,6 +37,10 @@
         <End>&#44032;</End>
       </CharacterRegion>
       <CharacterRegion>
+        <Start>&#44049;</Start>
+        <End>&#44049;</End>
+      </CharacterRegion>
+      <CharacterRegion>
         <Start>&#44053;</Start>
         <End>&#44053;</End>
       </CharacterRegion>
@@ -71,6 +75,10 @@
       <CharacterRegion>
         <Start>&#44221;</Start>
         <End>&#44221;</End>
+      </CharacterRegion>
+      <CharacterRegion>
+        <Start>&#44228;</Start>
+        <End>&#44228;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#44256;</Start>
@@ -123,6 +131,10 @@
       <CharacterRegion>
         <Start>&#45208;</Start>
         <End>&#45208;</End>
+      </CharacterRegion>
+      <CharacterRegion>
+        <Start>&#45224;</Start>
+        <End>&#45224;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#45230;</Start>
@@ -223,6 +235,10 @@
       <CharacterRegion>
         <Start>&#46377;</Start>
         <End>&#46377;</End>
+      </CharacterRegion>
+      <CharacterRegion>
+        <Start>&#46496;</Start>
+        <End>&#46496;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#46608;</Start>
@@ -410,7 +426,7 @@
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#49548;</Start>
-        <End>&#49548;</End>
+        <End>&#49549;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#49688;</Start>
@@ -495,6 +511,10 @@
       <CharacterRegion>
         <Start>&#50672;</Start>
         <End>&#50672;</End>
+      </CharacterRegion>
+      <CharacterRegion>
+        <Start>&#50724;</Start>
+        <End>&#50724;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#50728;</Start>
@@ -642,7 +662,7 @@
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#51664;</Start>
-        <End>&#51664;</End>
+        <End>&#51665;</End>
       </CharacterRegion>
       <CharacterRegion>
         <Start>&#51901;</Start>
