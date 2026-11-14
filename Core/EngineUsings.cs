@@ -1,0 +1,12 @@
+global using VectorEngine.Collections;
+global using VectorEngine.Simulation;
+global using VectorEngine.Rendering;
+global using VectorEngine.Audio;
+global using VectorEngine.Input;
+global using VectorEngine.Localization;
+global using VectorEngine.Settings;
+global using VectorEngine.Effects;
+global using VectorEngine.Screens;
+global using VectorEngine.Diagnostics;
+global using VectorEngine;
+global using VectorEngine.Networking;

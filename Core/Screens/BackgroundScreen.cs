@@ -72,7 +72,7 @@ namespace VectorRumble
             TransitionOffTime = TimeSpan.FromSeconds(1.0);
 
 			random = new Random();
-            particleSystems = new CollectCollection<ParticleSystem>(null);
+            particleSystems = new CollectCollection<ParticleSystem>();
 
             ShowParticles = true;
         }
@@ -169,7 +169,7 @@ namespace VectorRumble
                 lineBatch.Begin();
                 for (int i = 0; i < particleSystems.Count; i++)
                 {
-                    particleSystems[i].Draw(lineBatch);
+                    particleSystems[i].DrawExplosions(lineBatch);
                 }
                 lineBatch.End();
 
@@ -190,7 +190,7 @@ namespace VectorRumble
 
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition,
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlpha));
+                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
             ScreenManager.SpriteBatch.End();
         }
 

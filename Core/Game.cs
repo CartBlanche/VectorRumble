@@ -24,54 +24,36 @@ namespace VectorRumble
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class VectorRumbleGame : Microsoft.Xna.Framework.Game
+    public class VectorRumbleGame : VectorEngineGame
     {
-        GraphicsDeviceManager graphics;
-
-        ScreenManager screenManager;
-        AudioManager audioManager;
-
-
         public VectorRumbleGame()
+            : base(new VectorEngineGameOptions
+            {
+                // the game is laid out at 1280x720 (the engine's default) and the window opens at that size
+                MouseVisible = true,
+#if USE_DEFAULT_DEVICE_SETTINGS
+                UseDefaultDeviceSettings = true,
+#endif
+                ScreenManager = new ScreenManagerOptions
+                {
+                    LoadFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroLarge"),
+                    BlankTexturePath = "Textures/blank",
+                    // the game is drawn at a fixed 1280x720 into a target, bloom included, then scaled to the window
+                    RenderToVirtualTarget = true,
+                    PerfOverlay = true,
+                    MenuStyle = new MenuStyle
+                    {
+                        LoadSmallFont = content => content.LoadLocalized<SpriteFont>("Fonts/retroSmall"),
+                        MessageBoxUsageText = () => Strings.MessageBox_Usage,
+                        LoadingText = () => Strings.Loading,
+                    },
+                },
+                AudioProject = "VectorRumble",
+            })
         {
             // keeps this game from listing, or joining, the sessions of other games on the network
-            Networking.MultiplayerSessionService.Initialize();
-
-            graphics = new GraphicsDeviceManager(this);
-			Services.AddService (typeof (GraphicsDeviceManager), graphics);
-            Content.RootDirectory = "Content";
-
-#if USE_DEFAULT_DEVICE_SETTINGS
-            // Use default device settings defined by platform.
-#else
-            if (Helper.IsMobile) // iPad or Tablets only
-            {
-                // the device's own screen: the game is drawn at a fixed size and scaled to it (see Display)
-                graphics.IsFullScreen = true;
-                graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft;
-            }
-            else
-            {
-                graphics.PreferredBackBufferWidth = Display.BaseWidth;
-                graphics.PreferredBackBufferHeight = Display.BaseHeight;
-                graphics.HardwareModeSwitch = false;
-                graphics.IsFullScreen = false;
-                IsMouseVisible = true;
-            }
-#endif
-			graphics.SynchronizeWithVerticalRetrace = true;
-            Window.AllowUserResizing = false;
-
-            // create the screen manager
-            screenManager = new ScreenManager(this);
-            Components.Add(screenManager);
-
-            // create the audio manager
-            audioManager = new AudioManager(this, 
-                "Content/Audio/VectorRumble.xgs", 
-                "Content/Audio/VectorRumble.xwb",
-                "Content/Audio/VectorRumble.xsb");
-            Services.AddService(typeof(AudioManager), audioManager);
+            // protocol 2: the packets carry a version byte now, so older builds neither join nor misread
+            VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 2);
         }
 
 
@@ -82,25 +64,12 @@ namespace VectorRumble
         {
             base.Initialize();
 
-            // add the background screen to the screen manager
-            screenManager.AddScreen(new BackgroundScreen());
-
-            // add the main menu screen to the screen manager
-            screenManager.AddScreen(new MainMenuScreen());
-        }
-
-
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
-            // update the audio manager
-            audioManager.Update(gameTime);
-
-            base.Update(gameTime);
+            // the VectorEngine splash, then the background and main menu screens
+            VectorEngine.Splash.SplashScreen.Start(ScreenManager, () =>
+            {
+                ScreenManager.AddScreen(new BackgroundScreen());
+                ScreenManager.AddScreen(new MainMenuScreen());
+            });
         }
 
 
@@ -110,7 +79,7 @@ namespace VectorRumble
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            graphics.GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.Black);
 
             // the screen manager owns the real drawing
 

@@ -130,7 +130,7 @@ namespace VectorRumble
         /// </summary>
         public override void Draw(GameTime gameTime)
         {
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
 
             Viewport viewport = Display.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
@@ -144,7 +144,7 @@ namespace VectorRumble
 
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition,
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlpha));
+                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
             ScreenManager.SpriteBatch.End();
 
             base.Draw(gameTime);

@@ -78,10 +78,11 @@ namespace VectorRumble
                 Display.Viewport.Width,
                 Display.Viewport.Height, 0.0f, 0.0f, 1.0f));
 
-            if (Helper.IsMobile)
+            if (VectorEngine.Platform.IsMobile)
             {
-                virtualGamePad = new VirtualGamePad(content.Load<Texture2D>("Textures/gamepad"),
-                    Display.Viewport);
+                virtualGamePad = new VirtualGamePad(null, content.Load<Texture2D>("Textures/gamepad"),
+                    new Vector2(Display.Viewport.Width, Display.Viewport.Height),
+                    startHidden: GamePad.GetState(PlayerIndex.One).IsConnected);
                 VirtualGamePad.Instance = virtualGamePad;
             }
         }
@@ -131,7 +132,7 @@ namespace VectorRumble
                 if (virtualGamePad != null)
                 {
                     virtualGamePad.CanFade = CanFadeVirtualGamePad;
-                    virtualGamePad.Update(ScreenManager.Input.Touches, (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    virtualGamePad.Update(ScreenManager.Input.CurrentTouchState, (float)gameTime.ElapsedGameTime.TotalSeconds);
                 }
             }
         }
@@ -166,7 +167,7 @@ namespace VectorRumble
 
             // If the game is transitioning on or off, fade it out to black.
             if (TransitionPosition > 0)
-                ScreenManager.FadeBackBufferToBlack(255 - TransitionAlpha);
+                ScreenManager.FadeBackBufferToBlack(1f - TransitionAlpha);
         }
 
         /// <summary>
@@ -198,7 +199,7 @@ namespace VectorRumble
                     switch (index)
                     {
                         case PlayerIndex.One:
-                            message = WrapText(caps.IsConnected || Helper.IsMobile ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
+                            message = WrapText(caps.IsConnected || VectorEngine.Platform.IsMobile ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
                             break;
                         case PlayerIndex.Two:
                             message = WrapText(caps.IsConnected ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
@@ -322,7 +323,7 @@ namespace VectorRumble
             }
             else if ((otherScreenHasFocus == true) || (coveredByOtherScreen == true))
             {    
-                if (!Helper.IsMobile)
+                if (!VectorEngine.Platform.IsMobile)
                 {
                     // make sure nobody's controller is vibrating
                     for (int i = 0; i < 4; i++)
@@ -360,7 +361,7 @@ namespace VectorRumble
                     if (World.Match.Winner >= 0)
                     {
                         ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                            (World.Match.Winner + 1)), false));
+                            (World.Match.Winner + 1)), false, celebrate: true));
                         gameOver = true;
                     }
                     else if (World.Match.HasEnded)
@@ -377,7 +378,7 @@ namespace VectorRumble
                         if (World.Ships[i].Score >= MatchRules.Current.ScoreLimit)
                         {
                             ScreenManager.AddScreen(new GameOverScreen(string.Format(Strings.Player_X_Wins,
-                                (i + 1))));
+                                (i + 1)), celebrate: true));
                             gameOver = true;
                             break;
                         }
@@ -421,7 +422,7 @@ namespace VectorRumble
         /// Lets the game respond to player input. Unlike the Update method,
         /// this will only be called when the gameplay screen is active.
         /// </summary>
-        public override void HandleInput(InputState input)
+        public override void HandleInput(GameTime gameTime, InputState input)
         {
             if (input == null)
             {
@@ -452,7 +453,7 @@ namespace VectorRumble
             {
                 if (particleSystem.IsActive)
                 {
-                    particleSystem.Draw(lineBatch);
+                    particleSystem.DrawExplosions(lineBatch);
                 }
             }
 

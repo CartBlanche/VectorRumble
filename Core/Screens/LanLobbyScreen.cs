@@ -66,7 +66,7 @@ namespace VectorRumble
 
         static Color RandomColor()
         {
-            return new Color(ParticleSystem.random.Next(256), ParticleSystem.random.Next(256), ParticleSystem.random.Next(256));
+            return new Color(ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256));
         }
 
         void BuildEntries()
@@ -277,7 +277,6 @@ namespace VectorRumble
             {
                 ScreenManager = this.ScreenManager
             };
-            gameplayScreen.Initialize();
             ScreenManager.AddScreen(gameplayScreen);
         }
 
@@ -295,7 +294,7 @@ namespace VectorRumble
             var viewport = Display.Viewport;
             var font = ScreenManager.Font;
             var spriteBatch = ScreenManager.SpriteBatch;
-            int alpha = TransitionAlpha;
+            int alpha = TransitionAlphaByte;
 
             // who is in: a card for each player, with their ship in their colour
             const float cardWidth = 280f;

@@ -63,7 +63,7 @@ namespace VectorRumble
             }
 
             // draw a simple line
-            lineBatch.DrawLine(position, 
+            lineBatch.DrawLineList(position, 
                 position - velocity * lineLengthVelocityPercent, Color.Yellow);
         }
         #endregion 

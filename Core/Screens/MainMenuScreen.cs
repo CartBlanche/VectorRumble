@@ -77,7 +77,7 @@ namespace VectorRumble
 
         void SetBackgroundQuiet(bool quiet)
         {
-            foreach (var screen in ScreenManager.Screens)
+            foreach (var screen in ScreenManager.GetScreens())
             {
                 if (screen is BackgroundScreen background)
                 {

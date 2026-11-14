@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0-android</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
-    <ApplicationId>com.infinitespacestudios.vectorrumble</ApplicationId>
+    <ApplicationId>com.softsavage.vectorrumble</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <AssemblyName>VectorRumble</AssemblyName>
@@ -12,6 +12,9 @@
   <ItemGroup>
     <MonoGameContentReference Include="..\Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
+    </MonoGameContentReference>
+    <MonoGameContentReference Include="$(EngineDir)Content\Engine.mgcb">
+      <Link>Content\Engine.mgcb</Link>
     </MonoGameContentReference>
   </ItemGroup>
   <ItemGroup>

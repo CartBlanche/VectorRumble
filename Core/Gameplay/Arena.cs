@@ -48,7 +48,7 @@ namespace VectorRumble
                 {
                     startLine = new Vector2(Walls[wall * 2].X * viewportWidth, Walls[wall * 2].Y * viewportHeight);
                     endLine = new Vector2(Walls[wall * 2 + 1].X * viewportWidth, Walls[wall * 2 + 1].Y * viewportHeight);
-                    lineBatch.DrawLine(startLine, endLine, Color);
+                    lineBatch.DrawLineList(startLine, endLine, Color);
                 }
             }
         }

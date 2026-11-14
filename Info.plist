@@ -19,7 +19,7 @@
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.infinitespace-studios.vectorrumble</string>
+	<string>com.softsavge.vectorrumble</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
 	<key>CFBundleShortVersionString</key>

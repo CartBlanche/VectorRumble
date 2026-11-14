@@ -24,7 +24,7 @@ namespace VectorRumble
         {
             // an entry is drawn centred on its line, so the first one's text starts half a line above the menu's top
             float lineHeight = screenManager.Font.LineSpacing;
-            int top = (int)(Display.BaseHeight * MenuScreen.MenuTop - lineHeight / 2f + lineHeight * 0.1f);
+            int top = (int)(Display.BaseHeight * MenuStyle.DefaultMenuTop - lineHeight / 2f + lineHeight * 0.1f);
             return new Rectangle(Display.BaseWidth - 240 - 24, top, 240, 135);
         }
 
@@ -59,10 +59,10 @@ namespace VectorRumble
             Vector2 topRight = new Vector2(area.Right, area.Top);
             Vector2 bottomLeft = new Vector2(area.Left, area.Bottom);
             Vector2 bottomRight = new Vector2(area.Right, area.Bottom);
-            lineBatch.DrawLine(topLeft, topRight, frame);
-            lineBatch.DrawLine(topRight, bottomRight, frame);
-            lineBatch.DrawLine(bottomRight, bottomLeft, frame);
-            lineBatch.DrawLine(bottomLeft, topLeft, frame);
+            lineBatch.DrawLineList(topLeft, topRight, frame);
+            lineBatch.DrawLineList(topRight, bottomRight, frame);
+            lineBatch.DrawLineList(bottomRight, bottomLeft, frame);
+            lineBatch.DrawLineList(bottomLeft, topLeft, frame);
 
             bool hasWalls = arena?.Walls != null && arena.Walls.Length >= 2;
             if (hasWalls)
@@ -70,7 +70,7 @@ namespace VectorRumble
                 Color wall = new Color(arena.Color.R, arena.Color.G, arena.Color.B, alpha);
                 for (int i = 0; i + 1 < arena.Walls.Length; i += 2)
                 {
-                    lineBatch.DrawLine(Scale(arena.Walls[i], area), Scale(arena.Walls[i + 1], area), wall);
+                    lineBatch.DrawLineList(Scale(arena.Walls[i], area), Scale(arena.Walls[i + 1], area), wall);
                 }
             }
             lineBatch.End();
@@ -109,7 +109,7 @@ namespace VectorRumble
             shape.Transform(Matrix.CreateScale(size / 2f / radius) * Matrix.CreateTranslation(center.X, center.Y, 0f));
 
             lineBatch.Begin();
-            lineBatch.DrawPolygon(shape, color);
+            lineBatch.DrawEmptyPolygon(shape, color);
             lineBatch.End();
         }
     }

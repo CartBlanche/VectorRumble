@@ -49,7 +49,7 @@ namespace VectorRumble
             this.explodes = true;
             this.explosionColors = new Color[] 
                 { Color.Orange, Color.Gray, Color.Gray, Color.Silver };
-            this.polygon = VectorPolygon.CreateRocket();
+            this.polygon = Shapes.CreateRocket();
             this.color = Color.Orange;
         }
         #endregion

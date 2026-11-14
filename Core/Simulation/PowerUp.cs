@@ -31,6 +31,9 @@ namespace VectorRumble
     /// </summary>
     abstract class PowerUp : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
         #region Constants
         /// <summary>
         /// The scalar between time elapsed and the scale period.
@@ -134,10 +137,10 @@ namespace VectorRumble
                 polygon.Transform(world);
                 innerPolygon.Transform(world);
                 // draw the polygons
-                lineBatch.DrawPolygon(polygon, Color.White);
+                lineBatch.DrawEmptyPolygon(polygon, Color.White);
                 if (innerPolygon != null)
                 {
-                    lineBatch.DrawPolygon(innerPolygon, color, true);
+                    lineBatch.DrawEmptyPolygon(innerPolygon, color, true);
                 }
                 // draw the motion blur
                 if (useMotionBlur && velocity.LengthSquared() > 1024f)
@@ -163,10 +166,10 @@ namespace VectorRumble
                         if (alpha < 1)
                             break;
                         // draw the "blur" polygons
-						lineBatch.DrawPolygon(polygon, new Color(255, 255, 255, (int)alpha));
+						lineBatch.DrawEmptyPolygon(polygon, new Color(255, 255, 255, (int)alpha));
                         if (innerPolygon != null)
                         {
-                            lineBatch.DrawPolygon(innerPolygon,
+                            lineBatch.DrawEmptyPolygon(innerPolygon,
                                 new Color(color.R, color.G, color.B, alpha), true);
                         }
                     }

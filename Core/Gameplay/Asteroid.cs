@@ -21,6 +21,9 @@ namespace VectorRumble
     /// </summary>
     class Asteroid : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
         #region Constants
         /// <summary>
         /// The ratio between the mass and the radius of an asteroid.
@@ -63,8 +66,8 @@ namespace VectorRumble
             this.color = Color.Gray;
             // create the polygon
             this.polygon = shapeRandom == null
-                ? VectorPolygon.CreateAsteroid(radius)
-                : VectorPolygon.CreateAsteroid(radius, shapeRandom);
+                ? Shapes.CreateAsteroid(radius)
+                : Shapes.CreateAsteroid(radius, shapeRandom);
             // the asteroid polygon might not be as big as the original radius, 
             // so find out how big it really is
             for (int i = 0; i < this.polygon.Points.Length; i++)

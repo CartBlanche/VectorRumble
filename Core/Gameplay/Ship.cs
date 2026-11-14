@@ -27,6 +27,16 @@ namespace VectorRumble
     /// </summary>
     internal class Ship : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
+        /// <summary>The Vector Rumble world that owns this ship.</summary>
+        public new World World
+        {
+            get { return (World)base.World; }
+            set { base.World = value; }
+        }
+
         #region Constants
         /// <summary>
         /// The value of the spawn timer set when the ship dies.
@@ -398,7 +408,7 @@ namespace VectorRumble
             smallMotorTimer -= elapsedTime;
             largeMotorTimer -= elapsedTime;
 
-            if (!Helper.IsMobile)
+            if (!VectorEngine.Platform.IsMobile)
             {
                 GamePad.SetVibration((Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Pad,
                     (largeMotorTimer > 0f) ? largeMotorSpeed : 0f,
@@ -444,11 +454,11 @@ namespace VectorRumble
                 // draw the shield
                 if (Safe)
                 {
-                    lineBatch.DrawPolygon(shieldPolygon, color);
+                    lineBatch.DrawEmptyPolygon(shieldPolygon, color);
                 }
                 else if (shieldStrength > 0f)
                 {
-                    lineBatch.DrawPolygon(shieldPolygon, new Color(color.R, color.G,
+                    lineBatch.DrawEmptyPolygon(shieldPolygon, new Color(color.R, color.G,
                         color.B, (byte)(255f * shieldStrength / shieldMaximum)), true);
                 }
             }
@@ -791,7 +801,7 @@ namespace VectorRumble
 
         internal void ChangeColor()
         {
-            color = new Color(ParticleSystem.random.Next(256), ParticleSystem.random.Next(256), ParticleSystem.random.Next(256));
+            color = new Color(ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256), ParticleSystem.Random.Next(256));
         }
         #endregion
 
@@ -803,7 +813,7 @@ namespace VectorRumble
         /// <param name="smallMotorTime">The time to run the small motor.</param>
         public void FireGamepadMotors(float largeMotorTime, float smallMotorTime)
         {
-            if (!Helper.IsMobile)
+            if (!VectorEngine.Platform.IsMobile)
             {
                 // use the maximum timer value
                 this.largeMotorTimer = Math.Max(this.largeMotorTimer, largeMotorTime);

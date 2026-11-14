@@ -20,6 +20,9 @@ namespace VectorRumble
     /// </summary>
     abstract class Projectile : Actor
     {
+        /// <summary>The Vector Rumble world that owns this actor.</summary>
+        protected new World world => (World)base.world;
+
         #region Fields
         /// <summary>
         /// The player who fired this projectile.
@@ -154,6 +157,9 @@ namespace VectorRumble
         }
 
         
+        /// <summary>A projectile is spent where it crosses a wall, rather than bouncing.</summary>
+        public override WallBehavior WallBehavior => WallBehavior.Touch;
+
         /// <summary>
         /// Defines the interaction between this projectile and a target actor
         /// when they touch.

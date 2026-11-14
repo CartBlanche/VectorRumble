@@ -1,6 +1,8 @@
+using VectorEngine.Rendering;
 using System;
 using System.IO;
 using Microsoft.Xna.Framework;
+using VectorEngine.Networking;
 using VectorRumble.Networking;
 using Xunit;
 
@@ -169,9 +171,9 @@ namespace VectorRumble.Tests
         [Fact]
         public void Every_machine_makes_the_same_asteroid_from_the_same_seed()
         {
-            var a = VectorPolygon.CreateAsteroid(40f, new Random(1234));
-            var b = VectorPolygon.CreateAsteroid(40f, new Random(1234));
-            var other = VectorPolygon.CreateAsteroid(40f, new Random(4321));
+            var a = Shapes.CreateAsteroid(40f, new Random(1234));
+            var b = Shapes.CreateAsteroid(40f, new Random(1234));
+            var other = Shapes.CreateAsteroid(40f, new Random(4321));
 
             Assert.Equal(a.Points, b.Points);
             Assert.NotEqual(a.Points, other.Points);

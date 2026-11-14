@@ -157,7 +157,7 @@ namespace VectorRumble.Tests
             Assert.Equal(7.25f, read.Rotation);
             Assert.Equal(new Vector2(-3f, 4f), read.Velocity);
             Assert.Equal(80, read.Shield);
-            Assert.Equal(PacketType.ShipState, read.Type);
+            Assert.Equal((byte)PacketType.ShipState, read.Type);
         }
     }
 }

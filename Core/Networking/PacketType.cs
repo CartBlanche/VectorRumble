@@ -10,9 +10,7 @@ namespace VectorRumble.Networking
     /// </summary>
     public enum PacketType : byte
     {
-        // connectivity test / latency measurement
-        Ping = 64,
-        Pong = 65,
+        // (64 and 65 are the engine's Ping and Pong: see VectorEngine.Networking.EnginePacketIds)
 
         // lobby and match setup
         LobbyUpdate = 70,       // client -> host: my ship choice and ready state

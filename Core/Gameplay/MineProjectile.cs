@@ -54,7 +54,7 @@ namespace VectorRumble
             this.explodes = true;
             this.explosionColors = new Color[] 
                 { Color.Red, Color.Maroon, Color.White, Color.Silver };
-            this.polygon = VectorPolygon.CreateMine();
+            this.polygon = Shapes.CreateMine();
             this.color = Color.Red;
         }
         #endregion

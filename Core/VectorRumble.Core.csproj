@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net10.0</TargetFramework>
+    <!-- a method that silently hides an inherited one is never called through the base class (this broke the waypoint actors once) -->
+    <WarningsAsErrors>$(WarningsAsErrors);CS0114;CS0108</WarningsAsErrors>
     <DefineConstants>$(DefineConstants);AUDIO;SHADER_EFFECTS</DefineConstants>
     <AssemblyDescription>Vector Rumble Core</AssemblyDescription>
   </PropertyGroup>
@@ -9,7 +11,11 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="$(MonoGameVersion)">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="MonoGame.Xna.Framework.Net" Version="1.0.0-preview.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(EngineDir)VectorEngine.Core\VectorEngine.Core.csproj" />
+    <!-- optional engine part: LAN networking (the only one that needs the Net package) -->
+    <ProjectReference Include="$(EngineDir)VectorEngine.Networking\VectorEngine.Networking.csproj" />
   </ItemGroup>
   <PropertyGroup Condition="'$(PerfOverlay)' == 'true'">
     <!-- dotnet build -c Release -p:PerfOverlay=true: puts the frame time / GC / draw call overlay in a Release build -->

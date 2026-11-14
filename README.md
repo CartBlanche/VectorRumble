@@ -16,11 +16,11 @@ MonoGame port of the XNA VectorRumble Sample, but enhanced to be a more complete
    * Korean
 
 ## Build Status
-[![.NET](https://github.com/infinitespace-studios/VectorRumble/actions/workflows/build.yml/badge.svg)](https://github.com/infinitespace-studios/VectorRumble/actions/workflows/build.yml)
+[![.NET](https://github.com/CartBlanche/VectorRumble/actions/workflows/build.yml/badge.svg)](https://github.com/CartBlanche/VectorRumble/actions/workflows/build.yml)
 
 ## Released Platforms
 * Desktop PCs
-   * [Itch.IO](https://infinitespace-studios.itch.io/vector-rumble) (Linux, MacOS and Windows binaries)
+   * [Itch.IO](https://softsavage.itch.io/vector-rumble) (Linux, MacOS, Windows and Android binaries)
 
 ## Contributions Opportunities
 
@@ -36,7 +36,7 @@ We have quite a few issues that are ripe for community contributions. This proje
 * [Network multi-player](https://github.com/infinitespace-studios/VectorRumble/issues/18)
 * [AI Player](https://github.com/infinitespace-studios/VectorRumble/issues/17)
 
-If you think you have found a bug or have a feature request, use our [issue tracker](https://github.com/infinitespace-studios/VectorRumble/issues). 
+If you think you have found a bug or have a feature request, use our [issue tracker](https://github.com/CartBlanche/VectorRumble/issues). 
 Before opening a new issue, please search to see if your problem has already been reported.  Try to be as detailed as possible in your issue reports.
 
 
@@ -52,21 +52,27 @@ There are several options on the MonoGame [Donation Page](http://www.monogame.ne
 ## Source Code
 
 The full VectorRumble source code is available here from GitHub:
-* Clone the source: `git clone https://github.com/infinitespace-studios/VectorRumble.git`
+* Clone the source: `git clone https://github.com/CartBlanche/VectorRumble.git`
 
 ### Building with Effect Compilation
 
-VectorRumble includes shader effects that require compilation. The project uses GitHub workflows to automatically set up the required dependencies (.NET 9 and Wine) for CoPilot environments.
+VectorRumble includes shader effects that require compilation. The project uses GitHub workflows to automatically set up the required dependencies (.NET 10 and Wine).
 
 ```bash
 dotnet build
 ```
 
+## VectorEngine
+
+The reusable parts of the game (screens and menus, input, rendering, audio, settings, world simulation and optional LAN networking) live in [VectorEngine](https://github.com/CartBlanche/VectorEngine), shared with [Solid Ops](https://github.com/CartBlanche/SolidOps). VectorRumble keeps what is specific to it: ships, weapons, arenas, match rules and the lobby.
+
+Clone the engine **next to** this repo before building (`CartBlanche/VectorEngine` beside `CartBlanche/VectorRumble`); pass `-p:EngineDir=/path/to/VectorEngine/` to use it from somewhere else.
+
 ## Helpful Links
 
  * The official MonoGame website is [monogame.net](http://www.monogame.net).
- * The VectorRumble [issue tracker](https://github.com/infinitespace-studios/VectorRumble/issues) is on GitHub.
- * Follow [@InfSpaceStudios](https://twitter.com/InfSpaceStudios) on Twitter.
+ * The VectorRumble [issue tracker](https://github.com/CartBlanche/VectorRumble/issues) is on GitHub.
+ * Follow [@InfSpaceStudios](https://softsavage.itch.io) on Itch.io.
 
 ## License
 

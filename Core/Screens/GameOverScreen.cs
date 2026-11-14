@@ -28,6 +28,13 @@ namespace VectorRumble
         string message;
         bool allowPlayAgain;
 
+        // the winner's confetti (VectorEngine's ParticleManager): a few bursts across the top in the first couple of seconds
+        bool celebrate;
+        ParticleManager confetti;
+        LineBatch confettiLines;
+        readonly Random random = new Random();
+        float confettiClock = -0.3f, nextBurst;
+
 
         #endregion
 
@@ -39,10 +46,12 @@ namespace VectorRumble
         /// Constructor fills in the menu contents.
         /// </summary>
         /// <param name="allowPlayAgain">False in a network game, which cannot be restarted from here</param>
-        public GameOverScreen(string message, bool allowPlayAgain = true)
+        /// <param name="celebrate">True when somebody won, which showers the screen with confetti</param>
+        public GameOverScreen(string message, bool allowPlayAgain = true, bool celebrate = false)
         {
             this.message = message;
             this.allowPlayAgain = allowPlayAgain;
+            this.celebrate = celebrate;
 
 			MenuEntry playAgainMenuEntry = new MenuEntry(Strings.Play_Again);
 			MenuEntry returnToMenuMenuEntry = new MenuEntry(Strings.Return_to_Menu);
@@ -68,7 +77,42 @@ namespace VectorRumble
         public override void LoadContent()
         {
             titleTexture = ScreenManager.Game.Content.Load<Texture2D>("Textures/title");
+
+            if (celebrate)
+            {
+                confettiLines = new LineBatch(ScreenManager.GraphicsDevice);
+                confettiLines.SetProjection(Matrix.CreateOrthographicOffCenter(0f,
+                    Display.BaseWidth, Display.BaseHeight, 0f, 0f, 1f));
+                confetti = new ParticleManager(ScreenManager, ScreenManager.SpriteBatch, confettiLines,
+                    ScreenManager.BlankTexture, Vector2.Zero);
+            }
+
             base.LoadContent();
+        }
+
+
+        /// <summary>
+        /// Updates the menu and the confetti.
+        /// </summary>
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            if (confetti == null)
+                return;
+
+            confettiClock += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (confettiClock >= nextBurst && confettiClock < 2f)
+            {
+                nextBurst = confettiClock + 0.12f;
+                Vector2 size = ScreenManager.BaseScreenSize;
+                for (int i = 0; i < 3; i++)
+                {
+                    confetti.Position = new Vector2(size.X * (0.1f + 0.8f * (float)random.NextDouble()),
+                        size.Y * (0.05f + 0.25f * (float)random.NextDouble()));
+                    confetti.Emit(12, ParticleEffectType.Confetti);
+                }
+            }
+            confetti.Update(gameTime);
         }
 
 
@@ -94,7 +138,6 @@ namespace VectorRumble
         {
             GameplayScreen gameplayScreen = new GameplayScreen();
             gameplayScreen.ScreenManager = this.ScreenManager;
-            gameplayScreen.Initialize();
             ScreenManager.AddScreen(gameplayScreen);
         }
 
@@ -137,7 +180,7 @@ namespace VectorRumble
         public override void Draw(GameTime gameTime)
         {
             // Darken down any other screens that were drawn beneath the popup.
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2f / 3f);
 
             Viewport viewport = Display.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
@@ -163,11 +206,13 @@ namespace VectorRumble
             // draw the texture and text
             ScreenManager.SpriteBatch.Begin();
             ScreenManager.SpriteBatch.Draw(titleTexture, titlePosition, 
-                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlpha));
+                new Color(titleColor.R, titleColor.G, titleColor.B, TransitionAlphaByte));
             ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, message,
-			    textPosition, new Color(0, 255, 0, (int)TransitionAlpha), 0.0f, textSize,
+			    textPosition, new Color(0, 255, 0, (int)TransitionAlphaByte), 0.0f, textSize,
                 textScale, SpriteEffects.None, 1.0f);
             ScreenManager.SpriteBatch.End();
+
+            confetti?.Draw(gameTime);
 
             base.Draw(gameTime);
         }
