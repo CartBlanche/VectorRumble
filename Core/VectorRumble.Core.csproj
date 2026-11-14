@@ -21,6 +21,10 @@
     <!-- dotnet build -c Release -p:PerfOverlay=true: puts the frame time / GC / draw call overlay in a Release build -->
     <DefineConstants>$(DefineConstants);PERF_OVERLAY</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(DevShots)' == 'true'">
+    <!-- dotnet build Desktop -p:DevShots=true: compiles in DevShots.cs, which drives the game from environment variables to take pictures -->
+    <DefineConstants>$(DefineConstants);DEVSHOT</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="VectorRumble.Tests" />
   </ItemGroup>

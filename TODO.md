@@ -80,10 +80,11 @@ performance readout in it (F3 hides it; Release builds do not have it): hide it 
 not the engine; promote it to `VectorEngine` (a capture hook before the cursor and overlays) if SolidOps wants it. Not tested: pad or touch (no
 key on a phone), fullscreen on a large display, a Pictures folder that is read-only.
 
-### Local scripted harness (not committed)
+### Scripted harness: `Core/DevShots.cs` (committed, off by default)
 
-`Core/Game.cs` in the working tree carries test hooks marked `// DEVSHOT`, switched on by environment variables: `VR_SHOT=<png>` saves the
-back buffer after `VR_SHOT_AT` seconds and exits; `VR_OPEN=main|play|setup|pick|options|host|browse|about|progress`; `VR_LANG=<culture>`;
-`VR_AUTOSTART` starts a single player match; `VR_THEN=pause|over|overnet|confirm|exit|notice` opens a screen over it; `VR_ACT=<rows>` selects
-rows; `VR_NETGO` starts or readies in a network match. Strip them before committing (the committed `Core/Game.cs` has none). The hooks
-read and could write the real settings file in `~/Library/Application Support/VectorRumble/`; avoid test steps that change the language.
+Compiled in only with `dotnet build Desktop -p:DevShots=true` (the `DEVSHOT` symbol; `Game.cs`, `Screenshots.cs` and `UserSettings.Save` have
+`#if DEVSHOT` hooks). Environment variables drive it; the list is in the file's header comment: `VR_SHOT=<png>` saves the game's picture after
+`VR_SHOT_AT` seconds and quits; `VR_OPEN=main|play|setup|pick|options|host|browse|about|progress`; `VR_AUTOSTART` starts a single player match
+on `pick`; `VR_THEN=pause|over|overnet|confirm|exit|notice` and `VR_ACT=<rows>`; `VR_LANG=<culture>` and `VR_LANGSTEP`; `VR_NETGO`; `VR_LOG`.
+A DEVSHOT build never writes the real settings file, so language runs are safe. Run it from a normal terminal, not a subshell: some earlier
+runs launched in the background stalled (cause not found). Rebuild without the flag to get the normal game back (a plain `dotnet build` does).

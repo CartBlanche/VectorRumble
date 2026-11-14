@@ -123,7 +123,7 @@ namespace VectorRumble
             }
         }
 
-        static void Save(GraphicsDevice device, string path)
+        internal static void Save(GraphicsDevice device, string path)
         {
             PresentationParameters pp = device.PresentationParameters;
             Rectangle area = GameArea(Display.Destination, pp.BackBufferWidth, pp.BackBufferHeight);

@@ -86,6 +86,13 @@ namespace VectorRumble
 
         public static void Save()
         {
+#if DEVSHOT
+            // a scripted run (see DevShots) leaves the player's settings file as it was
+            if (DevShots.DoNotSave)
+            {
+                return;
+            }
+#endif
             try
             {
                 manager?.Save();

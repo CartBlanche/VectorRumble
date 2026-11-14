@@ -27,6 +27,9 @@ namespace VectorRumble
     public class VectorRumbleGame : VectorEngineGame
     {
         readonly Screenshots screenshots = new Screenshots();
+#if DEVSHOT
+        DevShots devShots;
+#endif
 
         public VectorRumbleGame()
             : base(new VectorEngineGameOptions
@@ -64,6 +67,9 @@ namespace VectorRumble
 #else
             UserSettings.ApplyBeforeStart(Graphics, changeFullScreen: true);
 #endif
+#if DEVSHOT
+            DevShots.ApplyEarly();
+#endif
         }
 
 
@@ -76,17 +82,33 @@ namespace VectorRumble
 
             UserSettings.ApplyAudio(Audio);
 
+#if DEVSHOT
+            devShots = new DevShots(ScreenManager, GraphicsDevice, Exit);
+            devShots.Attach();
+#endif
+
             // F12 saves a picture of the game; the note that it did is drawn over the game
             ScreenManager.DrawingOverlays += screenshots.DrawToast;
+
+            var splash = new VectorEngine.Splash.SplashOptions
+            {
+                BloomIntensity = 1.0f,
+#if DEVSHOT
+                Skippable = DevShots.SplashSkippable,
+#endif
+            };
 
             // the VectorEngine splash, then the background and main menu screens
             VectorEngine.Splash.SplashScreen.Start(ScreenManager, () =>
             {
                 ScreenManager.AddScreen(new BackgroundScreen());
                 ScreenManager.AddScreen(new MainMenuScreen());
+#if DEVSHOT
+                devShots.OpenScreens();
+#endif
             },
             // the engine's default bloom is strong for the intro's thin lines
-            new VectorEngine.Splash.SplashOptions { BloomIntensity = 1.0f });
+            splash);
         }
 
 
@@ -109,6 +131,9 @@ namespace VectorRumble
             screenshots.BeginFrame();
             base.Draw(gameTime);
             screenshots.EndFrame(GraphicsDevice);
+#if DEVSHOT
+            devShots.AfterDraw(gameTime);
+#endif
         }
     }
 }
