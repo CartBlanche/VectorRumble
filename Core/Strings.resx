@@ -446,4 +446,10 @@ B/O Button, Esc = Cancel</value>
     <data name="AI_Pilot_Name" xml:space="preserve">
         <value>AI {0}</value>
     </data>
+    <data name="Screenshot_Saved" xml:space="preserve">
+        <value>Screenshot saved</value>
+    </data>
+    <data name="Screenshot_Failed" xml:space="preserve">
+        <value>Could not save the screenshot</value>
+    </data>
 </root>

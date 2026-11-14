@@ -8,7 +8,7 @@ branch `feature/splash-fixes` (VectorEngine, 3 commits off `main`) is also unpus
 Start Claude Code in this folder. Its memory (`~/.claude/projects/-Users-dominique-Development-CartBlanche-VectorRumble/memory/`)
 loads by itself, and holds the decisions behind this list. Then say, for example:
 
-> Read TODO.md and do "Next session: AI pilots".
+> Read TODO.md and do "the live AI fight behind the menus" (item 4 under AI pilots).
 
 Rules that came out of the work so far:
 - Game-specific UI stays in VectorRumble (`Core/Screens/Frame/`), never in VectorEngine, unless the user says otherwise.
@@ -16,14 +16,25 @@ Rules that came out of the work so far:
 - Leave CI alone until told. Never commit `Core/Game.cs` if it still holds the local screenshot harness (see below).
 - Many source files are CRLF: scripts that edit them must keep the line endings. macOS `sed` needs `-i ''`; there is no `timeout`.
 
-## Next session: AI pilots, then the live background
+## AI pilots: built (commit 994420a), waiting for tester feedback
 
-1. Port Dean Ellis's AI (`origin/features/dellis1972/17`, commit `d0d901b`: `AIController`, `Ship.IsAI`). It was written against the old
-   project layout, so port it, do not merge. Single Player offers up to three AI pilots (a row "AI pilots" on `MatchRulesScreen`).
-2. AI difficulty: Easy, Medium, Hard, as a row in Settings (`SettingsScreen`, saved in `UserSettings`), probably also per game.
-3. The live AI fight behind the menus (replaces the fireworks in `BackgroundScreen`), freezing with a dim "Paused" after 10 seconds
-   without input and resuming on any input (mouse, key, touch, gamepad); a Settings row "Pause idle menus" under More. Not built yet.
-4. The Play and Single Player descriptions already promise AI pilots. VectorRumble 2.x is not released without the AI.
+Done: single player has 0 to 3 AI pilots (row "AI pilots" on `MatchRulesScreen`, default 1) and Settings has "AI difficulty" (Easy, Medium,
+Hard, saved in `UserSettings`). Not a merge of Dean Ellis's `AIController` (`origin/features/dellis1972/17`, `d0d901b`): `Core/Gameplay/AIPilot.cs`
+reuses his ideas (nearest rival, predictive aim, power-ups, mines) but outputs the same `ShipInput` a person does, so `Ship` has one movement
+and fire path. States: Patrol, Chase (with a warning shot), Search, Flee. `Core/Gameplay/NavGrid.cs` is a grid and A* built from the arena's walls
+when the match starts (`World.Navigation`), so community levels need nothing embedded. Levels are the `AIProfile` table; the numbers are first
+guesses. `VR_AIDEBUG=1` draws each pilot's state (green Patrol, red Chase, yellow Search, cyan Flee) and route and logs `[AI]` transitions and
+stuck events. Never watched in a long match by Claude; the user and testers are playing it.
+
+1. Tune from tester feedback (paste `[AI]` log lines): Easy, Medium and Hard numbers, patrol bunching, Hard's cover choice (30 random samples),
+   getting stuck near asteroids and walls (fixed once by sliding along obstacles; check it holds), the warning shot (without free aim it follows
+   the nose, so it can hit by luck).
+2. Not tested: gamepad rumble with AIs (AI ships do not vibrate any pad), touch and pad on the new rows, a long match for slow memory growth.
+3. Asteroids are indestructible (`Asteroid.Damage` returns false); they do not break up. Splitting them would be a new feature.
+4. The live AI fight behind the menus (replaces the fireworks in `BackgroundScreen`), freezing with a dim "Paused" after 10 seconds without
+   input and resuming on any input (mouse, key, touch, gamepad); a Settings row "Pause idle menus" under More. Not built yet. `AIPilot` is
+   written for a world with ships in it, so two AIs fighting needs a small harness, not new AI.
+5. VectorRumble 2.x is not released without the AI; it exists now, so this is down to its quality.
 
 ## Still to do on the UI
 
@@ -31,7 +42,7 @@ Rules that came out of the work so far:
   code behind them (`ShipControls.ForSlot`, join and leave hold timers in `Ship.ProcessInput`, `Strings.Hold_A_To_Join` and friends).
 - The in-match score text and the engine's loading screen are still in the old style.
 - Network match: no Rematch (needs the host to bring everyone back to the waiting room).
-- Single player names the pilot after the computer's user name; no way to type a name.
+- Single player names the pilot after the computer's user name; no way to type a name. AI pilots are named "AI 1" to "AI 3" (`AI_Pilot_Name`).
 - Settings has no Controls row (the game has no controls screen).
 - Korean: re-run `python3 scripts/generate-cjk-fonts.py ko` whenever `Core/Strings.ko.resx` changes. Chinese and Japanese still use the larger
   LocalizedFontProcessor fonts; the same script could shrink them.
@@ -43,7 +54,7 @@ Rules that came out of the work so far:
   The old backup branch `feature/arena-frame-menus` can then be deleted.
 - Push `feature/ui-revamp`, let CI run (Desktop and Android), check the Android and iOS content builds (new fonts, Korean, strings).
 - README, CHANGELOG and the itch page for 2.0.
-- Native-speaker review of the translations of the new menu words (de, es, fr, ja, ko, zh-CN). Claude wrote them.
+- Native-speaker review of the translations of the new menu words and the AI words (AI pilots, AI difficulty, Easy, Medium, Hard, None, "AI {0}") (de, es, fr, ja, ko, zh-CN). Claude wrote them.
 
 ## Not yet tested
 
@@ -61,7 +72,15 @@ Rules that came out of the work so far:
   language/settings code (`UserSettings`) to the engine if a third game needs it.
 - SolidOps: merge `develop` into `main` only after it is public on itch.io (unrelated histories); 720p; iOS; the Windows DirectX head.
 
-## Local screenshot harness (not committed)
+## Screenshots (F12) and the local scripted harness
+
+F12 or Print Screen on desktop saves a PNG of the game (`Core/Screenshots.cs`, 1280x720 area without letterbox bars or the mouse pointer) to
+`~/Pictures/VectorRumble/` and shows "Screenshot saved" for 2.5 s. It is a normal feature, committed with the game. Debug builds show the green
+performance readout in it (F3 hides it; Release builds do not have it): hide it before taking pictures for the itch.io page. It is in VectorRumble,
+not the engine; promote it to `VectorEngine` (a capture hook before the cursor and overlays) if SolidOps wants it. Not tested: pad or touch (no
+key on a phone), fullscreen on a large display, a Pictures folder that is read-only.
+
+### Local scripted harness (not committed)
 
 `Core/Game.cs` in the working tree carries test hooks marked `// DEVSHOT`, switched on by environment variables: `VR_SHOT=<png>` saves the
 back buffer after `VR_SHOT_AT` seconds and exits; `VR_OPEN=main|play|setup|pick|options|host|browse|about|progress`; `VR_LANG=<culture>`;

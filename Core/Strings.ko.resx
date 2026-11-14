@@ -446,4 +446,10 @@ B/O 버튼, Esc = 취소</value>
     <data name="AI_Pilot_Name" xml:space="preserve">
         <value>AI {0}</value>
     </data>
+    <data name="Screenshot_Saved" xml:space="preserve">
+        <value>스크린샷을 저장했습니다</value>
+    </data>
+    <data name="Screenshot_Failed" xml:space="preserve">
+        <value>스크린샷을 저장하지 못했습니다</value>
+    </data>
 </root>

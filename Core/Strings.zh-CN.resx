@@ -446,4 +446,10 @@ B/O 按钮, Esc = 取消</value>
     <data name="AI_Pilot_Name" xml:space="preserve">
         <value>AI {0}</value>
     </data>
+    <data name="Screenshot_Saved" xml:space="preserve">
+        <value>截图已保存</value>
+    </data>
+    <data name="Screenshot_Failed" xml:space="preserve">
+        <value>无法保存截图</value>
+    </data>
 </root>

@@ -443,4 +443,10 @@ Botón B/O, Tecla Esc = Cancelar</value>
     <data name="AI_Pilot_Name" xml:space="preserve">
         <value>IA {0}</value>
     </data>
+    <data name="Screenshot_Saved" xml:space="preserve">
+        <value>Captura guardada</value>
+    </data>
+    <data name="Screenshot_Failed" xml:space="preserve">
+        <value>No se pudo guardar la captura</value>
+    </data>
 </root>

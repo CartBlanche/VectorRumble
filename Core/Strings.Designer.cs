@@ -624,6 +624,16 @@ namespace VectorRumble {
                 return ResourceManager.GetString("AI_Pilot_Name", resourceCulture);
             }
         }
+        internal static string Screenshot_Saved {
+            get {
+                return ResourceManager.GetString("Screenshot_Saved", resourceCulture);
+            }
+        }
+        internal static string Screenshot_Failed {
+            get {
+                return ResourceManager.GetString("Screenshot_Failed", resourceCulture);
+            }
+        }
         internal static string Label_MoreRules {
             get {
                 return ResourceManager.GetString("Label_MoreRules", resourceCulture);

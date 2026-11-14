@@ -446,4 +446,10 @@ Bouton B/O, Échap = Annuler</value>
     <data name="AI_Pilot_Name" xml:space="preserve">
         <value>IA {0}</value>
     </data>
+    <data name="Screenshot_Saved" xml:space="preserve">
+        <value>Capture enregistrée</value>
+    </data>
+    <data name="Screenshot_Failed" xml:space="preserve">
+        <value>Impossible d'enregistrer la capture</value>
+    </data>
 </root>
