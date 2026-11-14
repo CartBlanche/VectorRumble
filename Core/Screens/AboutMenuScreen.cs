@@ -39,7 +39,7 @@ namespace VectorRumble
 
         protected override void DrawPanelText(FrameCanvas c, Rectangle area, FrameRow selected)
         {
-            var style = ScreenManager.MenuStyle.Frame;
+            var style = FrameScreen.Theme;
             float x = area.X + 36, y = area.Y + 28;
             string version = typeof(Arena).Assembly.GetName().Version.ToString(3);
             c.Text(c.Display, "VECTOR RUMBLE " + version, new Vector2(x, y), style.Hot, 30f);
