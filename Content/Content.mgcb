@@ -68,6 +68,27 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/zhSmall.spritefont;Fonts/retroSmall.zh
 
+#begin Fonts/koLarge.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/koLarge.spritefont;Fonts/retroLarge.ko
+
+#begin Fonts/koMedium.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/koMedium.spritefont;Fonts/retroMedium.ko
+
+#begin Fonts/koSmall.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/koSmall.spritefont;Fonts/retroSmall.ko
+
 #begin Fonts/jaLarge.spritefont
 /importer:FontDescriptionImporter
 /processor:LocalizedFontProcessor

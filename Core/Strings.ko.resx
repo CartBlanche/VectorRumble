@@ -218,4 +218,187 @@ B/O 버튼, Esc = 취소</value>
     <data name="Lan_Connection_Lost" xml:space="preserve">
         <value>네트워크 게임이 종료되었습니다.</value>
     </data>
+    <data name="Progress" xml:space="preserve">
+        <value>진행 상황</value>
+    </data>
+    <data name="Trophies" xml:space="preserve">
+        <value>트로피</value>
+    </data>
+    <data name="Leaderboard" xml:space="preserve">
+        <value>순위표</value>
+    </data>
+    <data name="Soon" xml:space="preserve">
+        <value>곧 출시</value>
+    </data>
+    <data name="Settings" xml:space="preserve">
+        <value>설정</value>
+    </data>
+    <data name="Single_Player" xml:space="preserve">
+        <value>싱글 플레이</value>
+    </data>
+    <data name="Multiplayer" xml:space="preserve">
+        <value>멀티플레이</value>
+    </data>
+    <data name="Hint_Choose" xml:space="preserve">
+        <value>선택</value>
+    </data>
+    <data name="Hint_Change" xml:space="preserve">
+        <value>변경</value>
+    </data>
+    <data name="Hint_Select" xml:space="preserve">
+        <value>결정</value>
+    </data>
+    <data name="Hint_Next" xml:space="preserve">
+        <value>다음</value>
+    </data>
+    <data name="Desc_Play" xml:space="preserve">
+        <value>친구와 온라인으로 플레이하거나 최대 3명의 AI 파일럿과 대결하세요</value>
+    </data>
+    <data name="Desc_Progress" xml:space="preserve">
+        <value>트로피와 순위표</value>
+    </data>
+    <data name="Desc_Settings" xml:space="preserve">
+        <value>언어, 사운드, 화면</value>
+    </data>
+    <data name="Desc_About" xml:space="preserve">
+        <value>제작진과 버전</value>
+    </data>
+    <data name="Desc_Exit" xml:space="preserve">
+        <value>게임 종료</value>
+    </data>
+    <data name="Desc_Multiplayer" xml:space="preserve">
+        <value>게임을 만들거나 네트워크의 게임에 참가하세요</value>
+    </data>
+    <data name="Desc_SinglePlayer" xml:space="preserve">
+        <value>최대 3명의 AI 파일럿과 대결</value>
+    </data>
+    <data name="Desc_Trophies" xml:space="preserve">
+        <value>승리, 연승, 완승으로 트로피를 획득하세요</value>
+    </data>
+    <data name="Desc_Leaderboard" xml:space="preserve">
+        <value>다른 파일럿과 순위를 비교해 보세요</value>
+    </data>
+    <data name="Tagline" xml:space="preserve">
+        <value>아레나 전투  |  1~4명의 파일럿</value>
+    </data>
+    <data name="About_Tagline" xml:space="preserve">
+        <value>1~4명의 파일럿을 위한 아레나 전투</value>
+    </data>
+    <data name="About_Code" xml:space="preserve">
+        <value>코드 및 디자인</value>
+    </data>
+    <data name="About_Thanks" xml:space="preserve">
+        <value>도움을 주신 분들</value>
+    </data>
+    <data name="About_Powered" xml:space="preserve">
+        <value>엔진 제공</value>
+    </data>
+    <data name="Label_FirstTo" xml:space="preserve">
+        <value>선취</value>
+    </data>
+    <data name="Value_Kills" xml:space="preserve">
+        <value>{0}킬</value>
+    </data>
+    <data name="Label_MoreRules" xml:space="preserve">
+        <value>추가 규칙</value>
+    </data>
+    <data name="Label_Asteroids" xml:space="preserve">
+        <value>소행성</value>
+    </data>
+    <data name="Label_FreeAim" xml:space="preserve">
+        <value>자유 조준</value>
+    </data>
+    <data name="Label_Ship" xml:space="preserve">
+        <value>기체</value>
+    </data>
+    <data name="Label_Colour" xml:space="preserve">
+        <value>색상</value>
+    </data>
+    <data name="Label_Arena" xml:space="preserve">
+        <value>아레나</value>
+    </data>
+    <data name="Hint_Start" xml:space="preserve">
+        <value>시작</value>
+    </data>
+    <data name="Value_On" xml:space="preserve">
+        <value>켜짐</value>
+    </data>
+    <data name="Value_Off" xml:space="preserve">
+        <value>꺼짐</value>
+    </data>
+    <data name="Ship_And_Arena" xml:space="preserve">
+        <value>기체와 아레나</value>
+    </data>
+    <data name="Setup_Next_Hint" xml:space="preserve">
+        <value>다음: 기체와 아레나를 선택하세요</value>
+    </data>
+    <data name="Colour_Orange" xml:space="preserve">
+        <value>주황</value>
+    </data>
+    <data name="Colour_Cyan" xml:space="preserve">
+        <value>청록</value>
+    </data>
+    <data name="Colour_Magenta" xml:space="preserve">
+        <value>마젠타</value>
+    </data>
+    <data name="Colour_Lime" xml:space="preserve">
+        <value>라임</value>
+    </data>
+    <data name="Colour_Yellow" xml:space="preserve">
+        <value>노랑</value>
+    </data>
+    <data name="Colour_Red" xml:space="preserve">
+        <value>빨강</value>
+    </data>
+    <data name="Colour_Blue" xml:space="preserve">
+        <value>파랑</value>
+    </data>
+    <data name="Colour_Violet" xml:space="preserve">
+        <value>보라</value>
+    </data>
+    <data name="Hint_Ready" xml:space="preserve">
+        <value>준비 완료</value>
+    </data>
+    <data name="Hint_NotReady" xml:space="preserve">
+        <value>준비 취소</value>
+    </data>
+    <data name="Label_HostsPick" xml:space="preserve">
+        <value>호스트가 선택</value>
+    </data>
+    <data name="Desc_Host" xml:space="preserve">
+        <value>네트워크의 다른 사람이 참가할 수 있는 게임을 시작합니다</value>
+    </data>
+    <data name="Desc_Join" xml:space="preserve">
+        <value>이 게임에 참가: 아레나는 호스트가 고릅니다</value>
+    </data>
+    <data name="Label_Players" xml:space="preserve">
+        <value>플레이어</value>
+    </data>
+    <data name="Value_Ready" xml:space="preserve">
+        <value>준비 완료</value>
+    </data>
+    <data name="Label_Language" xml:space="preserve">
+        <value>언어</value>
+    </data>
+    <data name="Label_Music" xml:space="preserve">
+        <value>음악</value>
+    </data>
+    <data name="Label_Effects" xml:space="preserve">
+        <value>효과음</value>
+    </data>
+    <data name="Label_Fullscreen" xml:space="preserve">
+        <value>전체 화면</value>
+    </data>
+    <data name="Label_NeonGlow" xml:space="preserve">
+        <value>네온 효과</value>
+    </data>
+    <data name="Label_BlurIntensity" xml:space="preserve">
+        <value>흐림 강도</value>
+    </data>
+    <data name="Label_MotionBlur" xml:space="preserve">
+        <value>모션 블러</value>
+    </data>
+    <data name="Label_More" xml:space="preserve">
+        <value>더 보기</value>
+    </data>
 </root>
