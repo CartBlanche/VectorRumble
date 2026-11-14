@@ -10,8 +10,10 @@ without the font-file subsetting, because Unifont is already in the repository.
 
 Run it again whenever Core/Strings.<lang>.resx changes (new or reworded strings), then rebuild the content:
 
-    python3 scripts/generate-cjk-fonts.py ko
+    python3 scripts/generate-cjk-fonts.py ko ja zh-CN
     python3 scripts/generate-cjk-fonts.py ko --check     # list any character the Unifont file has no glyph for
+
+The language is the culture of the resx file (zh-CN reads Strings.zh-CN.resx); the font files take the two-letter part (zhLarge.spritefont).
 
 The Content.mgcb entries for these fonts use the plain FontDescriptionProcessor and the output name retro<Size>.<lang>,
 which is where LoadLocalized looks for the language's font.
@@ -106,7 +108,7 @@ def main():
             print(f"{lang}: {len(codepoints)} characters, {len(missing)} without a glyph" + ("".join(" " + chr(c) for c in missing)))
             continue
         for role, size in SIZES.items():
-            path = FONTS / f"{lang}{role}.spritefont"
+            path = FONTS / f"{lang.split('-')[0]}{role}.spritefont"
             path.write_text(spritefont_xml(size, codepoints, lang), encoding="utf-8")
         print(f"{lang}: wrote 3 fonts with {len(codepoints)} characters")
 

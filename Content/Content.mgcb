@@ -49,21 +49,21 @@
 
 #begin Fonts/zhLarge.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/zhLarge.spritefont;Fonts/retroLarge.zh
 
 #begin Fonts/zhMedium.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/zhMedium.spritefont;Fonts/retroMedium.zh
 
 #begin Fonts/zhSmall.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/zhSmall.spritefont;Fonts/retroSmall.zh
@@ -91,21 +91,21 @@
 
 #begin Fonts/jaLarge.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/jaLarge.spritefont;Fonts/retroLarge.ja
 
 #begin Fonts/jaMedium.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/jaMedium.spritefont;Fonts/retroMedium.ja
 
 #begin Fonts/jaSmall.spritefont
 /importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+/processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:Fonts/jaSmall.spritefont;Fonts/retroSmall.ja
