@@ -218,4 +218,187 @@ B/Oボタン, Esc = キャンセル</value>
     <data name="Lan_Connection_Lost" xml:space="preserve">
         <value>ネットワークゲームが終了しました。</value>
     </data>
+    <data name="Progress" xml:space="preserve">
+        <value>進行状況</value>
+    </data>
+    <data name="Trophies" xml:space="preserve">
+        <value>トロフィー</value>
+    </data>
+    <data name="Leaderboard" xml:space="preserve">
+        <value>ランキング</value>
+    </data>
+    <data name="Soon" xml:space="preserve">
+        <value>近日公開</value>
+    </data>
+    <data name="Settings" xml:space="preserve">
+        <value>設定</value>
+    </data>
+    <data name="Single_Player" xml:space="preserve">
+        <value>シングルプレイ</value>
+    </data>
+    <data name="Multiplayer" xml:space="preserve">
+        <value>マルチプレイ</value>
+    </data>
+    <data name="Hint_Choose" xml:space="preserve">
+        <value>選択</value>
+    </data>
+    <data name="Hint_Change" xml:space="preserve">
+        <value>変更</value>
+    </data>
+    <data name="Hint_Select" xml:space="preserve">
+        <value>決定</value>
+    </data>
+    <data name="Hint_Next" xml:space="preserve">
+        <value>次へ</value>
+    </data>
+    <data name="Desc_Play" xml:space="preserve">
+        <value>友達とオンラインで、または最大3人のAIパイロットと対戦</value>
+    </data>
+    <data name="Desc_Progress" xml:space="preserve">
+        <value>トロフィーとランキング</value>
+    </data>
+    <data name="Desc_Settings" xml:space="preserve">
+        <value>言語、サウンド、表示</value>
+    </data>
+    <data name="Desc_About" xml:space="preserve">
+        <value>クレジットとバージョン</value>
+    </data>
+    <data name="Desc_Exit" xml:space="preserve">
+        <value>ゲームを終了</value>
+    </data>
+    <data name="Desc_Multiplayer" xml:space="preserve">
+        <value>ゲームを作成、またはネットワーク上のゲームに参加</value>
+    </data>
+    <data name="Desc_SinglePlayer" xml:space="preserve">
+        <value>最大3人のAIパイロットと対戦</value>
+    </data>
+    <data name="Desc_Trophies" xml:space="preserve">
+        <value>勝利や連勝、完勝でトロフィーを獲得</value>
+    </data>
+    <data name="Desc_Leaderboard" xml:space="preserve">
+        <value>他のパイロットとの順位を確認</value>
+    </data>
+    <data name="Tagline" xml:space="preserve">
+        <value>アリーナバトル  |  1〜4人のパイロット</value>
+    </data>
+    <data name="About_Tagline" xml:space="preserve">
+        <value>1〜4人のパイロットのためのアリーナバトル</value>
+    </data>
+    <data name="About_Code" xml:space="preserve">
+        <value>コードとデザイン</value>
+    </data>
+    <data name="About_Thanks" xml:space="preserve">
+        <value>謝辞</value>
+    </data>
+    <data name="About_Powered" xml:space="preserve">
+        <value>搭載エンジン</value>
+    </data>
+    <data name="Label_FirstTo" xml:space="preserve">
+        <value>先取</value>
+    </data>
+    <data name="Value_Kills" xml:space="preserve">
+        <value>{0}キル</value>
+    </data>
+    <data name="Label_MoreRules" xml:space="preserve">
+        <value>その他のルール</value>
+    </data>
+    <data name="Label_Asteroids" xml:space="preserve">
+        <value>小惑星</value>
+    </data>
+    <data name="Label_FreeAim" xml:space="preserve">
+        <value>フリーエイム</value>
+    </data>
+    <data name="Label_Ship" xml:space="preserve">
+        <value>機体</value>
+    </data>
+    <data name="Label_Colour" xml:space="preserve">
+        <value>カラー</value>
+    </data>
+    <data name="Label_Arena" xml:space="preserve">
+        <value>アリーナ</value>
+    </data>
+    <data name="Hint_Start" xml:space="preserve">
+        <value>スタート</value>
+    </data>
+    <data name="Value_On" xml:space="preserve">
+        <value>オン</value>
+    </data>
+    <data name="Value_Off" xml:space="preserve">
+        <value>オフ</value>
+    </data>
+    <data name="Ship_And_Arena" xml:space="preserve">
+        <value>機体とアリーナ</value>
+    </data>
+    <data name="Setup_Next_Hint" xml:space="preserve">
+        <value>次へ：機体とアリーナを選択</value>
+    </data>
+    <data name="Colour_Orange" xml:space="preserve">
+        <value>オレンジ</value>
+    </data>
+    <data name="Colour_Cyan" xml:space="preserve">
+        <value>シアン</value>
+    </data>
+    <data name="Colour_Magenta" xml:space="preserve">
+        <value>マゼンタ</value>
+    </data>
+    <data name="Colour_Lime" xml:space="preserve">
+        <value>ライム</value>
+    </data>
+    <data name="Colour_Yellow" xml:space="preserve">
+        <value>イエロー</value>
+    </data>
+    <data name="Colour_Red" xml:space="preserve">
+        <value>レッド</value>
+    </data>
+    <data name="Colour_Blue" xml:space="preserve">
+        <value>ブルー</value>
+    </data>
+    <data name="Colour_Violet" xml:space="preserve">
+        <value>バイオレット</value>
+    </data>
+    <data name="Hint_Ready" xml:space="preserve">
+        <value>準備完了</value>
+    </data>
+    <data name="Hint_NotReady" xml:space="preserve">
+        <value>準備解除</value>
+    </data>
+    <data name="Label_HostsPick" xml:space="preserve">
+        <value>ホストが選択</value>
+    </data>
+    <data name="Desc_Host" xml:space="preserve">
+        <value>ネットワーク上の他のプレイヤーが参加できるゲームを開始</value>
+    </data>
+    <data name="Desc_Join" xml:space="preserve">
+        <value>このゲームに参加：アリーナはホストが選びます</value>
+    </data>
+    <data name="Label_Players" xml:space="preserve">
+        <value>プレイヤー</value>
+    </data>
+    <data name="Value_Ready" xml:space="preserve">
+        <value>準備完了</value>
+    </data>
+    <data name="Label_Language" xml:space="preserve">
+        <value>言語</value>
+    </data>
+    <data name="Label_Music" xml:space="preserve">
+        <value>音楽</value>
+    </data>
+    <data name="Label_Effects" xml:space="preserve">
+        <value>効果音</value>
+    </data>
+    <data name="Label_Fullscreen" xml:space="preserve">
+        <value>フルスクリーン</value>
+    </data>
+    <data name="Label_NeonGlow" xml:space="preserve">
+        <value>ネオン発光</value>
+    </data>
+    <data name="Label_BlurIntensity" xml:space="preserve">
+        <value>ブラーの強さ</value>
+    </data>
+    <data name="Label_MotionBlur" xml:space="preserve">
+        <value>モーションブラー</value>
+    </data>
+    <data name="Label_More" xml:space="preserve">
+        <value>その他</value>
+    </data>
 </root>

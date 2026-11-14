@@ -34,8 +34,11 @@ namespace VectorRumble
     /// </summary>
     static class UserSettings
     {
-        /// <summary>The languages the game has words for, as culture names: English (empty) and the satellite resource files.</summary>
-        public static readonly string[] LanguageCodes = { "", "de", "es", "fr", "ja", "ko", "zh-CN" };
+        /// <summary>
+        /// The languages the player can choose, as culture names: English (empty) and the ones that have both words and a font.
+        /// Korean has words (Strings.ko.resx) but no font yet, so it is not offered.
+        /// </summary>
+        public static readonly string[] LanguageCodes = { "", "de", "es", "fr", "ja", "zh-CN" };
 
         /// <summary>The volumes the Settings screen steps through.</summary>
         public static readonly int[] Volumes = { 0, 25, 50, 75, 100 };

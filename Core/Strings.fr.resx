@@ -218,4 +218,187 @@ Bouton B/O, Échap = Annuler</value>
     <data name="Lan_Connection_Lost" xml:space="preserve">
         <value>La partie en réseau est terminée.</value>
     </data>
+    <data name="Progress" xml:space="preserve">
+        <value>Progression</value>
+    </data>
+    <data name="Trophies" xml:space="preserve">
+        <value>Trophées</value>
+    </data>
+    <data name="Leaderboard" xml:space="preserve">
+        <value>Classement</value>
+    </data>
+    <data name="Soon" xml:space="preserve">
+        <value>Bientôt</value>
+    </data>
+    <data name="Settings" xml:space="preserve">
+        <value>Réglages</value>
+    </data>
+    <data name="Single_Player" xml:space="preserve">
+        <value>Un joueur</value>
+    </data>
+    <data name="Multiplayer" xml:space="preserve">
+        <value>Multijoueur</value>
+    </data>
+    <data name="Hint_Choose" xml:space="preserve">
+        <value>Choisir</value>
+    </data>
+    <data name="Hint_Change" xml:space="preserve">
+        <value>Modifier</value>
+    </data>
+    <data name="Hint_Select" xml:space="preserve">
+        <value>Sélectionner</value>
+    </data>
+    <data name="Hint_Next" xml:space="preserve">
+        <value>Suivant</value>
+    </data>
+    <data name="Desc_Play" xml:space="preserve">
+        <value>Jouez en ligne avec des amis ou contre jusqu'à trois pilotes IA</value>
+    </data>
+    <data name="Desc_Progress" xml:space="preserve">
+        <value>Vos trophées et le classement</value>
+    </data>
+    <data name="Desc_Settings" xml:space="preserve">
+        <value>Langue, son et affichage</value>
+    </data>
+    <data name="Desc_About" xml:space="preserve">
+        <value>Crédits et version</value>
+    </data>
+    <data name="Desc_Exit" xml:space="preserve">
+        <value>Quitter le jeu</value>
+    </data>
+    <data name="Desc_Multiplayer" xml:space="preserve">
+        <value>Hébergez une partie ou rejoignez-en une sur votre réseau</value>
+    </data>
+    <data name="Desc_SinglePlayer" xml:space="preserve">
+        <value>Vous contre jusqu'à trois pilotes IA</value>
+    </data>
+    <data name="Desc_Trophies" xml:space="preserve">
+        <value>Gagnez des trophées pour vos victoires, séries et razzias</value>
+    </data>
+    <data name="Desc_Leaderboard" xml:space="preserve">
+        <value>Voyez comment vous vous classez face aux autres pilotes</value>
+    </data>
+    <data name="Tagline" xml:space="preserve">
+        <value>COMBAT EN ARÈNE  |  1 À 4 PILOTES</value>
+    </data>
+    <data name="About_Tagline" xml:space="preserve">
+        <value>Combat en arène pour un à quatre pilotes</value>
+    </data>
+    <data name="About_Code" xml:space="preserve">
+        <value>Code et conception</value>
+    </data>
+    <data name="About_Thanks" xml:space="preserve">
+        <value>Avec nos remerciements à</value>
+    </data>
+    <data name="About_Powered" xml:space="preserve">
+        <value>Propulsé par</value>
+    </data>
+    <data name="Label_FirstTo" xml:space="preserve">
+        <value>Premier à</value>
+    </data>
+    <data name="Value_Kills" xml:space="preserve">
+        <value>{0} éliminations</value>
+    </data>
+    <data name="Label_MoreRules" xml:space="preserve">
+        <value>Plus de règles</value>
+    </data>
+    <data name="Label_Asteroids" xml:space="preserve">
+        <value>Astéroïdes</value>
+    </data>
+    <data name="Label_FreeAim" xml:space="preserve">
+        <value>Visée libre</value>
+    </data>
+    <data name="Label_Ship" xml:space="preserve">
+        <value>Vaisseau</value>
+    </data>
+    <data name="Label_Colour" xml:space="preserve">
+        <value>Couleur</value>
+    </data>
+    <data name="Label_Arena" xml:space="preserve">
+        <value>Arène</value>
+    </data>
+    <data name="Hint_Start" xml:space="preserve">
+        <value>Démarrer</value>
+    </data>
+    <data name="Value_On" xml:space="preserve">
+        <value>Activé</value>
+    </data>
+    <data name="Value_Off" xml:space="preserve">
+        <value>Désactivé</value>
+    </data>
+    <data name="Ship_And_Arena" xml:space="preserve">
+        <value>Vaisseau et arène</value>
+    </data>
+    <data name="Setup_Next_Hint" xml:space="preserve">
+        <value>Suivant : choisissez votre vaisseau et l'arène</value>
+    </data>
+    <data name="Colour_Orange" xml:space="preserve">
+        <value>Orange</value>
+    </data>
+    <data name="Colour_Cyan" xml:space="preserve">
+        <value>Cyan</value>
+    </data>
+    <data name="Colour_Magenta" xml:space="preserve">
+        <value>Magenta</value>
+    </data>
+    <data name="Colour_Lime" xml:space="preserve">
+        <value>Citron vert</value>
+    </data>
+    <data name="Colour_Yellow" xml:space="preserve">
+        <value>Jaune</value>
+    </data>
+    <data name="Colour_Red" xml:space="preserve">
+        <value>Rouge</value>
+    </data>
+    <data name="Colour_Blue" xml:space="preserve">
+        <value>Bleu</value>
+    </data>
+    <data name="Colour_Violet" xml:space="preserve">
+        <value>Violet</value>
+    </data>
+    <data name="Hint_Ready" xml:space="preserve">
+        <value>Prêt</value>
+    </data>
+    <data name="Hint_NotReady" xml:space="preserve">
+        <value>Pas prêt</value>
+    </data>
+    <data name="Label_HostsPick" xml:space="preserve">
+        <value>Choix de l'hôte</value>
+    </data>
+    <data name="Desc_Host" xml:space="preserve">
+        <value>Lancez une partie que d'autres sur votre réseau peuvent rejoindre</value>
+    </data>
+    <data name="Desc_Join" xml:space="preserve">
+        <value>Rejoignez cette partie : l'hôte choisit l'arène</value>
+    </data>
+    <data name="Label_Players" xml:space="preserve">
+        <value>Joueurs</value>
+    </data>
+    <data name="Value_Ready" xml:space="preserve">
+        <value>Prêt</value>
+    </data>
+    <data name="Label_Language" xml:space="preserve">
+        <value>Langue</value>
+    </data>
+    <data name="Label_Music" xml:space="preserve">
+        <value>Musique</value>
+    </data>
+    <data name="Label_Effects" xml:space="preserve">
+        <value>Effets</value>
+    </data>
+    <data name="Label_Fullscreen" xml:space="preserve">
+        <value>Plein écran</value>
+    </data>
+    <data name="Label_NeonGlow" xml:space="preserve">
+        <value>Lueur néon</value>
+    </data>
+    <data name="Label_BlurIntensity" xml:space="preserve">
+        <value>Intensité du flou</value>
+    </data>
+    <data name="Label_MotionBlur" xml:space="preserve">
+        <value>Flou de mouvement</value>
+    </data>
+    <data name="Label_More" xml:space="preserve">
+        <value>Plus</value>
+    </data>
 </root>

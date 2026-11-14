@@ -102,6 +102,15 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
             : ScreenManager.Game.Content.Load<SpriteFont>("Fonts/displayLarge");
         canvas.Medium = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroMedium");
         canvas.Small = ScreenManager.Game.Content.LoadLocalized<SpriteFont>("Fonts/retroSmall");
+
+        // a character a font does not have is drawn as a question mark, never an exception
+        foreach (SpriteFont font in new[] { canvas.Large, canvas.Display, canvas.Medium, canvas.Small })
+        {
+            if (font.Characters.Contains('?'))
+            {
+                font.DefaultCharacter = '?';
+            }
+        }
     }
 
     /// <summary>Called after the player changes the language: the fonts are loaded again, then <see cref="RebuildForLanguage"/> runs.</summary>
