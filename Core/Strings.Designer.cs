@@ -119,29 +119,9 @@ namespace VectorRumble {
             }
         }
         
-        internal static string Hold_A_To_Join {
-            get {
-                return ResourceManager.GetString("Hold_A_To_Join", resourceCulture);
-            }
-        }
         
-        internal static string Press_W_To_Join {
-            get {
-                return ResourceManager.GetString("Press_W_To_Join", resourceCulture);
-            }
-        }
         
-        internal static string Press_Up_To_Join {
-            get {
-                return ResourceManager.GetString("Press_Up_To_Join", resourceCulture);
-            }
-        }
         
-        internal static string Connect_Gamepad {
-            get {
-                return ResourceManager.GetString("Connect_Gamepad", resourceCulture);
-            }
-        }
         
         internal static string Loading {
             get {
@@ -632,6 +612,11 @@ namespace VectorRumble {
         internal static string Screenshot_Failed {
             get {
                 return ResourceManager.GetString("Screenshot_Failed", resourceCulture);
+            }
+        }
+        internal static string Label_PauseIdleMenus {
+            get {
+                return ResourceManager.GetString("Label_PauseIdleMenus", resourceCulture);
             }
         }
         internal static string Label_MoreRules {

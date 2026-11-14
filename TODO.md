@@ -8,12 +8,12 @@ branch `feature/splash-fixes` (VectorEngine, 3 commits off `main`) is also unpus
 Start Claude Code in this folder. Its memory (`~/.claude/projects/-Users-dominique-Development-CartBlanche-VectorRumble/memory/`)
 loads by itself, and holds the decisions behind this list. Then say, for example:
 
-> Read TODO.md and do "the live AI fight behind the menus" (item 4 under AI pilots).
+> Read TODO.md and do "Tune from tester feedback" (item 1 under AI pilots).
 
 Rules that came out of the work so far:
 - Game-specific UI stays in VectorRumble (`Core/Screens/Frame/`), never in VectorEngine, unless the user says otherwise.
 - Commit only when asked. Never push; the user pushes. Never `git push --tags` in the games (tags publish to itch.io).
-- Leave CI alone until told. Never commit `Core/Game.cs` if it still holds the local screenshot harness (see below).
+- Leave CI alone until told. The scripted screenshot harness is `Core/DevShots.cs`, compiled only with `-p:DevShots=true` (see below); `Core/Game.cs` carries only `#if DEVSHOT` hooks.
 - Many source files are CRLF: scripts that edit them must keep the line endings. macOS `sed` needs `-i ''`; there is no `timeout`.
 
 ## AI pilots: built (commit 994420a), waiting for tester feedback
@@ -31,21 +31,20 @@ stuck events. Never watched in a long match by Claude; the user and testers are 
    the nose, so it can hit by luck).
 2. Not tested: gamepad rumble with AIs (AI ships do not vibrate any pad), touch and pad on the new rows, a long match for slow memory growth.
 3. Asteroids are indestructible (`Asteroid.Damage` returns false); they do not break up. Splitting them would be a new feature.
-4. The live AI fight behind the menus (replaces the fireworks in `BackgroundScreen`), freezing with a dim "Paused" after 10 seconds without
-   input and resuming on any input (mouse, key, touch, gamepad); a Settings row "Pause idle menus" under More. Not built yet. `AIPilot` is
-   written for a world with ships in it, so two AIs fighting needs a small harness, not new AI.
+4. Idle menus (done): after 10 seconds without input the menus freeze (fireworks and animation stop) under a dim "Paused", and any input (key,
+   mouse move, touch, pad) wakes them. Settings > More > "Pause idle menus" (`UserSettings.PauseIdleMenus`, on by default). `MenuIdle`,
+   `BackgroundScreen`; the network lobby and the browser never freeze (`FrameScreen.AllowsIdlePause`). The fireworks stay as the background;
+   there is no live AI fight behind the menus. Not tested: touch and pad waking it on a phone, the first input after waking also acts on the menu.
 5. VectorRumble 2.x is not released without the AI; it exists now, so this is down to its quality.
 
 ## Still to do on the UI
 
-- HUD: remove the four-player "Hold A / Press W / Press Up to join" prompts in `GameplayScreen.DrawHud` and the old four-slot local
-  code behind them (`ShipControls.ForSlot`, join and leave hold timers in `Ship.ProcessInput`, `Strings.Hold_A_To_Join` and friends).
 - The in-match score text and the engine's loading screen are still in the old style.
 - Network match: no Rematch (needs the host to bring everyone back to the waiting room).
 - Single player names the pilot after the computer's user name; no way to type a name. AI pilots are named "AI 1" to "AI 3" (`AI_Pilot_Name`).
 - Settings has no Controls row (the game has no controls screen).
-- Korean: re-run `python3 scripts/generate-cjk-fonts.py ko` whenever `Core/Strings.ko.resx` changes. Chinese and Japanese still use the larger
-  LocalizedFontProcessor fonts; the same script could shrink them.
+- CJK fonts: re-run `python3 scripts/generate-cjk-fonts.py ko ja zh-CN` whenever a `Core/Strings.<lang>.resx` changes (Korean, Japanese and Chinese are
+  all built from the characters their strings use). The Chinese Large font is still about 540 KB, twice the others.
 
 ## Release path
 

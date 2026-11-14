@@ -101,16 +101,6 @@ namespace VectorRumble
         const float smallMotorSpeed = 0.5f;
 
         /// <summary>
-        /// The amount of time that the A button must be held to join the game.
-        /// </summary>
-        const float aButtonHeldToPlay = 2f;
-
-        /// <summary>
-        /// The amount of time that the B button must be held to leave the game.
-        /// </summary>
-        const float bButtonHeldToLeave = 2f;
-
-        /// <summary>
         /// The number of radians that the shield rotates per second.
         /// </summary>
         const float shieldRotationPeriodPerSecond = 2f;
@@ -182,8 +172,8 @@ namespace VectorRumble
         private MineWeapon mineWeapon = null;
 
         /// <summary>
-        /// The controls that drive this ship. Null means the controls of the player slot
-        /// the ship is in; a ship that another player is flying takes that player's controls.
+        /// The controls of the player on this machine who flies the ship; null for a ship the computer or another
+        /// machine flies.
         /// </summary>
         public ShipControls Controls { get; set; }
 
@@ -217,16 +207,6 @@ namespace VectorRumble
         /// player's controls then steer the menu, not the ship.
         /// </summary>
         public bool InputSuspended { get; set; }
-
-        /// <summary>
-        /// Timer for how long the player has been holding the A button (to join).
-        /// </summary>
-        private float aButtonTimer = 0f;
-
-        /// <summary>
-        /// Timer for how long the player has been holding the B button (to leave).
-        /// </summary>
-        private float bButtonTimer = 0f;
 
         /// <summary>
         /// Timer for how much longer to vibrate the small motor.
@@ -423,10 +403,10 @@ namespace VectorRumble
             smallMotorTimer -= elapsedTime;
             largeMotorTimer -= elapsedTime;
 
-            // a computer's ship has no pad to shake (and must not shake the pad of the player in its slot)
-            if (!VectorEngine.Platform.IsMobile && Pilot == null)
+            // only the ship a player flies shakes a pad (the computer's ships have no controls, and so shake none)
+            if (!VectorEngine.Platform.IsMobile && Controls != null)
             {
-                GamePad.SetVibration((Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Pad,
+                GamePad.SetVibration(Controls.Pad,
                     (largeMotorTimer > 0f) ? largeMotorSpeed : 0f,
                     (smallMotorTimer > 0f) ? smallMotorSpeed : 0f);
             }
@@ -489,19 +469,6 @@ namespace VectorRumble
 
         #region Interaction
         /// <summary>
-        /// Set the ship up to join the game, if it's not in it already.
-        /// </summary>
-        public void JoinGame()
-        {
-            if (!selected)
-            {
-                selected = true;
-                World.ShipManager.UpdateSelectedList();
-                Spawn(false);
-            }
-        }
-
-        /// <summary>
         /// Set the ship up to play the game, if it's not in it already.
         /// </summary>
         public void PlayGame()
@@ -511,19 +478,6 @@ namespace VectorRumble
                 playing = true;
                 score = 0;
                 Spawn(true);
-            }
-        }
-
-
-        /// <summary>
-        /// Remove the ship from the game, if it's in it.
-        /// </summary>
-        public void LeaveGame()
-        {
-            if (playing)
-            {
-                playing = false;
-                Die(null);
             }
         }
 
@@ -866,121 +820,82 @@ namespace VectorRumble
                 }
                 else
                 {
-                    Input = (Controls ?? ShipControls.ForSlot(PlayerStringToIndex)).Read();
+                    Input = Controls != null ? Controls.Read() : default(ShipInput);
                 }
 
-                if (!overlayPresent)
+                // a menu over the game, a ship not in the match, or a dead one: nothing to steer
+                if (overlayPresent || !selected || !playing || dead)
                 {
-                    if (!selected)
-                    {
-                        // trying to join - update the A/X -button timer
-                        if (Input.JoinHeld)
-                        {
-                            aButtonTimer += aButtonTimer + elapsedTime;
-                        }
-                        else
-                        {
-                            aButtonTimer = 0f;
-                        }
-
-                        // if the timer has exceeded the expected value, join the game
-                        if (aButtonTimer > aButtonHeldToPlay)
-                        {
-                            JoinGame();
-                        }
-                    }
-                    else if (playing)
-                    {
-                        // check if we're trying to leave. pressing B/O on controllers
-                        if (Input.LeaveHeld)
-                        {
-                            bButtonTimer += elapsedTime;
-                        }
-                        else
-                        {
-                            bButtonTimer = 0f;
-                        }
-
-                        // if the timer has exceeded the expected value, leave the game
-                        if (bButtonTimer > bButtonHeldToLeave)
-                        {
-                            LeaveGame();
-                        }
-                        else if (!dead)
-                        {
-                            //
-                            // the ship is alive, so process movement and firing
-                            //
-                            // calculate the current forward vector
-                            Vector2 forward = new Vector2((float)Math.Sin(Rotation),
-                                -(float)Math.Cos(Rotation));
-                            Vector2 right = new Vector2(-forward.Y, forward.X);
-                            // calculate the current left stick value
-                            Vector2 leftStick = Input.Move;
-
-                            if (leftStick.LengthSquared() > 0f)
-                            {
-                                Vector2 wantedForward = Vector2.Normalize(leftStick);
-                                float angleDiff = (float)Math.Acos(
-                                    Vector2.Dot(wantedForward, forward));
-                                float facing = (Vector2.Dot(wantedForward, right) > 0f) ?
-                                    1f : -1f;
-                                if (angleDiff > 0f)
-                                {
-                                    Rotation += Math.Min(angleDiff, facing * elapsedTime *
-                                        rotationRadiansPerSecond);
-                                }
-                                // add velocity
-                                Velocity += leftStick * (elapsedTime * speed);
-                                if (Velocity.Length() > velocityLengthMaximum)
-                                {
-                                    Velocity = Vector2.Normalize(Velocity) *
-                                        velocityLengthMaximum;
-                                }
-
-                            }
-                            else
-                            {
-                                // Rotate left or right
-                                Rotation += Input.Turn * elapsedTime * rotationRadiansPerSecond;
-
-                                //create some velocity if the thrust is down
-                                Vector2 shipVelocityAdd = Vector2.Zero;
-
-                                if (Input.Thrust)
-                                {
-                                    //find out what direction we should be thrusting, using rotation
-                                    shipVelocityAdd.X = (float)Math.Sin(Rotation);
-                                    shipVelocityAdd.Y = (float)-Math.Cos(Rotation);
-
-                                    shipVelocityAdd = shipVelocityAdd / elapsedTime * MathHelper.ToRadians(9.0f);
-                                }
-
-                                //finally, add this vector to our velocity.
-                                Velocity += shipVelocityAdd;
-                            }
-
-                            if (MatchRules.Current.ControllersCanShootInAllDirections && Input.Aim != Vector2.Zero)
-                            {
-                                // fire with the right stick
-                                weapon.Fire(Vector2.Normalize(Input.Aim));
-                            }
-
-                            if (Input.FireAhead)
-                            {
-                                // fire ahead of us
-                                weapon.Fire(Vector2.Normalize(forward));
-                            }
-
-                            if (Input.Mine)
-                            {
-                                // fire behind the ship
-                                mineWeapon.Fire(-forward);
-                            }
-                        }
-                    }
+                    return;
                 }
 
+                // the ship is alive, so process movement and firing
+                // calculate the current forward vector
+                Vector2 forward = new Vector2((float)Math.Sin(Rotation),
+                    -(float)Math.Cos(Rotation));
+                Vector2 right = new Vector2(-forward.Y, forward.X);
+                // calculate the current left stick value
+                Vector2 leftStick = Input.Move;
+
+                if (leftStick.LengthSquared() > 0f)
+                {
+                    Vector2 wantedForward = Vector2.Normalize(leftStick);
+                    float angleDiff = (float)Math.Acos(
+                        Vector2.Dot(wantedForward, forward));
+                    float facing = (Vector2.Dot(wantedForward, right) > 0f) ?
+                        1f : -1f;
+                    if (angleDiff > 0f)
+                    {
+                        Rotation += Math.Min(angleDiff, facing * elapsedTime *
+                            rotationRadiansPerSecond);
+                    }
+                    // add velocity
+                    Velocity += leftStick * (elapsedTime * speed);
+                    if (Velocity.Length() > velocityLengthMaximum)
+                    {
+                        Velocity = Vector2.Normalize(Velocity) *
+                            velocityLengthMaximum;
+                    }
+
+                }
+                else
+                {
+                    // Rotate left or right
+                    Rotation += Input.Turn * elapsedTime * rotationRadiansPerSecond;
+
+                    //create some velocity if the thrust is down
+                    Vector2 shipVelocityAdd = Vector2.Zero;
+
+                    if (Input.Thrust)
+                    {
+                        //find out what direction we should be thrusting, using rotation
+                        shipVelocityAdd.X = (float)Math.Sin(Rotation);
+                        shipVelocityAdd.Y = (float)-Math.Cos(Rotation);
+
+                        shipVelocityAdd = shipVelocityAdd / elapsedTime * MathHelper.ToRadians(9.0f);
+                    }
+
+                    //finally, add this vector to our velocity.
+                    Velocity += shipVelocityAdd;
+                }
+
+                if (MatchRules.Current.ControllersCanShootInAllDirections && Input.Aim != Vector2.Zero)
+                {
+                    // fire with the right stick
+                    weapon.Fire(Vector2.Normalize(Input.Aim));
+                }
+
+                if (Input.FireAhead)
+                {
+                    // fire ahead of us
+                    weapon.Fire(Vector2.Normalize(forward));
+                }
+
+                if (Input.Mine)
+                {
+                    // fire behind the ship
+                    mineWeapon.Fire(-forward);
+                }
                 return;
             }
         }

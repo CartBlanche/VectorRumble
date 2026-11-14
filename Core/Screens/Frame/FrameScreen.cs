@@ -188,6 +188,9 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     /// <summary>The player cancelled (Esc, B, the Back link).</summary>
     protected virtual void OnCancel() => ExitScreen();
 
+    /// <summary>False for a screen that must keep going while the player waits, so that the menus do not freeze over it (the network lobby).</summary>
+    internal virtual bool AllowsIdlePause => true;
+
     #region Input
 
     /// <inheritdoc />
@@ -265,7 +268,12 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
     {
         base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        time += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        // the menus' animation holds still while they are frozen for want of input (see MenuIdle)
+        if (!MenuIdle.Frozen)
+        {
+            time += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        }
     }
 
     #region Draw

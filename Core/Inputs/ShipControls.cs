@@ -27,17 +27,6 @@ namespace VectorRumble
         /// <summary>Lay a mine behind the ship.</summary>
         public bool Mine;
 
-        /// <summary>Held to join the game.</summary>
-        public bool JoinHeld;
-
-        /// <summary>Held to leave the game.</summary>
-        public bool LeaveHeld;
-
-        /// <summary>Newly pressed this update, on the ship selection screen.</summary>
-        public bool ChangeColour;
-
-        /// <summary>Newly pressed this update, on the ship selection screen.</summary>
-        public bool ChangeShip;
     }
 
     /// <summary>
@@ -50,12 +39,6 @@ namespace VectorRumble
         public readonly List<Keys> Thrust = new List<Keys>();
         public readonly List<Keys> Fire = new List<Keys>();
         public readonly List<Keys> Mine = new List<Keys>();
-        public readonly List<Keys> Leave = new List<Keys>();
-        public readonly List<Keys> ChangeColour = new List<Keys>();
-        public readonly List<Keys> ChangeShip = new List<Keys>();
-
-        /// <summary>Joining is done by holding the thrust key.</summary>
-        public List<Keys> Join => Thrust;
 
         public static KeyboardLayout Wasd()
         {
@@ -65,9 +48,6 @@ namespace VectorRumble
             layout.Thrust.Add(Keys.W);
             layout.Fire.Add(Keys.Tab);
             layout.Mine.Add(Keys.S);
-            layout.Leave.Add(Keys.X);
-            layout.ChangeColour.Add(Keys.W);
-            layout.ChangeShip.Add(Keys.Tab);
             return layout;
         }
 
@@ -85,9 +65,6 @@ namespace VectorRumble
                 layout.Thrust.AddRange(part.Thrust);
                 layout.Fire.AddRange(part.Fire);
                 layout.Mine.AddRange(part.Mine);
-                layout.Leave.AddRange(part.Leave);
-                layout.ChangeColour.AddRange(part.ChangeColour);
-                layout.ChangeShip.AddRange(part.ChangeShip);
             }
             return layout;
         }
@@ -101,9 +78,6 @@ namespace VectorRumble
             layout.Fire.Add(Keys.RightControl);
             layout.Fire.Add(Keys.RightAlt);
             layout.Mine.Add(Keys.Down);
-            layout.Leave.Add(Keys.N);
-            layout.ChangeColour.Add(Keys.Up);
-            layout.ChangeShip.Add(Keys.RightAlt);
             return layout;
         }
     }
@@ -117,33 +91,17 @@ namespace VectorRumble
     {
         private const float FireThresholdSquared = 0.25f;
 
-        private static readonly ShipControls[] slots =
-        {
-            new ShipControls(PlayerIndex.One, null, true),
-            new ShipControls(PlayerIndex.Two, null, true),
-            new ShipControls(PlayerIndex.Three, KeyboardLayout.Wasd(), false),
-            new ShipControls(PlayerIndex.Four, KeyboardLayout.Arrows(), false),
-        };
+        private static readonly ShipControls localPlayer = new ShipControls(PlayerIndex.One, KeyboardLayout.Everything());
 
         /// <summary>
-        /// The controls that belong to a player slot on this machine: gamepads one and two,
-        /// then the two keyboard layouts (which also read gamepads three and four).
-        /// </summary>
-        public static ShipControls ForSlot(PlayerIndex slot) => slots[(int)slot];
-
-        private static readonly ShipControls localPlayer = new ShipControls(PlayerIndex.One, KeyboardLayout.Everything(), true);
-
-        /// <summary>
-        /// The controls of the one player on this machine in a network game: gamepad one (and the touch controls),
-        /// or the keyboard, in whichever layout they like.
+        /// The controls of the one player on this machine: gamepad one (and the touch controls), or the keyboard,
+        /// in whichever layout they like.
         /// </summary>
         public static ShipControls ForLocalPlayer() => localPlayer;
 
         private readonly PlayerIndex pad;
-        private readonly bool padJoins;
 
         private GamePadState lastPad;
-        private KeyboardState lastKeyboard;
 
         /// <summary>The gamepad this player uses (it also shakes when the ship is hit).</summary>
         public PlayerIndex Pad => pad;
@@ -151,10 +109,9 @@ namespace VectorRumble
         /// <summary>The keys, or null for a gamepad only player.</summary>
         public KeyboardLayout Keyboard { get; }
 
-        public ShipControls(PlayerIndex pad, KeyboardLayout keyboard, bool padJoins)
+        public ShipControls(PlayerIndex pad, KeyboardLayout keyboard)
         {
             this.pad = pad;
-            this.padJoins = padJoins;
             Keyboard = keyboard;
         }
 
@@ -175,18 +132,9 @@ namespace VectorRumble
 
             input.FireAhead = padState.Buttons.RightShoulder == ButtonState.Pressed;
             input.Mine = padState.Buttons.B == ButtonState.Pressed && lastPad.Buttons.B == ButtonState.Released;
-            input.JoinHeld = padJoins && padState.Buttons.A == ButtonState.Pressed;
-            input.LeaveHeld = padState.Buttons.B == ButtonState.Pressed;
-            input.ChangeColour = IsNew(padState, Buttons.DPadUp) || IsNew(padState, Buttons.LeftThumbstickUp);
-            input.ChangeShip = IsNew(padState, Buttons.RightShoulder);
 
             if (Keyboard != null)
             {
-                input.JoinHeld |= IsDown(keys, Keyboard.Join);
-                input.LeaveHeld |= IsDown(keys, Keyboard.Leave);
-                input.ChangeColour |= IsNew(keys, Keyboard.ChangeColour);
-                input.ChangeShip |= IsNew(keys, Keyboard.ChangeShip);
-
                 // The keys steer the ship only while no stick is pushed
                 if (input.Move == Vector2.Zero)
                 {
@@ -199,28 +147,14 @@ namespace VectorRumble
             }
 
             lastPad = padState;
-            lastKeyboard = keys;
             return input;
         }
-
-        private bool IsNew(GamePadState state, Buttons button) =>
-            state.IsButtonDown(button) && lastPad.IsButtonUp(button);
 
         private static bool IsDown(KeyboardState state, List<Keys> keys)
         {
             foreach (Keys key in keys)
             {
                 if (state.IsKeyDown(key))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool IsNew(KeyboardState state, List<Keys> keys)
-        {
-            foreach (Keys key in keys)
-            {
-                if (state.IsKeyDown(key) && lastKeyboard.IsKeyUp(key))
                     return true;
             }
             return false;

@@ -50,18 +50,6 @@ B/Oボタン, Esc = キャンセル</value>
 	<data name="Score" xml:space="preserve">
 		<value>{0} : {1}</value>
 	</data>
-	<data name="Hold_A_To_Join" xml:space="preserve">
-		<value>A/Xを長押しして参加</value>
-	</data>
-	<data name="Press_W_To_Join" xml:space="preserve">
-		<value>Wを押して参加</value>
-	</data>
-	<data name="Press_Up_To_Join" xml:space="preserve">
-		<value>上キーを押して参加</value>
-	</data>
-	<data name="Connect_Gamepad" xml:space="preserve">
-		<value>ゲームパッドを接続</value>
-	</data>
 	<data name="Loading" xml:space="preserve">
 		<value>読み込み中...</value>
 	</data>
@@ -451,5 +439,8 @@ B/Oボタン, Esc = キャンセル</value>
     </data>
     <data name="Screenshot_Failed" xml:space="preserve">
         <value>スクリーンショットを保存できませんでした</value>
+    </data>
+    <data name="Label_PauseIdleMenus" xml:space="preserve">
+        <value>放置時にメニューを一時停止</value>
     </data>
 </root>

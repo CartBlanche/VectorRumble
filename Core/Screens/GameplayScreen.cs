@@ -30,9 +30,6 @@ namespace VectorRumble
         protected SpriteBatch spriteBatch;
         SpriteFont spriteFont;
 
-        protected Texture2D player3Controls;
-        protected Texture2D player4Controls;
-        protected Texture2D gamepadControls;
         Texture2D starTexture;
         protected VirtualGamePad virtualGamePad;
 
@@ -42,7 +39,6 @@ namespace VectorRumble
         /// </summary>
         protected virtual bool CanFadeVirtualGamePad => false;
 
-        private const float lineBreakWidth = 210f;
         #endregion
 
         #region Initialization
@@ -67,9 +63,6 @@ namespace VectorRumble
             spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
             spriteFont = content.LoadLocalized<SpriteFont>("Fonts/retroSmall");
             starTexture = content.Load<Texture2D>("Textures/blank");
-            player3Controls = content.Load<Texture2D>("Textures/player1-controls");
-            player4Controls = content.Load<Texture2D>("Textures/player2-controls");
-            gamepadControls = content.Load<Texture2D>("Textures/gamepad-controls");
 
 
             lineBatch = new LineBatch(ScreenManager.GraphicsDevice);
@@ -193,83 +186,25 @@ namespace VectorRumble
             int offset = (int)(Display.Viewport.Width / 5);
             float scale = 1.0f;
 
-            // the game has four players; the library's PlayerIndex runs on past them
-            var playerIndexes = ((PlayerIndex[])Enum.GetValues(typeof(PlayerIndex))).Take(InputState.MaxInputs);
-
             spriteBatch.Begin();
 
-            Ship scoreShip = null;
-            Vector2 size;
-
-            foreach (var index in playerIndexes)
+            // each pilot's score, in the slot of their player number across the top
+            Ship[] ships = World.ShipManager.Ships;
+            for (int i = 0; i < ships.Length; i++)
             {
-                string message = string.Empty;
-                var caps = GamePad.GetState(index);
-
-                // Only Draw Join message if no one is playing yet.
-                if (!World.ShipManager.AnyPlaying)
+                Ship ship = ships[i];
+                if (!ship.Playing)
                 {
-                    switch (index)
-                    {
-                        case PlayerIndex.One:
-                            message = WrapText(caps.IsConnected || VectorEngine.Platform.IsMobile ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
-                            break;
-                        case PlayerIndex.Two:
-                            message = WrapText(caps.IsConnected ? Strings.Hold_A_To_Join : Strings.Connect_Gamepad, lineBreakWidth);
-                            break;
-                        case PlayerIndex.Three:
-                            message = WrapText(Strings.Press_W_To_Join, lineBreakWidth);
-                            break;
-                        case PlayerIndex.Four:
-                            message = WrapText(Strings.Press_Up_To_Join, lineBreakWidth);
-                            break;
-                    }
+                    continue;
                 }
 
-                if (World.ShipManager.SelectedPlayers.Count > 0) {
-                    scoreShip = World.ShipManager.FirstSelectedFor(index);
-                }
-
-                if (World.ShipManager.AnyPlaying) {
-                    scoreShip = World.ShipManager.FirstPlayingFor(index);
-                }
-
-                if (scoreShip != null) {
-                    message = string.Format(Strings.Score, scoreShip.ScoreName, scoreShip.Score);
-                }
-
-                size = spriteFont.MeasureString(message) * scale;
-                position.X = ((int)index + 1) * offset - size.X / 2;
+                string message = string.Format(Strings.Score, ship.ScoreName, ship.Score);
+                Vector2 size = spriteFont.MeasureString(message) * scale;
+                position.X = ((int)ship.PlayerStringToIndex + 1) * offset - size.X / 2;
                 spriteBatch.DrawString(spriteFont, message, position, Color.Yellow, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1.0f);
             }
 
             spriteBatch.End();
-        }
-
-        public string WrapText(string text, float maxLineWidth)
-        {
-            string[] words = text.Split(' ');
-            float lineWidth = 0f;
-            float spaceWidth = spriteFont.MeasureString(" ").X;
-
-            string returnString = string.Empty;
-            foreach (string word in words)
-            {
-                Vector2 size = spriteFont.MeasureString(word);
-
-                if (lineWidth + size.X < maxLineWidth)
-                {
-                    returnString += word + " ";
-                    lineWidth += size.X + spaceWidth;
-                }
-                else
-                {
-                    returnString += "\n" + word + " ";
-                    lineWidth = size.X + spaceWidth;
-                }
-            }
-
-            return returnString;
         }
     }
 
@@ -338,11 +273,8 @@ namespace VectorRumble
             {    
                 if (!VectorEngine.Platform.IsMobile)
                 {
-                    // make sure nobody's controller is vibrating
-                    for (int i = 0; i < 4; i++)
-                    {
-                        GamePad.SetVibration((PlayerIndex)i, 0f, 0f);
-                    }
+                    // make sure the player's controller is not vibrating
+                    GamePad.SetVibration(PlayerIndex.One, 0f, 0f);
                 }
 
                 if (gameOver == false)

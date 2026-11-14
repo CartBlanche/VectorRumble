@@ -84,6 +84,9 @@ namespace VectorRumble
             };
         }
 
+        // while the game is being started on the network, the screen is waiting
+        internal override bool AllowsIdlePause => hostTask == null;
+
         void StartHosting()
         {
             if (hostTask != null)

@@ -27,6 +27,9 @@ namespace VectorRumble
 
         public bool MotionBlur { get; set; } = true;
 
+        /// <summary>The menus freeze, with a dim "Paused", after ten seconds without input.</summary>
+        public bool PauseIdleMenus { get; set; } = true;
+
         /// <summary>How well the computer's pilots fly in a game on this machine alone.</summary>
         public AIDifficulty AIDifficulty { get; set; } = AIDifficulty.Medium;
     }

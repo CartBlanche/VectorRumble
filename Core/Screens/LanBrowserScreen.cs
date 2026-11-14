@@ -15,6 +15,9 @@ namespace VectorRumble
     /// </summary>
     class LanBrowserScreen : FrameMenuScreen
     {
+        // it is searching, and waits for what it finds
+        internal override bool AllowsIdlePause => false;
+
         #region Fields
 
         // seconds between searches for games

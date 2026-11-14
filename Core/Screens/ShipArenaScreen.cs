@@ -77,6 +77,9 @@ namespace VectorRumble
             };
         }
 
+        // the waiting room of a network game goes on while the player waits for the others
+        internal override bool AllowsIdlePause => net == null;
+
         // the hangar and the arena take the right-hand side
         protected override float RowsWidth => 600f;
 

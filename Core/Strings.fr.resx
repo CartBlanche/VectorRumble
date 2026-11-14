@@ -50,18 +50,6 @@ Bouton B/O, Échap = Annuler</value>
 	<data name="Score" xml:space="preserve">
 		<value>{0} : {1}</value>
 	</data>
-	<data name="Hold_A_To_Join" xml:space="preserve">
-		<value>Maintenez A/X pour rejoindre</value>
-	</data>
-	<data name="Press_W_To_Join" xml:space="preserve">
-		<value>Appuyez sur W pour rejoindre</value>
-	</data>
-	<data name="Press_Up_To_Join" xml:space="preserve">
-		<value>Appuyez sur Haut pour rejoindre</value>
-	</data>
-	<data name="Connect_Gamepad" xml:space="preserve">
-		<value>Connectez la manette</value>
-	</data>
 	<data name="Loading" xml:space="preserve">
 		<value>Chargement...</value>
 	</data>
@@ -451,5 +439,8 @@ Bouton B/O, Échap = Annuler</value>
     </data>
     <data name="Screenshot_Failed" xml:space="preserve">
         <value>Impossible d'enregistrer la capture</value>
+    </data>
+    <data name="Label_PauseIdleMenus" xml:space="preserve">
+        <value>Mettre les menus en pause si inactifs</value>
     </data>
 </root>

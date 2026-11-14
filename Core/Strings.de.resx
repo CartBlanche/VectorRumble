@@ -50,18 +50,6 @@ B/O Button, Esc = abbrechen</value>
 	<data name="Score" xml:space="preserve">
 		<value>{0} : {1}</value>
 	</data>
-	<data name="Hold_A_To_Join" xml:space="preserve">
-		<value>Drücke A zum Beitreten</value>
-	</data>
-	<data name="Press_W_To_Join" xml:space="preserve">
-		<value>Drücke W zum Beitreten</value>
-	</data>
-	<data name="Press_Up_To_Join" xml:space="preserve">
-		<value>Drücke Hoch zum Beitreten</value>
-	</data>
-	<data name="Connect_Gamepad" xml:space="preserve">
-		<value>GamePad anschließen</value>
-	</data>
 	<data name="Loading" xml:space="preserve">
 		<value>Lädt...</value>
 	</data>
@@ -448,5 +436,8 @@ B/O Button, Esc = abbrechen</value>
     </data>
     <data name="Screenshot_Failed" xml:space="preserve">
         <value>Screenshot konnte nicht gespeichert werden</value>
+    </data>
+    <data name="Label_PauseIdleMenus" xml:space="preserve">
+        <value>Menüs bei Inaktivität pausieren</value>
     </data>
 </root>

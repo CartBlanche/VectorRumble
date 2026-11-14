@@ -106,6 +106,18 @@ namespace VectorRumble
             };
             Rows.Add(motion);
 
+            var pauseIdle = new FrameRow(Strings.Label_PauseIdleMenus, FrameRowKind.Toggle)
+            {
+                Value = () => OnOff(UserSettings.Current.PauseIdleMenus),
+                Hidden = () => !more,
+            };
+            pauseIdle.Adjusted += d =>
+            {
+                UserSettings.Current.PauseIdleMenus = !UserSettings.Current.PauseIdleMenus;
+                UserSettings.Save();
+            };
+            Rows.Add(pauseIdle);
+
             SelectedIndex = selected;
         }
 

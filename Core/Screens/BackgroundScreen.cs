@@ -40,6 +40,9 @@ namespace VectorRumble
         LineBatch lineBatch;
         Texture2D titleTexture;
 
+        // the menus freeze, with a dim "Paused", when nobody has done anything for a while
+        readonly MenuIdle idle = new MenuIdle();
+
         public bool ShowParticles { get; set; }
 
         /// <summary>
@@ -104,7 +107,16 @@ namespace VectorRumble
                 AddFirework(random.Next(viewportWidth), random.Next(viewportHeight));
             }
 
+            ScreenManager.DrawingOverlays += DrawPaused;
+
             base.LoadContent();
+        }
+
+        public override void UnloadContent()
+        {
+            ScreenManager.DrawingOverlays -= DrawPaused;
+            idle.Release();
+            base.UnloadContent();
         }
 
 
@@ -132,7 +144,13 @@ namespace VectorRumble
         public override void Update(GameTime gameTime, bool otherScreenHasFocus,
                                                        bool coveredByOtherScreen)
         {
-            if (ShowParticles)
+            // only a menu that can wait (not the network lobby) freezes, and only if the player has not turned it off
+            var screens = ScreenManager.GetScreens();
+            bool canFreeze = UserSettings.Current.PauseIdleMenus
+                && screens.Length > 0 && screens[screens.Length - 1] is FrameScreen top && top.AllowsIdlePause;
+            idle.Update((float)gameTime.ElapsedGameTime.TotalSeconds, MenuIdle.AnyActivity(ScreenManager.Input), canFreeze);
+
+            if (ShowParticles && !idle.Paused)
             {
                 addTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (addTimer > 0.25f)
@@ -146,6 +164,27 @@ namespace VectorRumble
             base.Update(gameTime, otherScreenHasFocus, false);
         }
 
+
+        // over everything: the dimming and the word
+        void DrawPaused(ScreenManager screens, GameTime gameTime)
+        {
+            if (idle.Dim <= 0f)
+            {
+                return;
+            }
+
+            SpriteBatch batch = screens.SpriteBatch;
+            batch.Begin();
+            batch.Draw(screens.BlankTexture, new Rectangle(0, 0, Display.BaseWidth, Display.BaseHeight), Color.Black * (0.6f * idle.Dim));
+
+            SpriteFont font = screens.Font;
+            const float scale = 1.5f;
+            string word = Strings.Paused;
+            Vector2 size = font.MeasureString(word) * scale;
+            Vector2 at = new Vector2((Display.BaseWidth - size.X) / 2f, (Display.BaseHeight - size.Y) / 2f);
+            batch.DrawString(font, word, at, Color.White * idle.Dim, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            batch.End();
+        }
 
         /// <summary>
         /// Draws the background screen.

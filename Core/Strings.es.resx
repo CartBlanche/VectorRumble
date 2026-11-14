@@ -50,18 +50,6 @@ Botón B/O, Tecla Esc = Cancelar</value>
 	<data name="Score" xml:space="preserve">
 		<value>{0} : {1}</value>
 	</data>
-	<data name="Hold_A_To_Join" xml:space="preserve">
-		<value>Mantén pulsado el botón A/X para unirte</value>
-	</data>
-	<data name="Press_W_To_Join" xml:space="preserve">
-		<value>Pulsa W para unirte</value>
-	</data>
-	<data name="Press_Up_To_Join" xml:space="preserve">
-		<value>Pulsa fletcha arriba para unirte</value>
-	</data>
-	<data name="Connect_Gamepad" xml:space="preserve">
-		<value>Conectar GamePad</value>
-	</data>
 	<data name="Loading" xml:space="preserve">
 		<value>Cargando...</value>
 	</data>
@@ -448,5 +436,8 @@ Botón B/O, Tecla Esc = Cancelar</value>
     </data>
     <data name="Screenshot_Failed" xml:space="preserve">
         <value>No se pudo guardar la captura</value>
+    </data>
+    <data name="Label_PauseIdleMenus" xml:space="preserve">
+        <value>Pausar menús inactivos</value>
     </data>
 </root>

@@ -43,27 +43,6 @@ namespace VectorRumble.Tests
         }
 
         [Fact]
-        public void Joining_is_done_with_the_thrust_key()
-        {
-            Assert.Equal(KeyboardLayout.Wasd().Thrust, KeyboardLayout.Wasd().Join);
-        }
-
-        [Fact]
-        public void Slots_one_and_two_are_gamepad_players_and_three_and_four_use_the_keyboard()
-        {
-            Assert.Null(ShipControls.ForSlot(PlayerIndex.One).Keyboard);
-            Assert.Null(ShipControls.ForSlot(PlayerIndex.Two).Keyboard);
-            Assert.NotNull(ShipControls.ForSlot(PlayerIndex.Three).Keyboard);
-            Assert.NotNull(ShipControls.ForSlot(PlayerIndex.Four).Keyboard);
-        }
-
-        [Fact]
-        public void A_slot_always_gets_the_same_controls()
-        {
-            Assert.Same(ShipControls.ForSlot(PlayerIndex.Three), ShipControls.ForSlot(PlayerIndex.Three));
-        }
-
-        [Fact]
         public void The_player_on_a_network_game_can_use_the_keyboard_in_either_layout()
         {
             var controls = ShipControls.ForLocalPlayer();
@@ -86,6 +65,6 @@ namespace VectorRumble.Tests
         }
 
         static System.Collections.Generic.IEnumerable<Keys> AllKeys(KeyboardLayout layout) =>
-            layout.Left.Concat(layout.Right).Concat(layout.Thrust).Concat(layout.Fire).Concat(layout.Mine).Concat(layout.Leave);
+            layout.Left.Concat(layout.Right).Concat(layout.Thrust).Concat(layout.Fire).Concat(layout.Mine);
     }
 }
