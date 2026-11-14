@@ -1,7 +1,7 @@
 # Vector Rumble 2.x: what is left
 
-State at 2026-11-14. Branch `feature/ui-revamp` (VectorRumble) is 17+ commits ahead of `main`, nothing pushed. The engine
-branch `feature/splash-fixes` (VectorEngine, 3 commits off `main`) is also unpushed and untagged.
+State at 2026-11-14 (evening). VectorRumble `main` has everything from the UI revamp, AI pilots, screenshots, DevShots and the idle menus
+(`feature/ui-revamp` was merged into it); nothing of it is pushed yet. VectorEngine `main` is pushed, tagged `v0.1.0-preview.5`.
 
 ## How to pick this up
 
@@ -48,10 +48,9 @@ stuck events. Never watched in a long match by Claude; the user and testers are 
 
 ## Release path
 
-- Engine: merge `feature/splash-fixes`, tag `v0.1.0-preview.5`, bump `EngineRef` in the games' CI. VectorRumble CI is pinned to `preview.4`, which
-  lacks `SplashOptions.BloomIntensity`, the splash skip fix, `AudioManager.SetCategoryVolume` and the font reload on language change.
-  The old backup branch `feature/arena-frame-menus` can then be deleted.
-- Push `feature/ui-revamp`, let CI run (Desktop and Android), check the Android and iOS content builds (new fonts, Korean, strings).
+- Engine (done): `feature/splash-fixes` merged into VectorEngine `main`, tagged `v0.1.0-preview.5` (the splash shows the engine version), pushed.
+  VectorRumble CI's `EngineRef` is bumped to it. The old backup branch `feature/arena-frame-menus` in the engine can be deleted.
+- Push VectorRumble `main` (the branch `feature/ui-revamp` is merged into it), let CI run (Desktop and Android), check the Android and iOS content builds (new fonts, Korean, strings).
 - README, CHANGELOG and the itch page for 2.0.
 - Native-speaker review of the translations of the new menu words and the AI words (AI pilots, AI difficulty, Easy, Medium, Hard, None, "AI {0}") (de, es, fr, ja, ko, zh-CN). Claude wrote them.
 
