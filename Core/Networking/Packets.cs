@@ -11,29 +11,38 @@ namespace VectorRumble.Networking
     {
         public string Id { get; set; }          // network gamer id (unique per machine)
         public string Name { get; set; }
-        public byte Ship { get; set; }          // index into the game's list of ships
+        public byte Ship { get; set; }          // index into the ships that come with the game; ignored when ShipId is set
+        public string ShipId { get; set; } = string.Empty;  // a community ship's file id; empty for one that comes with the game
         public Color Color { get; set; }
         public bool Ready { get; set; }
+        public bool HasFiles { get; set; } = true;          // this machine has the arena's and every player's community files
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Id);
             writer.Write(Name);
             writer.Write(Ship);
+            writer.Write(ShipId ?? string.Empty);
             writer.Write(Color);
             writer.Write(Ready);
+            writer.Write(HasFiles);
         }
 
         public static LobbyPlayerInfo Deserialize(BinaryReader reader)
         {
-            return new LobbyPlayerInfo
+            var player = new LobbyPlayerInfo
             {
                 Id = reader.ReadString(),
                 Name = reader.ReadString(),
                 Ship = reader.ReadByte(),
+                ShipId = reader.ReadString(),
                 Color = reader.ReadColor(),
                 Ready = reader.ReadBoolean(),
+                HasFiles = reader.ReadBoolean(),
             };
+            if (!MatchRules.IsValidId(player.ShipId))
+                throw new InvalidDataException("Bad ship id");
+            return player;
         }
 
         public static void WriteList(BinaryWriter writer, List<LobbyPlayerInfo> players)
@@ -60,19 +69,33 @@ namespace VectorRumble.Networking
     {
         public byte Type { get { return (byte)PacketType.LobbyUpdate; } }
         public byte Ship { get; set; }
+        public string ShipId { get; set; } = string.Empty;
         public Color Color { get; set; }
         public bool Ready { get; set; }
+        public bool HasFiles { get; set; } = true;
 
         public void Serialize(BinaryWriter writer)
         {
             writer.Write(Ship);
+            writer.Write(ShipId ?? string.Empty);
             writer.Write(Color);
             writer.Write(Ready);
+            writer.Write(HasFiles);
         }
 
         public static LobbyUpdatePacket Deserialize(BinaryReader reader)
         {
-            return new LobbyUpdatePacket { Ship = reader.ReadByte(), Color = reader.ReadColor(), Ready = reader.ReadBoolean() };
+            var update = new LobbyUpdatePacket
+            {
+                Ship = reader.ReadByte(),
+                ShipId = reader.ReadString(),
+                Color = reader.ReadColor(),
+                Ready = reader.ReadBoolean(),
+                HasFiles = reader.ReadBoolean(),
+            };
+            if (!MatchRules.IsValidId(update.ShipId))
+                throw new InvalidDataException("Bad ship id");
+            return update;
         }
     }
 
@@ -413,6 +436,67 @@ namespace VectorRumble.Networking
         public static JoinRefusedPacket Deserialize(BinaryReader reader)
         {
             return new JoinRefusedPacket();
+        }
+    }
+
+    /// <summary>
+    /// Asks the other end for the file with this id (a community arena or ship it announced)
+    /// </summary>
+    public class FileRequestPacket : INetworkPacket
+    {
+        public byte Type { get { return (byte)PacketType.FileRequest; } }
+        public string Id { get; set; }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(Id);
+        }
+
+        public static FileRequestPacket Deserialize(BinaryReader reader)
+        {
+            string id = reader.ReadString();
+            if (string.IsNullOrEmpty(id) || !MatchRules.IsValidId(id))
+                throw new InvalidDataException("Bad file id");
+            return new FileRequestPacket { Id = id };
+        }
+    }
+
+    /// <summary>
+    /// The file of a community arena or ship: sent by the host to a player who lacks it (<see cref="PacketType.FileData"/>), and by a
+    /// player to the host for the ship they chose (<see cref="PacketType.FileUpload"/>). The receiver checks the id is the SHA-256 of
+    /// the bytes and that the bytes are a valid arena or ship, so a damaged or hostile file is dropped.
+    /// </summary>
+    public class FileDataPacket : INetworkPacket
+    {
+        public PacketType Packet { get; set; } = PacketType.FileData;
+        public byte Type { get { return (byte)Packet; } }
+        public SharedFileKind Kind { get; set; }
+        public string Id { get; set; }
+        public byte[] Data { get; set; }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write((byte)Kind);
+            writer.Write(Id);
+            writer.Write(Data.Length);
+            writer.Write(Data);
+        }
+
+        public static FileDataPacket Deserialize(BinaryReader reader, PacketType packet = PacketType.FileData)
+        {
+            byte kind = reader.ReadByte();
+            if (kind > (byte)SharedFileKind.Ship)
+                throw new InvalidDataException("Unknown file kind " + kind);
+            string id = reader.ReadString();
+            if (string.IsNullOrEmpty(id) || !MatchRules.IsValidId(id))
+                throw new InvalidDataException("Bad file id");
+            int length = reader.ReadInt32();
+            if (length <= 0 || length > CommunityContent.MaxFileBytes)
+                throw new InvalidDataException("File length " + length + " out of range");
+            byte[] data = reader.ReadBytes(length);
+            if (data.Length != length)
+                throw new InvalidDataException("File cut short");
+            return new FileDataPacket { Packet = packet, Kind = (SharedFileKind)kind, Id = id, Data = data };
         }
     }
 }

@@ -46,7 +46,7 @@ namespace VectorRumble
             ship.Adjusted += d =>
             {
                 shipIndex = Wrap(shipIndex + d, ShipCount);
-                lobby?.SetLocalShip(shipIndex);
+                TellLobbyAboutShip();
             };
             Rows.Add(ship);
 
@@ -89,27 +89,30 @@ namespace VectorRumble
             World.ShipManager.LoadContent(ScreenManager.Game.Content);
             shipIndex = Math.Min(shipIndex, ShipCount - 1);
 
-            if (net == null)
+            // an arena chosen last time may be gone from the folder
+            if (net == null || Hosting)
             {
-                if (World.ArenaManager.Arenas.All(a => a.Name != MatchRules.Current.Arena))
+                if (PreviewPainter.FindArena(MatchRules.Current.Arena, MatchRules.Current.ArenaId) == null)
                 {
-                    MatchRules.Current.Arena = Strings.Arena_Random;
+                    SetArena(null);
                 }
             }
-            else
+
+            if (net != null)
             {
-                // the host picks "Random" in the arena, so it is chosen among the arenas that come with the game
+                // the host picks "Random" among the arenas that come with the game: only they are on every machine
                 string[] arenas = World.ArenaManager.BuiltInArenas
                     .Select(a => a.Name).Where(n => n != Strings.Arena_Random).ToArray();
 
-                if (Hosting && World.ArenaManager.BuiltInArenas.All(a => a.Name != MatchRules.Current.Arena))
-                {
-                    MatchRules.Current.Arena = Strings.Arena_Random;
-                }
+                // the community arenas and ships on this machine can be sent to the others, which also have them by id
+                ShipManager manager = World.ShipManager;
+                ArenaManager arenaManager = World.ArenaManager;
+                var files = new SharedFiles(id => arenaManager.FindById(id)?.SourceBytes ?? manager.Ships.FirstOrDefault(s => s.Id == id)?.SourceBytes);
 
-                lobby = new LanLobby(net, World.ShipManager.BuiltInCount, arenas, MatchRules.Current);
+                lobby = new LanLobby(net, World.ShipManager.BuiltInCount, arenas, MatchRules.Current, files);
                 lobby.MatchStarting += start => pendingStart = start;
-                lobby.SetLocalShip(shipIndex);
+                lobby.FileReceived += OnFileReceived;
+                TellLobbyAboutShip();
                 lobby.SetLocalColor(ShipPalette.Colours[colourIndex]);
             }
 
@@ -118,8 +121,58 @@ namespace VectorRumble
 
         #region Choices
 
-        // a network game offers only the ships that come with the game: the others exist only on this machine
-        int ShipCount => net != null ? World.ShipManager.BuiltInCount : World.ShipManager.Ships.Length;
+        // a community ship is offered in a network game too: the other players are sent its file
+        int ShipCount => World.ShipManager.Ships.Length;
+
+        // the lobby knows a ship that comes with the game by number, a community ship by its file's id
+        void TellLobbyAboutShip()
+        {
+            if (lobby == null)
+            {
+                return;
+            }
+
+            if (shipIndex >= World.ShipManager.BuiltInCount)
+            {
+                lobby.SetLocalShip(0, CurrentShip.Id);
+            }
+            else
+            {
+                lobby.SetLocalShip(shipIndex);
+            }
+        }
+
+        // a community arena came over the network: it is played like any other
+        void OnFileReceived(SharedFileKind kind, string id, byte[] bytes)
+        {
+            if (kind == SharedFileKind.Arena && CommunityContent.TryParseArena(bytes, out Arena arena, out _))
+            {
+                World.ArenaManager.AddReceived(arena);
+            }
+        }
+
+        // what a community ship looks like to the others in the waiting room, worked out once from its file
+        readonly System.Collections.Generic.Dictionary<string, Vector2[]> lobbyShapes = new System.Collections.Generic.Dictionary<string, Vector2[]>();
+
+        Vector2[] LobbyShape(string shipId, int index)
+        {
+            if (string.IsNullOrEmpty(shipId))
+            {
+                return World.ShipManager.Ships[Math.Min(index, World.ShipManager.BuiltInCount - 1)].Shape.Points;
+            }
+
+            if (!lobbyShapes.TryGetValue(shipId, out Vector2[] shape))
+            {
+                byte[] bytes = lobby?.Files.Get(shipId);
+                shape = bytes != null && CommunityContent.TryParseShip(bytes, out Ship parsed, out _) ? parsed.Shape.Points : null;
+                if (shape != null)
+                {
+                    lobbyShapes[shipId] = shape;
+                }
+            }
+
+            return shape; // null while the file has not come yet
+        }
 
         static int Wrap(int value, int count) => ((value % count) + count) % count;
 
@@ -131,6 +184,15 @@ namespace VectorRumble
 
         // the host's choice when we are joining, ours otherwise
         string ArenaName => Joined && lobby != null ? lobby.Rules.Arena : MatchRules.Current.Arena;
+        string ArenaId => Joined && lobby != null ? lobby.Rules.ArenaId : MatchRules.Current.ArenaId;
+
+        // the arena the rules name: an arena, or null for "Random"
+        void SetArena(Arena arena)
+        {
+            bool random = arena == null || arena.Walls == null;
+            MatchRules.Current.Arena = random ? Strings.Arena_Random : arena.Name;
+            MatchRules.Current.ArenaId = random ? string.Empty : arena.Id ?? string.Empty;
+        }
 
         bool ColourTakenByOthers(int index)
         {
@@ -173,11 +235,10 @@ namespace VectorRumble
                 return;
             }
 
-            // only the arenas that come with the game, and Random, when others will play it
-            var list = net != null ? World.ArenaManager.BuiltInArenas : World.ArenaManager.Arenas;
-            string[] arenas = list.Select(a => a.Name).ToArray();
-            int index = Array.IndexOf(arenas, MatchRules.Current.Arena);
-            MatchRules.Current.Arena = arenas[Wrap(index + direction, arenas.Length)];
+            // the arenas that come with the game, "Random", and the player's own: a network game sends a community arena to the others
+            Arena[] list = World.ArenaManager.Arenas;
+            int index = Array.FindIndex(list, a => a.Name == MatchRules.Current.Arena && (a.Id ?? string.Empty) == (MatchRules.Current.ArenaId ?? string.Empty));
+            SetArena(list[Wrap(index + direction, list.Length)]);
 
             if (lobby != null)
             {
@@ -293,8 +354,10 @@ namespace VectorRumble
 
             MatchRules.Current = start.Rules;
 
-            // a ship flies for one player: if two chose the same, the later one gets the next along
+            // A ship that comes with the game flies for one player: if two chose the same, the later one gets the next along.
+            // A community ship is made fresh from its file for each player who chose it (the file came from them or from this machine).
             ShipManager manager = World.ShipManager;
+            byte[][] communityFiles = start.Players.Select(p => string.IsNullOrEmpty(p.ShipId) ? null : lobby?.Files.Get(p.ShipId)).ToArray();
             int[] assignment = ShipAssignment.Assign(start.Players.Select(p => (int)p.Ship).ToArray(), manager.BuiltInCount);
 
             foreach (Ship ship in manager.Ships)
@@ -307,7 +370,9 @@ namespace VectorRumble
             Ship[] ships = new Ship[start.Players.Count];
             for (int i = 0; i < ships.Length; i++)
             {
-                Ship ship = manager.Ships[assignment[i]];
+                // a community choice that cannot be made (no file) falls back to the ship that comes with the game
+                Ship ship = communityFiles[i] != null ? manager.MakeCommunityShip(communityFiles[i]) : null;
+                ship ??= manager.Ships[assignment[i]];
                 ship.PlayerIndex = playerNames[i];
                 ship.PilotName = start.Players[i].Name;
                 ship.SetColor(start.Players[i].Color);
@@ -344,6 +409,7 @@ namespace VectorRumble
             }
 
             net.Update();
+            lobby.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
             // the host's colour stands: a player who joins in the same colour moves along to a free one
             if (Joined && ColourTakenByOthers(colourIndex))
@@ -409,15 +475,15 @@ namespace VectorRumble
         }
 
         // each player's choices as the lobby knows them; our own follow our changes at once
-        (string name, int ship, Color colour, bool ready) PlayerAt(int i)
+        (string name, int ship, string shipId, Color colour, bool ready) PlayerAt(int i)
         {
             LobbyPlayerInfo p = lobby.Players[i];
             if (i == lobby.LocalSlot)
             {
-                return (p.Name, lobby.LocalShip, lobby.LocalColor, lobby.LocalReady);
+                return (p.Name, lobby.LocalShip, lobby.LocalShipId, lobby.LocalColor, lobby.LocalReady);
             }
 
-            return (p.Name, p.Ship, p.Color, p.Ready);
+            return (p.Name, p.Ship, p.ShipId, p.Color, p.Ready);
         }
 
         protected override void DrawBody(FrameCanvas c)
@@ -431,7 +497,7 @@ namespace VectorRumble
             c.Polygon(ship.Shape.Points, new Vector2(x + w / 2, 291), Time * 0.7f, 52f / Reach(ship), CurrentColour, 3f);
 
             // the arena, from its own walls
-            Arena arena = PreviewPainter.FindArena(ArenaName);
+            Arena arena = PreviewPainter.FindArena(ArenaName, ArenaId);
             if (arena?.Walls != null && arena.Walls.Length >= 2)
             {
                 const float ix = x + 90, iy = 420, iw = w - 180, ih = 124;
@@ -449,9 +515,11 @@ namespace VectorRumble
                 for (int i = 0; i < lobby.Players.Count; i++)
                 {
                     var p = PlayerAt(i);
-                    int index = Math.Min(p.ship, World.ShipManager.Ships.Length - 1);
-                    Ship theirs = World.ShipManager.Ships[index];
-                    c.Polygon(theirs.Shape.Points, new Vector2(100, 520 + i * 36), MathF.PI / 2f, 12f / Reach(theirs), p.colour, 2f);
+                    Vector2[] theirs = LobbyShape(p.shipId, p.ship);
+                    if (theirs != null)
+                    {
+                        c.Polygon(theirs, new Vector2(100, 520 + i * 36), MathF.PI / 2f, 12f / Math.Max(1f, theirs.Max(v => v.Length())), p.colour, 2f);
+                    }
                 }
             }
         }
@@ -461,7 +529,7 @@ namespace VectorRumble
             var theme = FrameScreen.Theme;
             const float x = 740, w = 440;
 
-            Arena arena = PreviewPainter.FindArena(ArenaName);
+            Arena arena = PreviewPainter.FindArena(ArenaName, ArenaId);
             if (arena?.Walls == null || arena.Walls.Length < 2)
             {
                 // a "Random" arena has no walls to show
@@ -483,7 +551,8 @@ namespace VectorRumble
             }
 
             // why the match cannot start, or what the others are doing
-            string status = notice ?? (Joined ? Strings.Lan_Waiting_For_Host : null);
+            // (and while an arena or ship from another player is on its way: it only takes a moment)
+            string status = notice ?? (lobby.MissingFiles().Count > 0 ? Strings.Loading : Joined ? Strings.Lan_Waiting_For_Host : null);
             if (status != null)
             {
                 c.Text(c.Large, status, new Vector2(x + w / 2, 580), theme.Dim, 17f, FrameAlign.Centre);

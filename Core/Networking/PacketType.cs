@@ -29,5 +29,10 @@ namespace VectorRumble.Networking
         JoinRefused = 88,       // host -> a latecomer: the match has already started
         PowerupSpawned = 89,    // host -> all: a power-up appeared
         AsteroidSync = 90,      // unreliable, ~5Hz, host -> clients: where the asteroids are
+
+        // community arenas and ships: files that not every machine has
+        FileUpload = 91,        // client -> host: the file of the community ship I chose (reliable, small)
+        FileData = 92,          // host -> client: the file of a community arena or ship you asked for
+        FileRequest = 93,       // client -> host: send me the file with this id; host -> client: send me yours
     }
 }
