@@ -46,6 +46,18 @@ stuck events. Never watched in a long match by Claude; the user and testers are 
 - CJK fonts: re-run `python3 scripts/generate-cjk-fonts.py ko ja zh-CN` whenever a `Core/Strings.<lang>.resx` changes (Korean, Japanese and Chinese are
   all built from the characters their strings use). The Chinese Large font is still about 540 KB, twice the others.
 
+## Community arenas and ships, and the editor
+
+Built (commits after `ebbdbed`): `Editor/` is a browser editor (Arenas and Ships tabs, see `Editor/README.md` and `Editor/SPEC.md` section 3a). The
+game lists every valid file in `<app data>/Vector Rumble/Arenas` and `.../Ships` (`Helper.GetCommunityFolder`: `~/Library/Application Support`,
+`%LOCALAPPDATA%`, `~/.local/share`, Documents on a phone; the old Documents folder is still read) in the single player and network pickers. There is
+no Community screen. `Core/Gameplay/CommunityContent.cs` loads tolerantly and skips a bad file with a reason (`CommunityContent.Skipped`, log only).
+In a network game the host sends a community arena (and each player their community ship) to those who lack it, by file id (SHA-256), checked on
+arrival (`SharedFiles`, `FileRequest`/`FileData`/`FileUpload` packets, protocol version 3). Received files stay in memory only.
+Not tested: two real machines (the transfer has unit tests for the packets and the file checks, but the lobby ran only in a single player smoke test),
+a real phone, iOS file sharing (`Info.plist`), Android (no way in), the editor in Safari and Firefox. Ideas: list skipped files and a "save this arena"
+choice for received ones on screen; show Author in the pickers.
+
 ## Release path
 
 - Engine (done): `feature/splash-fixes` merged into VectorEngine `main`, tagged `v0.1.0-preview.5` (the splash shows the engine version), pushed.

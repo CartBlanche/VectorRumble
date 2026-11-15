@@ -1,6 +1,6 @@
 // A level (the game's Arena): a name, a wall colour and wall segments, normalised 0..1 across the screen, y down.
 // Ships, asteroids and pickups spawn at random clear spots, so a level has no start. `author` and `description` are optional
-// extras the editor writes and the game's Community screen will show; the game ignores them today.
+// extras the editor writes; the game reads and keeps them.
 
 export const MAX_WALLS = 400;
 

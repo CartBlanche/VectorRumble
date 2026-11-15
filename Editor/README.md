@@ -1,6 +1,6 @@
 # Vector Rumble Editor
 
-A browser editor for Vector Rumble levels and ships (the Levels and Ships tabs are built; the game's Community screen is still to come).
+A browser editor for Vector Rumble arenas and ships. Export a file, drop it in the game's `Arenas` or `Ships` folder, and it shows up in the game's pickers (and is sent to the other players in a network game).
 
 Plain HTML, CSS and JavaScript: no build step, no dependencies, no server. See `SPEC.md` for what it will do.
 
