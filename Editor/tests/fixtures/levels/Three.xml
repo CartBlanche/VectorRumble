@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:VectorRumble="VectorRumble">
+  <Asset Type="VectorRumble:Arena">
+    <Name>Three</Name>
+    <Color>FF0000FF</Color>
+    <Walls>0.05 0.05 0.05 0.95 0.95 0.05 0.95 0.95 0.05 0.05 0.95 0.05 0.05 0.95 0.95 0.95 0.275 0.5 0.725 0.5 0.275 0.275 0.275 0.725 0.725 0.275 0.725 0.725</Walls>
+  </Asset>
+</XnaContent>

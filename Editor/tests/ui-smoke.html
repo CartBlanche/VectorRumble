@@ -1,0 +1,207 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>UI smoke test (running)</title>
+<!-- Serve Editor/ over http and open this page: it loads the editor in a frame, drives it with pointer events and reports PASS or FAIL
+     in the title and below. Headless: chrome --headless=new --virtual-time-budget=20000 --dump-dom http://localhost:8000/tests/ui-smoke.html -->
+<body style="font: 14px monospace; background: #111; color: #ddd">
+<pre id="out"></pre>
+<iframe id="app" width="1300" height="800" style="border:0; position:absolute; left:-9999px"></iframe>
+<script type="module">
+const out = document.getElementById('out');
+const results = [];
+const check = (name, ok, detail = '') => { results.push(ok); out.textContent += `${ok ? 'ok  ' : 'FAIL'} ${name} ${ok ? '' : detail}\n`; };
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+try {
+  const frame = document.getElementById('app');
+  frame.src = '../index.html';
+  await new Promise((r) => frame.addEventListener('load', r));
+  const win = frame.contentWindow, doc = frame.contentDocument;
+  for (let i = 0; i < 50 && !doc.querySelector('.cards'); i++) await wait(100);
+  check('the first-level dialog offers templates', doc.querySelectorAll('.cards .card').length >= 5);
+  doc.querySelector('.cards .card').click();            // Empty frame
+  await wait(200);
+  for (let i = 0; i < 50 && !win.vrEditor; i++) await wait(100);
+  const { editor, view, library } = win.vrEditor;
+  const canvas = doc.getElementById('canvas');
+  const W = 1280, H = 720;
+  check('Empty frame opened', editor.walls.length === 4 && !doc.querySelector('.overlay'));
+
+  const screenOf = (nx, ny) => { const r = canvas.getBoundingClientRect(); const [x, y] = view.toScreen(nx * W, ny * H); return [r.left + x, r.top + y]; };
+  const fire = (type, [x, y], extra = {}) => canvas.dispatchEvent(new win.PointerEvent(type, { pointerId: extra.id ?? 1, clientX: x, clientY: y, button: 0, buttons: type === 'pointerup' ? 0 : 1, pointerType: extra.type ?? 'mouse', bubbles: true, ...extra }));
+  const drag = async (a, b, extra = {}) => { fire('pointerdown', a, extra); for (let i = 1; i <= 6; i++) { fire('pointermove', [a[0] + (b[0] - a[0]) * i / 6, a[1] + (b[1] - a[1]) * i / 6], extra); await wait(5); } fire('pointerup', b, extra); await wait(20); };
+  const tap = async (p, extra = {}) => { fire('pointerdown', p, extra); fire('pointerup', p, extra); await wait(20); };
+  const button = (id) => doc.getElementById(id);
+  const tool = (name) => doc.querySelector(`[data-tool="${name}"]`).click();
+
+  // Wall tool: a drag draws one wall, snapped to the grid
+  tool('wall');
+  await drag(screenOf(0.3, 0.3), screenOf(0.5, 0.3));
+  check('a drag draws one wall', editor.walls.length === 5);
+  const w = editor.walls[4];
+  check('and it snapped to the grid', Math.abs(w[1] - w[3]) < 1e-9 && Math.abs((w[0] * W - 64) / 18 - Math.round((w[0] * W - 64) / 18)) < 1e-6, JSON.stringify(w));
+
+  // Chain: tap, tap, tap, then the last point again to finish
+  await tap(screenOf(0.3, 0.5)); await tap(screenOf(0.4, 0.5)); await tap(screenOf(0.4, 0.6));
+  check('tapping chains walls', editor.walls.length === 7, String(editor.walls.length));
+  await tap(screenOf(0.4, 0.6));
+  check('tapping the last point finishes the chain', win.vrEditor.draw.chain === null);
+
+  // Select, delete, undo
+  tool('select');
+  await tap(screenOf(0.35, 0.5));
+  check('tapping a wall selects it', editor.selection.size === 1 && !button('delete').disabled);
+  button('delete').click(); await wait(20);
+  check('Delete removes it', editor.walls.length === 6);
+  button('undo').click(); await wait(20);
+  check('Undo brings it back', editor.walls.length === 7);
+
+  // Box select
+  await drag(screenOf(0.25, 0.25), screenOf(0.55, 0.65));
+  check('dragging a box selects what it touches', editor.selection.size === 3, String(editor.selection.size));
+  // Move the selection
+  const before = JSON.stringify(editor.walls);
+  const first = [...editor.selection][0];
+  const mid = editor.walls[first];
+  await drag(screenOf((mid[0] + mid[2]) / 2, (mid[1] + mid[3]) / 2), screenOf((mid[0] + mid[2]) / 2 + 0.1, (mid[1] + mid[3]) / 2));
+  check('dragging a selected wall moves the selection', JSON.stringify(editor.walls) !== before && editor.selection.size === 3);
+  button('undo').click(); await wait(20);
+  check('a move undoes in one step', JSON.stringify(editor.walls) === before);
+
+  // Corner handle
+  editor.select([4]);
+  const wall = editor.walls[4];
+  await drag(screenOf(wall[2], wall[3]), screenOf(wall[2] + 0.1, wall[3] + 0.1));
+  check('dragging a corner handle reshapes the wall', editor.walls[4][2] !== wall[2] && editor.walls[4][0] === wall[0]);
+  button('undo').click(); await wait(20);
+
+  // Symmetry
+  const count = editor.walls.length;
+  const symmetry = button('symmetry'); symmetry.value = 'both'; symmetry.dispatchEvent(new win.Event('change'));
+  tool('wall');
+  await drag(screenOf(0.15, 0.2), screenOf(0.25, 0.2));
+  check('4-way symmetry draws four walls', editor.walls.length === count + 4, String(editor.walls.length - count));
+  symmetry.value = 'none'; symmetry.dispatchEvent(new win.Event('change'));
+
+  // Shapes
+  const kind = button('shape-kind'); kind.value = 'rect'; kind.dispatchEvent(new win.Event('change'));
+  tool('shapes');
+  const n0 = editor.walls.length;
+  await drag(screenOf(0.6, 0.3), screenOf(0.7, 0.45));
+  check('the rectangle shape stamps four walls', editor.walls.length === n0 + 4);
+
+  // Erase
+  tool('erase');
+  const n1 = editor.walls.length;
+  await tap(screenOf(0.65, 0.3));
+  check('Erase removes the wall tapped', editor.walls.length === n1 - 1);
+
+  // Pinch zoom
+  const scale = view.scale;
+  const a = screenOf(0.45, 0.5), b = screenOf(0.55, 0.5);
+  fire('pointerdown', a, { id: 11, type: 'touch' }); fire('pointerdown', b, { id: 12, type: 'touch' });
+  fire('pointermove', [a[0] - 40, a[1]], { id: 11, type: 'touch' }); fire('pointermove', [b[0] + 40, b[1]], { id: 12, type: 'touch' });
+  fire('pointerup', a, { id: 11, type: 'touch' }); fire('pointerup', b, { id: 12, type: 'touch' });
+  check('pinching zooms', view.scale > scale * 1.2, `${scale} -> ${view.scale}`);
+  button('zoom-fit').click();
+
+  // Checks, autosave, export
+  await wait(900);
+  check('checks ran and the badge shows them', /warning|note|No problems/.test(button('checks-badge').textContent), button('checks-badge').textContent);
+  const entry = library.list('level')[0];
+  check('autosave put the level in the library', !!entry && library.get(entry.id).xml.includes('<Walls>') && /Saved/.test(button('save-state').textContent));
+  check('the saved file holds the current walls', library.get(entry.id).xml.includes(`${editor.walls[0][0]}`));
+  button('export-level').click(); await wait(100);
+  const area = doc.querySelector('.dialog textarea');
+  check('Export shows the file and where it goes', !!area && area.value.includes('VectorRumble:Arena') && doc.querySelectorAll('.dialog .plat button').length === 5 && doc.querySelector('.dialog .plat').textContent.includes('Vector Rumble/Arenas'));
+  doc.querySelector('.dialog > .dialog-buttons > button:last-child')?.click(); await wait(50);
+  button('open-library').click(); await wait(100);
+  check('the library lists the level', doc.querySelectorAll('.lib-row').length === 1);
+  doc.querySelector('.dialog > .dialog-buttons > button:last-child').click(); await wait(50);
+
+  // Name edit is one undo step; level name reaches the file
+  const name = doc.getElementById('level-name');
+  name.value = 'Smoke Test'; name.dispatchEvent(new win.Event('input', { bubbles: true }));
+  await wait(700);
+  check('renaming reaches the library', library.list('level')[0].name === 'Smoke Test');
+
+  // ---- Ships tab ----
+  button('tab-ships').click(); await wait(300);
+  check('the Ships tab opens with a chooser of starting points', !doc.getElementById('ships-pane').hidden && doc.getElementById('levels-pane').hidden && doc.querySelectorAll('.cards .card').length >= 6);
+  doc.querySelector('.cards .card').click();            // Arrow
+  await wait(300);
+  const ships = win.vrEditor.ships;
+  const sed = ships.editor, sview = ships.view;
+  const sc = doc.getElementById('ship-canvas');
+  check('a blank ship opened', sed.points.length === 4 && !doc.querySelector('.overlay') && ships.visible, `${sed.points.length} ${!!doc.querySelector('.overlay')} ${ships.visible} ${doc.querySelector('.overlay')?.textContent.slice(0, 80)}`);
+  const at = ([x, y]) => { const r = sc.getBoundingClientRect(); const [sx, sy] = sview.toScreen(x, y); return [r.left + sx, r.top + sy]; };
+  const sfire = (type, [x, y], extra = {}) => sc.dispatchEvent(new win.PointerEvent(type, { pointerId: extra.id ?? 1, clientX: x, clientY: y, button: 0, buttons: type === 'pointerup' ? 0 : 1, pointerType: extra.type ?? 'mouse', bubbles: true, ...extra }));
+  const sdrag = async (from, to, extra = {}) => { sfire('pointerdown', from, extra); for (let i = 1; i <= 6; i++) { sfire('pointermove', [from[0] + (to[0] - from[0]) * i / 6, from[1] + (to[1] - from[1]) * i / 6], extra); await wait(5); } sfire('pointerup', to, extra); await wait(20); };
+  const stool = (n) => doc.querySelector(`[data-ship-tool="${n}"]`).click();
+  const symmetric = (pts) => pts.every(([x, y]) => pts.some(([a, b]) => Math.abs(a + x) < 0.6 && Math.abs(b - y) < 0.6));
+
+  stool('add');
+  await sdrag(at([5, 0]), at([7, 1]));
+  check('Add puts a point on the outline and its twin on the other side', sed.points.length === 6 && symmetric(sed.points), JSON.stringify(sed.points));
+  check('the new point can be dragged on placement', sed.points.some(([x, y]) => x === 7 && y === 1), JSON.stringify(sed.points));
+  stool('move');
+  const i = sed.points.findIndex(([x, y]) => x === 7 && y === 1);
+  await sdrag(at(sed.points[i]), at([9, 3]));
+  check('Move drags a point, and its twin follows', sed.points.some(([x, y]) => x === 9 && y === 3) && symmetric(sed.points), JSON.stringify(sed.points));
+  await sfire('pointerdown', at([9, 3])); sfire('pointerup', at([9, 3])); await wait(20);
+  check('tapping a point selects it', sed.selected >= 0 && !button('ship-delete').disabled);
+  button('ship-delete').click(); await wait(20);
+  check('Delete point removes it and its twin', sed.points.length === 4);
+  button('ship-undo').click(); await wait(20);
+  check('Undo brings them back', sed.points.length === 6);
+  stool('delete');
+  sfire('pointerdown', at(sed.points.find(([x]) => x > 8))); sfire('pointerup', at(sed.points.find(([x]) => x > 8))); await wait(20);
+  check('the Delete tool removes a tapped point', sed.points.length === 4);
+
+  // Freehand with mirror on: draw the right side
+  stool('draw');
+  sfire('pointerdown', at([0, -12]));
+  for (let t = 0.05; t <= 1.001; t += 0.05) sfire('pointermove', at([8 * Math.sin(t * Math.PI) + 1, -12 + 24 * t]));
+  sfire('pointerup', at([0, 12])); await wait(30);
+  check('Draw makes a symmetrical outline from one side', sed.points.length >= 5 && symmetric(sed.points), JSON.stringify(sed.points));
+
+  // Pinch zoom on the ship canvas
+  const sscale = sview.scale;
+  const p1 = at([-5, 0]), p2 = at([5, 0]);
+  sfire('pointerdown', p1, { id: 21, type: 'touch' }); sfire('pointerdown', p2, { id: 22, type: 'touch' });
+  sfire('pointermove', [p1[0] - 40, p1[1]], { id: 21, type: 'touch' }); sfire('pointermove', [p2[0] + 40, p2[1]], { id: 22, type: 'touch' });
+  sfire('pointerup', p1, { id: 21, type: 'touch' }); sfire('pointerup', p2, { id: 22, type: 'touch' });
+  check('pinching zooms the ship canvas', sview.scale > sscale * 1.2);
+  button('ship-zoom-fit').click();
+
+  // Stats, name, mass, checks, autosave, export, library
+  const sname = doc.getElementById('ship-name');
+  sname.value = 'Smoke Dart'; sname.dispatchEvent(new win.Event('input', { bubbles: true }));
+  const weight = doc.getElementById('ship-weight');
+  weight.value = '1'; weight.dispatchEvent(new win.Event('input', { bubbles: true }));
+  await wait(900);
+  check('mass slider moves mass within the range', sed.ship.mass > Math.round(20 + (sed.ship.radius - 15) * 2.4) - 1);
+  check('the badge shows the ship checks', /warning|note|No problems/.test(button('checks-badge').textContent), button('checks-badge').textContent);
+  const sentry = library.list('ship')[0];
+  check('autosave put the ship in the library', !!sentry && sentry.name === 'Smoke Dart' && library.get(sentry.id).xml.includes('VectorRumble:Ship') && library.get(sentry.id).xml.includes('<PlayerIndex>'));
+  button('export-level').click(); await wait(100);
+  const sarea = doc.querySelector('.dialog textarea');
+  check('Export shows the ship file and the Ships folder', !!sarea && sarea.value.includes('VectorRumble:Ship') && /Ships/.test(doc.querySelector('.dialog').textContent), `${sarea?.value.slice(0, 60)} | ${doc.querySelector('.dialog')?.textContent.slice(0, 120)}`);
+  doc.querySelector('.dialog > .dialog-buttons > button:last-child')?.click(); await wait(50);
+  button('open-library').click(); await wait(100);
+  check('the ship library lists the ship, not the level', doc.querySelectorAll('.lib-row').length === 1 && doc.querySelector('.lib-row').textContent.includes('Smoke Dart'));
+  doc.querySelector('.dialog > .dialog-buttons > button:last-child').click(); await wait(50);
+  const pv = doc.getElementById('ship-preview').getContext('2d').getImageData(0, 0, 300, 170).data;
+  let lit = 0; for (let k = 0; k < pv.length; k += 4) if (pv[k] + pv[k + 1] + pv[k + 2] > 60) lit++;
+  check('the live preview is drawing the ship', lit > 20, String(lit));
+  button('tab-levels').click(); await wait(50);
+  check('back on Levels: its pane and its checks', !doc.getElementById('levels-pane').hidden && !ships.visible && /warning|note|No problems/.test(button('checks-badge').textContent));
+  button('tab-ships').click(); await wait(50);
+  check('and the ship is still there', sed.ship.name === 'Smoke Dart' && !doc.querySelector('.overlay'));
+} catch (error) {
+  check('no exception', false, String(error?.stack ?? error));
+}
+const failed = results.filter((r) => !r).length;
+document.title = `${failed ? 'FAIL' : 'PASS'} ${results.length - failed}/${results.length}`;
+out.textContent += `\n${document.title}\n`;
+</script>
