@@ -41,10 +41,10 @@ namespace VectorRumble
         /// <summary>
         /// The arena with the given name, or null.
         /// </summary>
-        public static Arena FindArena(string name)
+        public static Arena FindArena(string name, string id = null)
         {
-            Arena[] arenas = GameScreen.World?.ArenaManager?.Arenas;
-            return arenas?.FirstOrDefault(a => a.Name == name);
+            ArenaManager manager = GameScreen.World?.ArenaManager;
+            return manager?.FindById(id) ?? manager?.Arenas?.FirstOrDefault(a => a.Name == name);
         }
 
         /// <summary>

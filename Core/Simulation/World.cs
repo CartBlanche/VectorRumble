@@ -233,7 +233,8 @@ namespace VectorRumble
                 selectedArena = arenas[Random.Next(0, arenas.Length)];
                 return;
 			}
-            selectedArena = ArenaManager.Arenas.First(a => a.Name == ws);
+            // a community arena is found by its file's id (two can share a name), the others by name
+            selectedArena = ArenaManager.FindById(MatchRules.Current.ArenaId) ?? ArenaManager.Arenas.First(a => a.Name == ws);
         }
 
 

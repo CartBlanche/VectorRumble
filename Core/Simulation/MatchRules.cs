@@ -21,6 +21,13 @@ namespace VectorRumble
 
         /// <summary>An arena's name, or <see cref="Strings.Arena_Random"/> to have one picked for the match.</summary>
         public string Arena = Strings.Arena_Random;
+
+        /// <summary>
+        /// For an arena that did not come with the game: the id of its file (see <see cref="CommunityContent.IdOf"/>), so every machine
+        /// plays the same file even if two arenas share a name. Empty for the arenas that come with the game and for "Random".
+        /// </summary>
+        public string ArenaId = string.Empty;
+
         public int ScoreLimit = 10;
 
         public const int MaxAIPilots = 3;
@@ -33,6 +40,19 @@ namespace VectorRumble
 
         public bool IsRandomArena => Arena == Strings.Arena_Random;
 
+        /// <summary>A file id is empty or 64 lower-case hex digits (a SHA-256).</summary>
+        public static bool IsValidId(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return true;
+            if (id.Length != 64)
+                return false;
+            foreach (char c in id)
+                if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')))
+                    return false;
+            return true;
+        }
+
         public MatchRules Clone() => (MatchRules)MemberwiseClone();
 
         /// <summary>
@@ -42,6 +62,7 @@ namespace VectorRumble
         public void Write(BinaryWriter writer)
         {
             writer.Write(IsRandomArena ? string.Empty : Arena);
+            writer.Write(IsRandomArena ? string.Empty : ArenaId ?? string.Empty);
             writer.Write((byte)AsteroidDensity);
             writer.Write((byte)ScoreLimit);
             writer.Write(ControllersCanShootInAllDirections);
@@ -54,18 +75,22 @@ namespace VectorRumble
         public static MatchRules Read(BinaryReader reader)
         {
             string arena = reader.ReadString();
+            string arenaId = reader.ReadString();
             byte density = reader.ReadByte();
             byte scoreLimit = reader.ReadByte();
             bool shootInAllDirections = reader.ReadBoolean();
 
             if (!Enum.IsDefined(typeof(AsteroidDensity), (int)density))
                 throw new InvalidDataException("Unknown asteroid density " + density);
+            if (!IsValidId(arenaId))
+                throw new InvalidDataException("Bad arena id");
             if (scoreLimit < MinScoreLimit || scoreLimit > MaxScoreLimit)
                 throw new InvalidDataException("Score limit " + scoreLimit + " out of range");
 
             return new MatchRules
             {
                 Arena = arena.Length == 0 ? Strings.Arena_Random : arena,
+                ArenaId = arena.Length == 0 ? string.Empty : arenaId,
                 AsteroidDensity = (AsteroidDensity)density,
                 ScoreLimit = scoreLimit,
                 AIPilots = 0,

@@ -52,6 +52,33 @@ namespace VectorRumble.Tests
             Assert.True(Read(bytes).IsRandomArena);
         }
 
+        static readonly string SomeId = new string('a', 64);
+
+        [Fact]
+        public void A_community_arena_travels_with_its_file_id()
+        {
+            var read = Read(Write(new MatchRules { Arena = "Maze", ArenaId = SomeId }));
+
+            Assert.Equal("Maze", read.Arena);
+            Assert.Equal(SomeId, read.ArenaId);
+        }
+
+        [Fact]
+        public void Random_and_built_in_arenas_have_no_id()
+        {
+            Assert.Equal(string.Empty, Read(Write(new MatchRules { Arena = Strings.Arena_Random, ArenaId = SomeId })).ArenaId);
+            Assert.Equal(string.Empty, Read(Write(new MatchRules { Arena = "One" })).ArenaId);
+        }
+
+        [Theory]
+        [InlineData("abc")]
+        [InlineData("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789")] // upper case
+        [InlineData("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")]
+        public void A_bad_arena_id_is_rejected(string id)
+        {
+            Assert.Throws<InvalidDataException>(() => Read(Write(new MatchRules { Arena = "Maze", ArenaId = id })));
+        }
+
         [Fact]
         public void A_clone_is_independent_of_the_original()
         {
@@ -67,7 +94,7 @@ namespace VectorRumble.Tests
         public void An_unknown_asteroid_density_is_rejected()
         {
             byte[] bytes = Write(new MatchRules { Arena = "Box" });
-            bytes[1 + 3] = 99;    // after the 1 byte length and 3 letters of the arena name
+            bytes[1 + 3 + 1] = 99;    // after the arena name (1 byte length, 3 letters) and the arena id (1 byte length, empty)
 
             Assert.Throws<InvalidDataException>(() => Read(bytes));
         }
@@ -80,7 +107,7 @@ namespace VectorRumble.Tests
         public void A_score_limit_outside_the_allowed_range_is_rejected(int limit)
         {
             byte[] bytes = Write(new MatchRules { Arena = "Box" });
-            bytes[1 + 3 + 1] = (byte)limit;
+            bytes[1 + 3 + 1 + 1] = (byte)limit;
 
             Assert.Throws<InvalidDataException>(() => Read(bytes));
         }
