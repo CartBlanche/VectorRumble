@@ -48,19 +48,41 @@ namespace VectorRumble
 
             BuiltInCount = ships.Length;
 
-            // Once our app is signed, we can't change it, so let's look in the Special "MyDocuments" folder for user created data
-            shipFiles = Helper.GetFilesFromFolders(new string[] { Helper.GetMyDocumentsFolder(), Helper.GetAssemblyTitle(), shipDirectory }, "*.xml");
-            if (shipFiles != null && shipFiles.Length > 0)
+            // The player's own ships: the files in the Ships folder. A bad file is skipped (and reported in CommunityContent.Skipped).
+            Helper.EnsureCommunityFolders();
+            CommunityContent.ForgetSkipped("Ships");
+            var community = new List<Ship>();
+            foreach (var (path, bytes, id) in CommunityContent.ReadFolders("Ships"))
             {
-                var currentLength = ships.Length;
-                Array.Resize(ref ships, currentLength + shipFiles.Length);
-                for (int i = 0; i < shipFiles.Length; i++)
+                if (CommunityContent.TryParseShip(bytes, out Ship ship, out string reason))
                 {
-                    var ship = Ship.Load(XDocument.Load(shipFiles[i]).XPathSelectElement("/XnaContent/Asset"));
                     ship.World = world;
-                    ships[currentLength + i] = ship;
+                    community.Add(ship);
+                }
+                else
+                {
+                    CommunityContent.Skip("Ships", path, reason);
                 }
             }
+
+            ships = ships.Concat(community).ToArray();
+        }
+
+        /// <summary>
+        /// A new ship made from a community ship's file, for one player of a network match. Players can choose the same community
+        /// ship, and a ship can fly for only one player, so each gets a ship of their own. Null if the file is not a ship.
+        /// </summary>
+        public Ship MakeCommunityShip(byte[] bytes)
+        {
+            if (!CommunityContent.TryParseShip(bytes, out Ship ship, out string reason))
+            {
+                System.Diagnostics.Debug.WriteLine("[Community] A ship from the network was refused: " + reason);
+                return null;
+            }
+
+            ship.World = world;
+            ships = ships.Append(ship).ToArray();
+            return ship;
         }
 
         public void UpdateSelectedList()

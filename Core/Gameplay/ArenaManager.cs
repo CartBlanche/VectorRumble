@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -51,25 +52,55 @@ namespace VectorRumble
             arenas[arenas.Length - 1] = randomArena;
             builtInCount = arenas.Length;
 
-            // Once our app is signed, we can't change it, so let's look in the Special "MyDocuments" folder for user created data
-            arenaFiles = Helper.GetFilesFromFolders(new string[] { Helper.GetMyDocumentsFolder(), Helper.GetAssemblyTitle(), arenaDirectory }, "*.xml");
-            if (arenaFiles != null && arenaFiles.Length > 0)
+            // The player's own arenas: the files in the Arenas folder. A bad file is skipped (and reported in CommunityContent.Skipped).
+            Helper.EnsureCommunityFolders();
+            CommunityContent.ForgetSkipped("Arenas");
+            var community = new List<Arena>();
+            foreach (var (path, bytes, id) in CommunityContent.ReadFolders("Arenas"))
             {
-                var currentLength = arenas.Length;
-                Array.Resize(ref arenas, currentLength + arenaFiles.Length);
-                for (int i = 0; i < arenaFiles.Length; i++)
+                if (CommunityContent.TryParseArena(bytes, out Arena arena, out string reason))
                 {
-                    var arena = Arena.Load(XDocument.Load(arenaFiles[i]).XPathSelectElement("/XnaContent/Asset"));
-                    arenas[currentLength + i] = arena;
+                    community.Add(arena);
+                }
+                else
+                {
+                    CommunityContent.Skip("Arenas", path, reason);
                 }
             }
+
+            // and the ones a host sent in this session, which stay until the game closes
+            community.AddRange(received.Where(r => community.All(c => c.Id != r.Id)));
+            arenas = arenas.Concat(community).ToArray();
+        }
+
+        private readonly List<Arena> received = new List<Arena>();
+
+        /// <summary>The community arena with this id (from the Arenas folder or received from a host), or null.</summary>
+        public Arena FindById(string id)
+        {
+            return string.IsNullOrEmpty(id) ? null : arenas?.FirstOrDefault(a => a.Id == id);
+        }
+
+        /// <summary>
+        /// Keeps an arena a host sent. It is played and listed like any other but is not written to disk.
+        /// </summary>
+        public void AddReceived(Arena arena)
+        {
+            if (arena == null || FindById(arena.Id) != null)
+            {
+                return;
+            }
+
+            arena.Received = true;
+            received.Add(arena);
+            arenas = arenas.Append(arena).ToArray();
         }
 
         internal Arena Random()
         {
-            int length = Arenas.Length;
-            var index = System.Random.Shared.Next(length);
-            return Arenas[index];
+            // never the "Random" entry itself
+            var choices = Arenas.Where(a => a.Walls != null).ToArray();
+            return choices[System.Random.Shared.Next(choices.Length)];
         }
     }
 }

@@ -902,6 +902,16 @@ namespace VectorRumble
         #endregion
 
         #region Loading
+        /// <summary>For a ship that did not come with the game: the id of its file (the SHA-256 of its bytes), its maker and description.</summary>
+        public string Id { get; set; }
+        public string Author { get; set; }
+        public string Description { get; set; }
+
+        /// <summary>The file's bytes, kept so the ship can be sent to the other players of a network match.</summary>
+        public byte[] SourceBytes { get; set; }
+
+        public bool IsCommunity => !string.IsNullOrEmpty(Id);
+
         internal static Ship Load(XElement root)
         {
             var result = new Ship

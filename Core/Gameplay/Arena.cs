@@ -25,6 +25,22 @@ namespace VectorRumble
         public Vector2[] Walls { get; set; }
 
         /// <summary>
+        /// For an arena that did not come with the game: the id of its file (the SHA-256 of its bytes, the same on every machine),
+        /// who made it and what it is. Null or empty for the arenas that come with the game.
+        /// </summary>
+        public string Id { get; set; }
+        public string Author { get; set; }
+        public string Description { get; set; }
+
+        /// <summary>The file's bytes, kept so a host can send the arena to the others. Null for the arenas that come with the game.</summary>
+        public byte[] SourceBytes { get; set; }
+
+        /// <summary>Came over the network instead of from this machine's Arenas folder.</summary>
+        public bool Received { get; set; }
+
+        public bool IsCommunity => !string.IsNullOrEmpty(Id);
+
+        /// <summary>
         /// Draw the walls.
         /// </summary>
         /// <param name="lineBatch">The LineBatch to render to.</param>

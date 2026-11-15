@@ -228,8 +228,10 @@ namespace VectorRumble
         {
             var ws = MatchRules.Current.Arena;
 			if (ws == Strings.Arena_Random) {
-                var arenas = ArenaManager.Arenas;
-                ws = arenas[Random.Next(0, arenas.Length - 1)].Name;
+                // never the "Random" entry itself (it has no walls)
+                var arenas = ArenaManager.Arenas.Where(a => a.Walls != null).ToArray();
+                selectedArena = arenas[Random.Next(0, arenas.Length)];
+                return;
 			}
             selectedArena = ArenaManager.Arenas.First(a => a.Name == ws);
         }
