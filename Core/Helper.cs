@@ -12,16 +12,69 @@ namespace VectorRumble
 
         const string MyDocumentsDirectory = "Documents"; // Making this a constant in case we need to IFDEF this per platform later
 
+        /// <summary>
+        /// Where the game keeps what the player owns: on desktop the local application data folder (macOS ~/Library/Application Support,
+        /// Windows %LOCALAPPDATA%, Linux ~/.local/share), the same place as SolidOps; on a phone the Documents area (on iOS the Files app
+        /// shows it). Arenas and ships the player makes go in the "Arenas" and "Ships" folders under "Vector Rumble" in here.
+        /// </summary>
         public static string GetMyDocumentsFolder ()
         {
-            // Once our app is signed, we can't change it, so let's look in the Special "MyDocuments" folder for user created data
-            var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            if (VectorEngine.Platform.IsMobile) {
+                // Once our app is signed, we can't change it, so let's look in the Special "MyDocuments" folder for user created data
+                var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            if (!myDocuments.ToLower().Contains("documents")) {
-                myDocuments = Path.Combine(myDocuments, MyDocumentsDirectory);
+                if (!myDocuments.ToLower().Contains("documents")) {
+                    myDocuments = Path.Combine(myDocuments, MyDocumentsDirectory);
+                }
+
+                return myDocuments;
             }
 
-            return myDocuments;
+            return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        }
+
+        /// <summary>
+        /// The folder the player's own arenas ("Arenas") or ships ("Ships") go in. The environment variables VR_ARENAS_DIR and
+        /// VR_SHIPS_DIR name another folder (for testing).
+        /// </summary>
+        public static string GetCommunityFolder (string kind)
+        {
+            var other = Environment.GetEnvironmentVariable(kind == "Ships" ? "VR_SHIPS_DIR" : "VR_ARENAS_DIR");
+            if (!string.IsNullOrWhiteSpace(other)) {
+                return other;
+            }
+
+            return Path.Combine(GetMyDocumentsFolder(), GetAssemblyTitle(), kind);
+        }
+
+        /// <summary>
+        /// Where earlier versions looked for them on desktop (the Documents folder). Still read, so nothing made before is lost, but
+        /// nothing is written there. Null when it is the same as the current folder (a phone) or a test folder is in use.
+        /// </summary>
+        public static string GetLegacyCommunityFolder (string kind)
+        {
+            if (VectorEngine.Platform.IsMobile || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(kind == "Ships" ? "VR_SHIPS_DIR" : "VR_ARENAS_DIR"))) {
+                return null;
+            }
+
+            var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            return string.IsNullOrEmpty(documents) ? null : Path.Combine(documents, GetAssemblyTitle(), kind);
+        }
+
+        /// <summary>
+        /// Makes the folders the player puts arenas and ships in, so they can be found (and a new player can drop files in at once).
+        /// Never throws: a folder that cannot be made just stays missing.
+        /// </summary>
+        public static void EnsureCommunityFolders ()
+        {
+            foreach (var kind in new[] { "Arenas", "Ships" }) {
+                try {
+                    Directory.CreateDirectory(GetCommunityFolder(kind));
+                }
+                catch (Exception ex) {
+                    System.Diagnostics.Debug.WriteLine("Could not make the " + kind + " folder: " + ex.Message);
+                }
+            }
         }
 
         public static string GetAssemblyTitle ()
