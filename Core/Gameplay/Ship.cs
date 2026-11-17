@@ -450,6 +450,20 @@ namespace VectorRumble
         VectorPolygon flameOuter, flameInner;
         readonly Random flameRandom = new Random();
 
+        /// <summary>The flame is amber, unless the ship is a red, orange or yellow one that an amber flame would vanish against: then it is ice blue.</summary>
+        static Color FlameColour(Color ship)
+        {
+            int max = Math.Max(ship.R, Math.Max(ship.G, ship.B)), min = Math.Min(ship.R, Math.Min(ship.G, ship.B));
+            Color amber = new Color(255, 160, 0);
+            if (max - min < 60) return amber; // grey or white: amber shows
+            float hue;
+            if (max == ship.R) hue = 60f * (((ship.G - ship.B) / (float)(max - min) + 6f) % 6f);
+            else if (max == ship.G) hue = 60f * ((ship.B - ship.R) / (float)(max - min) + 2f);
+            else hue = 60f * ((ship.R - ship.G) / (float)(max - min) + 4f);
+            float apart = Math.Abs((hue - 30f + 540f) % 360f - 180f); // degrees from amber, round the colour wheel
+            return apart < 60f ? new Color(110, 200, 255) : amber;
+        }
+
         Vector2[] FindThrusters()
         {
             if (Shape == null || Shape.Points.Length == 0) return new Vector2[0];
@@ -480,6 +494,8 @@ namespace VectorRumble
             float scale = ActorScale.Value;
             Matrix placeOnShip = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0f);
             float alpha = thrustLevel * color.A / 255f;
+            Color flame = FlameColour(color);
+            Color flameCore = Color.Lerp(flame, Color.White, 0.7f);
             foreach (Vector2 at in thrusters)
             {
                 float flicker = 1f + 0.25f * (float)Math.Sin(flameTime * 40f + at.X) + 0.2f * (float)flameRandom.NextDouble();
@@ -488,10 +504,10 @@ namespace VectorRumble
                 Matrix toThruster = Matrix.CreateTranslation(at.X, at.Y, 0f) * placeOnShip;
 
                 flameOuter.Transform(Matrix.CreateScale(half, length, 1f) * toThruster);
-                lineBatch.DrawFilledPolygon(flameOuter, new Color(255, 160, 0) * (0.4f * alpha));
-                lineBatch.DrawEmptyPolygon(flameOuter, new Color(255, 160, 0) * alpha);
+                lineBatch.DrawFilledPolygon(flameOuter, flame * (0.4f * alpha));
+                lineBatch.DrawEmptyPolygon(flameOuter, flame * alpha);
                 flameInner.Transform(Matrix.CreateScale(half * 0.5f, length * 0.6f, 1f) * toThruster);
-                lineBatch.DrawFilledPolygon(flameInner, new Color(255, 235, 170) * (0.9f * alpha));
+                lineBatch.DrawFilledPolygon(flameInner, flameCore * (0.9f * alpha));
             }
         }
         #endregion
