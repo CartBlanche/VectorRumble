@@ -33,6 +33,9 @@ namespace VectorRumble
         public const int MaxShipPoints = 24;
         public const float MaxShipReach = 32f;
         public const int MaxNameLength = 40;
+        public const int MaxThrusters = 3;
+        public const float MinThrusterSize = 0.5f;
+        public const float MaxThrusterSize = 2f;
 
         /// <summary>What was skipped the last time the folders were read, for the log and for tests.</summary>
         public static readonly List<SkippedFile> Skipped = new List<SkippedFile>();
@@ -359,9 +362,15 @@ namespace VectorRumble
                 }
             }
 
+            if (!TryParseThrusters(root, out Thruster[] thrusters, out reason))
+            {
+                return false;
+            }
+
             ship = new Ship
             {
                 Name = name,
+                Thrusters = thrusters,
                 Color = color,
                 Mass = mass,
                 Radius = radius,
@@ -374,6 +383,61 @@ namespace VectorRumble
                 SourceBytes = bytes,
             };
             return true;
+        }
+
+        /// <summary>
+        /// The ship's optional &lt;Thrusters&gt;: each &lt;Thruster X="" Y="" Size=""/&gt;, up to three. No element at all gives null (the game then puts
+        /// a flame at the outline's rearmost points); an empty one gives a ship with no flame. Size is optional and kept within 0.5 to 2.
+        /// </summary>
+        public static bool TryParseThrusters(XElement root, out Thruster[] thrusters, out string reason)
+        {
+            thrusters = null;
+            reason = null;
+            XElement list = root.Element("Thrusters");
+            if (list == null)
+            {
+                return true;
+            }
+
+            var found = new List<Thruster>();
+            foreach (XElement element in list.Elements("Thruster"))
+            {
+                if (found.Count == MaxThrusters)
+                {
+                    reason = "A ship may have at most " + MaxThrusters + " thrusters.";
+                    return false;
+                }
+
+                if (!TryFloat((string)element.Attribute("X"), out float x) || !TryFloat((string)element.Attribute("Y"), out float y))
+                {
+                    reason = "Thruster " + (found.Count + 1) + " needs numbers for X and Y.";
+                    return false;
+                }
+
+                if (new Vector2(x, y).Length() > MaxShipReach)
+                {
+                    reason = "Thruster " + (found.Count + 1) + " is " + (int)new Vector2(x, y).Length() + " px from the centre; ships may reach " + (int)MaxShipReach + ".";
+                    return false;
+                }
+
+                float size = 1f;
+                string sizeText = (string)element.Attribute("Size");
+                if (sizeText != null && !TryFloat(sizeText, out size))
+                {
+                    reason = "Thruster " + (found.Count + 1) + " has a Size that is not a number.";
+                    return false;
+                }
+
+                found.Add(new Thruster(new Vector2(x, y), Math.Min(MaxThrusterSize, Math.Max(MinThrusterSize, size))));
+            }
+
+            thrusters = found.ToArray();
+            return true;
+        }
+
+        static bool TryFloat(string text, out float value)
+        {
+            return float.TryParse(text?.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out value) && float.IsFinite(value);
         }
 
         static bool TryWhole(string text, int min, int max, out int value)

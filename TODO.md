@@ -81,11 +81,12 @@ choice for received ones on screen; show Author in the pickers.
   gaps in arenas, spawn points, the AI's nav grid. Every machine in a network match must use the same value.
 - A ship's collision radius is its file's `Radius` (kept to 12..24, times the scale; 70% of it with the shield down, the shield ring is drawn at it).
   Nimble and Bat-ter Up (radius 15) are now smaller targets than the 20 px every ship had. Watch the balance. The AI's nav grid still keeps 30 px clear.
-- Thruster particle effects on ships. Future ships may have 1, 2 or 3 thrusters, so the file format and the Ships tab need a way to place them.
-  Idea to scope: a thruster is a pre-fab you attach to the outline (a position on the hull, a facing, maybe a size) rather than part of the
-  polygon. Open questions: the XML shape (a `<Thrusters>` list of position and angle, optional, so old files load unchanged); whether the game
-  loader limits the count (3) and clamps positions to the hull; one effect style or a few to choose from; how the editor shows them (draggable
-  markers on the outline, with the live preview firing the particles); the shipped five ships get thrusters by an engine default.
+- Thrusters (flames while a ship thrusts): built in the game. A ship file may have an optional `<Thrusters>` with up to 3
+  `<Thruster X="" Y="" Size="" />` (ship-local px; Size 0.5 to 2, default 1; the flame always points straight back). No element: a flame at each of the
+  outline's rearmost points; an empty element: no flame. The five shipped ships have theirs. The flame is amber, ice blue on red, orange and yellow ships
+  (`Ship.FlameColour`). Parsed by `CommunityContent.TryParseThrusters` (a bad one skips the file, with a reason). The editor keeps the element as an
+  unknown node but cannot edit it: the Ships tab still needs a Thruster tool (draggable markers on the outline, the live preview showing their flames,
+  Size, a limit of 3, a check that they sit near the hull), and `Editor/SPEC.md` needs a section for it. Later: an Angle for side thrusters, a few flame styles.
 - One new asteroid shape should be "the hat": the 13-sided aperiodic monotile found in 2023 by David Smith, Craig Kaplan, Joseph Myers and
   Chaim Goodman-Strauss, an homage to the discovery.
 - VectorEngine: a JSON loader for particle effects before v1.0; NuGet publishing (needs the user's API key and say-so); promote the

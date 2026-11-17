@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Xna.Framework;
 using Xunit;
 
 namespace VectorRumble.Tests
@@ -15,9 +16,9 @@ namespace VectorRumble.Tests
             "<?xml version=\"1.0\" encoding=\"utf-8\"?><XnaContent xmlns:VectorRumble=\"VectorRumble\"><Asset Type=\"VectorRumble:Arena\">" +
             "<Name>" + name + "</Name>" + extra + "<Color>" + color + "</Color><Walls>" + walls + "</Walls></Asset></XnaContent>";
 
-        static string ShipXml(string points = "0 -10 8 8 0 4 -8 8", string mass = "20", string radius = "15", string player = "<PlayerIndex>One</PlayerIndex>", string name = "Dart") =>
+        static string ShipXml(string points = "0 -10 8 8 0 4 -8 8", string mass = "20", string radius = "15", string player = "<PlayerIndex>One</PlayerIndex>", string name = "Dart", string thrusters = "") =>
             "<XnaContent><Asset Type=\"VectorRumble:Ship\"><Mass>" + mass + "</Mass><Radius>" + radius + "</Radius><Color>FF00FF00</Color>" +
-            "<Shape><Points>" + points + "</Points></Shape><Name>" + name + "</Name>" + player + "</Asset></XnaContent>";
+            "<Shape><Points>" + points + "</Points></Shape>" + thrusters + "<Name>" + name + "</Name>" + player + "</Asset></XnaContent>";
 
         static string ArenaReason(string xml)
         {
@@ -198,5 +199,51 @@ namespace VectorRumble.Tests
             CommunityContent.ReadFolder(Path.Combine(Path.GetTempPath(), "vr-nope-" + Guid.NewGuid().ToString("N")), "Ships", found, new HashSet<string>());
             Assert.Empty(found);
         }
-    }
+    
+        [Fact]
+        public void ShipWithoutThrustersElementLeavesThemToTheGame()
+        {
+            Assert.True(CommunityContent.TryParseShip(Bytes(ShipXml()), out Ship ship, out _));
+            Assert.Null(ship.Thrusters);
+        }
+
+        [Fact]
+        public void ShipThrustersAreReadWithTheirSize()
+        {
+            string xml = ShipXml(thrusters: "<Thrusters><Thruster X=\"-3\" Y=\"8\"/><Thruster X=\"3.5\" Y=\"8\" Size=\"1.5\"/></Thrusters>");
+            Assert.True(CommunityContent.TryParseShip(Bytes(xml), out Ship ship, out _));
+            Assert.Equal(2, ship.Thrusters.Length);
+            Assert.Equal(new Vector2(-3f, 8f), ship.Thrusters[0].At);
+            Assert.Equal(1f, ship.Thrusters[0].Size);
+            Assert.Equal(new Vector2(3.5f, 8f), ship.Thrusters[1].At);
+            Assert.Equal(1.5f, ship.Thrusters[1].Size);
+        }
+
+        [Fact]
+        public void EmptyThrustersElementMeansNoFlame()
+        {
+            Assert.True(CommunityContent.TryParseShip(Bytes(ShipXml(thrusters: "<Thrusters/>")), out Ship ship, out _));
+            Assert.NotNull(ship.Thrusters);
+            Assert.Empty(ship.Thrusters);
+        }
+
+        [Fact]
+        public void ThrusterSizeIsKeptInRange()
+        {
+            string xml = ShipXml(thrusters: "<Thrusters><Thruster X=\"0\" Y=\"8\" Size=\"9\"/><Thruster X=\"2\" Y=\"8\" Size=\"0\"/></Thrusters>");
+            Assert.True(CommunityContent.TryParseShip(Bytes(xml), out Ship ship, out _));
+            Assert.Equal(CommunityContent.MaxThrusterSize, ship.Thrusters[0].Size);
+            Assert.Equal(CommunityContent.MinThrusterSize, ship.Thrusters[1].Size);
+        }
+
+        [Fact]
+        public void BadThrustersSkipTheShipWithAReason()
+        {
+            Assert.Contains("at most", ShipReason(ShipXml(thrusters: "<Thrusters>" + string.Concat(Enumerable.Repeat("<Thruster X=\"0\" Y=\"8\"/>", 4)) + "</Thrusters>")));
+            Assert.Contains("X and Y", ShipReason(ShipXml(thrusters: "<Thrusters><Thruster X=\"a\" Y=\"8\"/></Thrusters>")));
+            Assert.Contains("X and Y", ShipReason(ShipXml(thrusters: "<Thrusters><Thruster Y=\"8\"/></Thrusters>")));
+            Assert.Contains("centre", ShipReason(ShipXml(thrusters: "<Thrusters><Thruster X=\"0\" Y=\"90\"/></Thrusters>")));
+            Assert.Contains("Size", ShipReason(ShipXml(thrusters: "<Thrusters><Thruster X=\"0\" Y=\"8\" Size=\"big\"/></Thrusters>")));
+        }
+}
 }

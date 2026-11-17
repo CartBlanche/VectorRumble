@@ -7,6 +7,10 @@
     <Shape>
       <Points>-15 -2 -11 -6 -7 -2 0 -9 7 -2 11 -6 15 -2 4 9 0 5 -4 9</Points>
     </Shape>
+    <Thrusters>
+      <Thruster X="-4" Y="9" Size="1" />
+      <Thruster X="4" Y="9" Size="1" />
+    </Thrusters>
     <Name>Defender</Name>
     <PlayerIndex>Two</PlayerIndex>
   </Asset>

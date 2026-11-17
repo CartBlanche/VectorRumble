@@ -446,7 +446,7 @@ namespace VectorRumble
         bool thrustWanted;
         float thrustLevel;
         float flameTime;
-        Vector2[] thrusters;
+        Thruster[] thrusters;
         VectorPolygon flameOuter, flameInner;
         readonly Random flameRandom = new Random();
 
@@ -464,15 +464,24 @@ namespace VectorRumble
             return apart < 60f ? new Color(110, 200, 255) : amber;
         }
 
-        Vector2[] FindThrusters()
+        Thruster[] FindThrusters()
         {
-            if (Shape == null || Shape.Points.Length == 0) return new Vector2[0];
+            // the file's own thrusters, moved out with the outline
+            if (Thrusters != null)
+            {
+                var placed = new Thruster[Thrusters.Length];
+                for (int i = 0; i < placed.Length; i++) placed[i] = new Thruster(Thrusters[i].At * ActorScale.Value, Thrusters[i].Size);
+                return placed;
+            }
+
+            // the file says nothing: a flame at each of the outline's rearmost points
+            if (Shape == null || Shape.Points.Length == 0) return new Thruster[0];
             float rear = float.MinValue;
             foreach (Vector2 p in Shape.Points) rear = Math.Max(rear, p.Y);
-            var found = new List<Vector2>();
+            var found = new List<Thruster>();
             foreach (Vector2 p in Shape.Points)
             {
-                if (p.Y >= rear - 1f * ActorScale.Value && found.Count < maxThrusters) found.Add(p);
+                if (p.Y >= rear - 1f * ActorScale.Value && found.Count < maxThrusters) found.Add(new Thruster(p, 1f));
             }
             return found.ToArray();
         }
@@ -496,11 +505,12 @@ namespace VectorRumble
             float alpha = thrustLevel * color.A / 255f;
             Color flame = FlameColour(color);
             Color flameCore = Color.Lerp(flame, Color.White, 0.7f);
-            foreach (Vector2 at in thrusters)
+            foreach (Thruster thruster in thrusters)
             {
+                Vector2 at = thruster.At;
                 float flicker = 1f + 0.25f * (float)Math.Sin(flameTime * 40f + at.X) + 0.2f * (float)flameRandom.NextDouble();
-                float length = flameLength * scale * thrustLevel * flicker;
-                float half = flameHalfWidth * scale * (0.8f + 0.2f * thrustLevel);
+                float length = flameLength * scale * thruster.Size * thrustLevel * flicker;
+                float half = flameHalfWidth * scale * thruster.Size * (0.8f + 0.2f * thrustLevel);
                 Matrix toThruster = Matrix.CreateTranslation(at.X, at.Y, 0f) * placeOnShip;
 
                 flameOuter.Transform(Matrix.CreateScale(half, length, 1f) * toThruster);
@@ -1015,10 +1025,15 @@ namespace VectorRumble
 
         public bool IsCommunity => !string.IsNullOrEmpty(Id);
 
+        /// <summary>Where the flames are, as the file says (before the scale). Null: the file says nothing, so they go at the outline's rearmost points.</summary>
+        internal Thruster[] Thrusters { get; set; }
+
         internal static Ship Load(XElement root)
         {
+            CommunityContent.TryParseThrusters(root, out Thruster[] declared, out _);
             var result = new Ship
             {
+                Thrusters = declared,
                 Color = Helper.ColorParse(root.Element("Color").Value),
                 Mass = int.Parse(root.Element("Mass").Value),
                 Name = root.Element("Name").Value,

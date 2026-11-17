@@ -7,6 +7,9 @@
     <Shape>
       <Points>-2.00 -2.00 -13.00 0.00 -15.00 -10.00 -15.00 2.00 0.00 15.00 15.00 2.00 15.00 -10.00 13.00 0.00 2.00 -2.00 2.00 -10.00 0.00 -15.00 -2.00 -10.00</Points>
     </Shape>
+    <Thrusters>
+      <Thruster X="0" Y="15" Size="1.2" />
+    </Thrusters>
     <Name>Blaster</Name>
     <PlayerIndex>One</PlayerIndex>
   </Asset>

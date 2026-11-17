@@ -7,6 +7,11 @@
     <Shape>
       <Points>0.00 -16.00 6.00 0.00 12.00 -6.00 12.00 2.00 11.00 6.00 8.00 10.00 4.00 12.00 0.00 13.00 -4.00 12.00 -8.00 10.00 -11.00 6.00 -12.00 2.00 -12.00 -6.0 -6.00 -0.00</Points>
     </Shape>
+    <Thrusters>
+      <Thruster X="-8" Y="10" Size="1" />
+      <Thruster X="0" Y="13" Size="1.2" />
+      <Thruster X="8" Y="10" Size="1" />
+    </Thrusters>
     <Name>Destroyer</Name>
     <PlayerIndex>Three</PlayerIndex>
   </Asset>
