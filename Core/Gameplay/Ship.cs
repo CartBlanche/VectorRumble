@@ -306,13 +306,21 @@ namespace VectorRumble
         {
             mass = 32f;
             playing = false;
-            radius = 20f * ActorScale.Value;
-            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, 20f * ActorScale.Value, 16);
+            hullRadius = 20f * ActorScale.Value;
+            radius = hullRadius;
+            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, hullRadius, 16);
         }
+
+        /// <summary>The collision radius with the shield up, in pixels (already scaled): the ship's own Radius from its file, kept in the editor's range. With the shield down it is 70% of this.</summary>
+        float hullRadius = 20f;
+        const float shieldDownRadiusRatio = 0.7f; // 14 px against 20, as it was before ships had a radius of their own
 
         /// <summary>Makes the outline as much bigger as <see cref="ActorScale"/> says. Call once, when the ship's file has been loaded.</summary>
         internal void ApplyScale()
         {
+            hullRadius = Math.Min(24f, Math.Max(12f, Radius)) * ActorScale.Value;
+            radius = hullRadius;
+            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, hullRadius, 16);
             if (ActorScale.Value == 1f || Shape == null) return;
             Vector2[] points = new Vector2[Shape.Points.Length];
             for (int i = 0; i < points.Length; i++) points[i] = Shape.Points[i] * ActorScale.Value;
@@ -399,7 +407,7 @@ namespace VectorRumble
             }
 
             // update the radius based on the shield
-            radius = ((shieldStrength > 0f) ? 20f : 14f) * ActorScale.Value;
+            radius = (shieldStrength > 0f) ? hullRadius : hullRadius * shieldDownRadiusRatio;
 
             // update the spawn-in timer
             if (fadeInTimer < fadeInTimerMaximum)
@@ -709,7 +717,7 @@ namespace VectorRumble
             {
                 fadeInTimer = Math.Min(fadeInTimer + elapsedTime, fadeInTimerMaximum);
             }
-            radius = ((shieldStrength > 0f) ? 20f : 14f) * ActorScale.Value;
+            radius = (shieldStrength > 0f) ? hullRadius : hullRadius * shieldDownRadiusRatio;
         }
 
         /// <summary>

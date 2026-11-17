@@ -79,7 +79,8 @@ choice for received ones on screen; show Author in the pickers.
 - Ships and asteroids are drawn 1.5x bigger for native 720p (`Core/Gameplay/ActorScale.cs`, `VR_SCALE` overrides it to try values). Done for outlines,
   collision radii, shield rings and asteroid sizes; community ship files are unchanged. Not scaled yet: ship speed, shot speed, weapon ranges. To check:
   gaps in arenas, spawn points, the AI's nav grid. Every machine in a network match must use the same value.
-- Bug: the `Radius` in a ship's file is never used; `Ship.Update` sets 20 or 14 (shield down) every frame. Use the file's radius or drop it from the editor.
+- A ship's collision radius is its file's `Radius` (kept to 12..24, times the scale; 70% of it with the shield down, the shield ring is drawn at it).
+  Nimble and Bat-ter Up (radius 15) are now smaller targets than the 20 px every ship had. Watch the balance. The AI's nav grid still keeps 30 px clear.
 - Thruster particle effects on ships. Future ships may have 1, 2 or 3 thrusters, so the file format and the Ships tab need a way to place them.
   Idea to scope: a thruster is a pre-fab you attach to the outline (a position on the hull, a facing, maybe a size) rather than part of the
   polygon. Open questions: the XML shape (a `<Thrusters>` list of position and angle, optional, so old files load unchanged); whether the game
