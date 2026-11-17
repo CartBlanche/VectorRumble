@@ -39,7 +39,7 @@ Upload it as an HTML project; `index.html` is at the zip's root.
 | `js/io/` | Reading and writing the game's XML without losing anything it does not understand; number, platform and export helpers |
 | `js/model/` | Level and ship models, undo history, the library in local storage, the game's built-in names |
 | `js/validate/` | The warnings: level checks (walls, gaps, closed-off areas) and ship checks (outline, mass and radius budget) |
-| `js/edit/` | The level editor (selection, dragging, undo), snapping, symmetry, transforms, templates and shapes; the ship editor (points, mirror, freehand, stats) |
+| `js/edit/` | The level editor (selection, dragging, undo), snapping, symmetry, transforms, templates and shapes; the ship editor (points, mirror, freehand, thrusters, stats) |
 | `js/view/` | The canvases: zoom and pan, drawing in the game's look, mouse and touch, the live ship preview |
 | `js/ui/` | Dialogs and the side panel; `js/ships-page.js` is the Ships tab |
 | `tests/` | Unit tests; `fixtures/` holds copies of the game's own arenas and ships, which must round-trip |

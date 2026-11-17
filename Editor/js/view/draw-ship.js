@@ -2,7 +2,7 @@
 // The editor canvas shows a ruler grid, the radius circles, ghost outlines of other ships and the outline's points;
 // `drawShipOutline` is the plain look, used by the live preview and the thumbnails.
 import { cssColour } from './draw-level.js';
-import { MAX_REACH } from '../model/ship.js';
+import { MAX_REACH, thrustersOf, flameColour } from '../model/ship.js';
 
 const ACCENT = '#ffb000';
 const css = (name, fallback) => (typeof document !== 'undefined' ? getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback : fallback);
@@ -28,7 +28,21 @@ export function drawShipOutline(ctx, pts, colour, toScreen, { width = 2, glow = 
   ctx.restore();
 }
 
-// state: { selected:int, ghosts:[{points,color,name}], hover:int, stroke:[[x,y]]|null, mirror:bool, snap:number, dpr, radius:int, problemPoints:Set }
+// A thruster's flame as the game draws it: a small triangle pointing straight back from (x, y), `size` times the usual flame.
+function flamePath(ctx, t, at) {
+  const [ax, ay] = at(t.x - 2.5 * t.size, t.y), [bx, by] = at(t.x, t.y + 6 * t.size), [cx, cy] = at(t.x + 2.5 * t.size, t.y);
+  ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.lineTo(cx, cy); ctx.closePath();
+}
+
+export function drawFlame(ctx, t, colour, at, { alpha = 1, glow = 8, width = 1.4 } = {}) {
+  const c = cssColour(colour);
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.4; ctx.fillStyle = c; flamePath(ctx, t, at); ctx.fill();
+  ctx.globalAlpha = alpha; ctx.shadowColor = c; ctx.shadowBlur = glow; ctx.strokeStyle = c; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.stroke();
+  ctx.restore();
+}
+
+// state: { selected:int, selectedThruster:int, hoverThruster:int, addThruster:[x,y]|null, ghosts:[{points,color,name}], hover:int, stroke:[[x,y]]|null, mirror:bool, snap:number, dpr, radius:int, problemPoints:Set }
 export function drawShipEditor(ctx, view, ship, state = {}) {
   const { width, height } = view;
   const s = view.scale;
@@ -88,6 +102,23 @@ export function drawShipEditor(ctx, view, ship, state = {}) {
 
   // The ship
   drawShipOutline(ctx, ship.points, ship.color, at, { width: Math.max(1.6, s * 0.18), glow: 12 });
+
+  // Thrusters: the flame each one makes, and a ring at its base to grab. Faint when not placed (the game chooses those).
+  const placed = ship.thrusters != null;
+  const flame = flameColour(ship.color);
+  thrustersOf(ship).forEach((t, i) => {
+    drawFlame(ctx, t, flame, at, { alpha: placed ? 1 : 0.5, width: Math.max(1.4, s * 0.12) });
+    const [px, py] = at(t.x, t.y);
+    const selectedT = state.selectedThruster === i;
+    ctx.beginPath(); ctx.arc(px, py, selectedT ? 6.5 : (state.hoverThruster === i ? 6 : 4.5), 0, Math.PI * 2);
+    ctx.fillStyle = selectedT ? ACCENT : 'rgba(0,0,0,0.6)'; ctx.fill();
+    ctx.lineWidth = 1.5; ctx.strokeStyle = cssColour(flame); ctx.setLineDash(placed ? [] : [2, 2]); ctx.stroke(); ctx.setLineDash([]);
+  });
+  if (state.addThruster) {
+    const [ax, ay] = state.addThruster;
+    drawFlame(ctx, { x: ax, y: ay, size: 1 }, flame, at, { alpha: 0.5, glow: 0 });
+    if (state.mirror && Math.abs(ax) >= 0.3) drawFlame(ctx, { x: -ax, y: ay, size: 1 }, flame, at, { alpha: 0.3, glow: 0 });
+  }
 
   // The nose: a small arrow above the top of the outline
   const noseY = Math.min(...ship.points.map((p) => p[1]));

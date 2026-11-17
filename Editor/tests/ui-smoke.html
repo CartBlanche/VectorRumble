@@ -165,6 +165,20 @@ try {
   sfire('pointerup', at([0, 12])); await wait(30);
   check('Draw makes a symmetrical outline from one side', sed.points.length >= 5 && symmetric(sed.points), JSON.stringify(sed.points));
 
+  // Thrusters
+  stool('thruster');
+  await sdrag(at([3, 8]), at([4, 9]));
+  check('the Thruster tool places a pair, and the new one can be dragged on placement', sed.ship.thrusters?.length === 2 && sed.ship.thrusters.some((t) => t.x === 4 && t.y === 9), JSON.stringify(sed.ship.thrusters));
+  const slider = doc.getElementById('ship-thruster-size');
+  check('a placed thruster is selected, and the size slider is on', sed.selectedThruster >= 0 && !slider.disabled);
+  slider.value = '1.6'; slider.dispatchEvent(new win.Event('input', { bubbles: true })); await wait(20);
+  check('the size slider resizes the selected thruster and its twin', sed.ship.thrusters.every((t) => t.size === 1.6), JSON.stringify(sed.ship.thrusters));
+  button('ship-delete').click(); await wait(20);
+  check('Delete removes the selected thruster and its twin', sed.ship.thrusters.length === 0);
+  doc.getElementById('ship-thrusters-auto').click(); await wait(20);
+  check('Automatic hands the thrusters back to the game', sed.ship.thrusters === null);
+  stool('move');
+
   // Pinch zoom on the ship canvas
   const sscale = sview.scale;
   const p1 = at([-5, 0]), p2 = at([5, 0]);

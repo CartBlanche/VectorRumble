@@ -25,6 +25,12 @@
 4. **Community menu.** A main-menu row "Community" (Arena Frame style, `FrameMenuScreen`) with two entries, Levels and Ships, each listing the files in the folder (name, author, a thumbnail drawn with `PreviewPainter`, the reason greyed if unplayable), the folder path at the bottom, an Open Folder button on desktop, and the editor's web address. Rescans each time it opens. Picking a community level or ship there takes you to Single Player with it selected. Community content stays single player (same rule as today). Strings go through `Strings.resx` in all seven languages.
 5. Unit tests for the loaders (valid, hostile, legacy `Arenas`).
 
+## 3b. Thrusters (2026-11-17)
+
+A ship file may have an optional `<Thrusters>` after `<Shape>`: up to three `<Thruster X="" Y="" Size="" />` (ship-local px, nose toward -y; Size 0.5 to 2, default 1). The flame always points straight back (+y). No element: the game puts a flame at each of the outline's rearmost points (within 1 px of the lowest, up to 3). An empty `<Thrusters />`: no flame. The game refuses a file with more than 3, a position beyond 32 px from the centre, or a number that is not one (`CommunityContent.TryParseThrusters`); it keeps Size within 0.5 to 2. The flame colour is amber, ice blue on ships whose colour is within 60 degrees of orange on the colour wheel (`Ship.FlameColour`; `flameColour` in `model/ship.js`).
+
+Editor: the model has `ship.thrusters`: null (not placed), `[]` (none) or `[{ x, y, size }]`. The Thruster tool, Size slider, Automatic and None buttons are on the Ships tab (see CHANGELOG 0.3.0). The editor keeps thrusters within its 22 px reach and snaps them like points. Checks: off the hull (over 4 px from every edge), too far, too many, odd size; a note for none. Not done: an Angle for side thrusters, more flame styles.
+
 ## 4. Level tab
 **Canvas:** fixed 16:9, coordinates 0..1, y down, drawn in the game's look (black, neon lines, the chosen colour, glow). The playfield limits shown as a faint margin (the built-ins keep walls within 0.05..0.95).
 

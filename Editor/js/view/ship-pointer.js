@@ -1,6 +1,6 @@
 // Mouse, pen and touch on the ship canvas. One pointer works the tool; two pinch to zoom and pan; the wheel zooms.
 // app: { editor, view, state (what the canvas draws), tool(), redraw(), grid... }
-import { hitPoint, nearestEdge } from '../edit/ship-editor.js';
+import { hitPoint, hitThruster } from '../edit/ship-editor.js';
 
 export function attachShipPointer(canvas, app) {
   const pointers = new Map();
@@ -33,11 +33,24 @@ export function attachShipPointer(canvas, app) {
     delete: {
       down(p, event) {
         const i = hitPoint(app.editor.points, p[0], p[1], tolerance(event));
-        if (i >= 0) app.editor.deletePoint(i);
+        if (i >= 0) { app.editor.deletePoint(i); return null; }
+        const t = hitThruster(app.editor.thrusters, p[0], p[1], tolerance(event));
+        if (t >= 0) app.editor.deleteThruster(t);
         return null;
       },
       move() {},
       up() {},
+    },
+    thruster: {
+      down(p, event) {
+        const i = hitThruster(app.editor.thrusters, p[0], p[1], tolerance(event));
+        if (i >= 0) return app.editor.beginThrusterDrag(i) ? { drag: true } : null; // a tap on a thruster picks it up
+        const added = app.editor.addThrusterAt(p[0], p[1]);
+        if (added < 0) { app.onFullThrusters?.(); app.editor.selectThruster(-1); return null; }
+        return app.editor.beginThrusterDrag(added) ? { drag: true } : null; // and drag on to place it exactly
+      },
+      move(g, p) { app.editor.dragTo(p[0], p[1]); },
+      up() { app.editor.endDrag(); },
     },
     draw: {
       down(p) { app.state.stroke = [p]; return { stroke: true }; },
@@ -86,6 +99,9 @@ export function attachShipPointer(canvas, app) {
     // Hovering: which point is under the pointer, and where an Add would land
     app.state.hover = hitPoint(app.editor.points, p[0], p[1], tolerance(event));
     app.state.add = app.tool() === 'add' && app.state.hover < 0 && event.pointerType === 'mouse' ? app.editor.clean(p[0], p[1]) : null;
+    const overThruster = ['thruster', 'delete'].includes(app.tool()) ? hitThruster(app.editor.thrusters, p[0], p[1], tolerance(event)) : -1;
+    app.state.hoverThruster = overThruster;
+    app.state.addThruster = app.tool() === 'thruster' && overThruster < 0 && event.pointerType === 'mouse' && app.editor.thrusters.length < 3 ? app.editor.clean(p[0], p[1]) : null;
     app.redraw();
   });
 
@@ -102,7 +118,7 @@ export function attachShipPointer(canvas, app) {
   };
   canvas.addEventListener('pointerup', (e) => finish(e, false));
   canvas.addEventListener('pointercancel', (e) => finish(e, true));
-  canvas.addEventListener('pointerleave', () => { if (!gesture) { app.state.hover = -1; app.state.add = null; app.redraw(); } });
+  canvas.addEventListener('pointerleave', () => { if (!gesture) { app.state.hover = -1; app.state.add = null; app.state.hoverThruster = -1; app.state.addThruster = null; app.redraw(); } });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   canvas.addEventListener('wheel', (event) => {
     event.preventDefault();

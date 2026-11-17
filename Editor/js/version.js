@@ -2,4 +2,4 @@
 // the zip's file name (tools/make-zip.mjs) and the stamp every exported file carries.
 // MAJOR.MINOR.PATCH: MAJOR for a change that makes older files or libraries unreadable, MINOR for new features, PATCH for fixes.
 export const EDITOR_NAME = 'Vector Rumble Editor';
-export const EDITOR_VERSION = '0.2.0';
+export const EDITOR_VERSION = '0.3.0';

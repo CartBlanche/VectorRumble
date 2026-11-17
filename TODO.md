@@ -84,9 +84,8 @@ choice for received ones on screen; show Author in the pickers.
 - Thrusters (flames while a ship thrusts): built in the game. A ship file may have an optional `<Thrusters>` with up to 3
   `<Thruster X="" Y="" Size="" />` (ship-local px; Size 0.5 to 2, default 1; the flame always points straight back). No element: a flame at each of the
   outline's rearmost points; an empty element: no flame. The five shipped ships have theirs. The flame is amber, ice blue on red, orange and yellow ships
-  (`Ship.FlameColour`). Parsed by `CommunityContent.TryParseThrusters` (a bad one skips the file, with a reason). The editor keeps the element as an
-  unknown node but cannot edit it: the Ships tab still needs a Thruster tool (draggable markers on the outline, the live preview showing their flames,
-  Size, a limit of 3, a check that they sit near the hull), and `Editor/SPEC.md` needs a section for it. Later: an Angle for side thrusters, a few flame styles.
+  (`Ship.FlameColour`). Parsed by `CommunityContent.TryParseThrusters` (a bad one skips the file, with a reason). The editor (0.3.0) has a Thruster tool
+  (T): place, drag, Size, Automatic, None, checks, flames in the canvas and preview; see `Editor/SPEC.md` 3b. Later: an Angle for side thrusters, a few flame styles.
 - One new asteroid shape should be "the hat": the 13-sided aperiodic monotile found in 2023 by David Smith, Craig Kaplan, Joseph Myers and
   Chaim Goodman-Strauss, an homage to the discovery.
 - VectorEngine: a JSON loader for particle effects before v1.0; NuGet publishing (needs the user's API key and say-so); promote the

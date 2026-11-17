@@ -129,3 +129,166 @@ test('a ship made in the editor round-trips', () => {
   assert.deepEqual(readShip(xml).ship, e.ship);
   assert.match(xml, /<PlayerIndex><\/PlayerIndex>|<PlayerIndex ?\/>/);
 });
+
+console.log('Thrusters');
+import { autoThrusters, thrustersOf, flameColour } from '../js/model/ship.js';
+import { hitThruster, thrusterPartner } from '../js/edit/ship-editor.js';
+
+test('not placed: the editor shows what the game would, from the outline', () => {
+  const e = editor([[0, -12], [9, 10], [0, 6], [-9, 10]]);
+  assert.equal(e.ship.thrusters, null);
+  assert.deepEqual(e.thrusters.map((t) => [t.x, t.y]), [[9, 10], [-9, 10]]);
+  assert.deepEqual(thrustersOf(e.ship), autoThrusters(e.points));
+});
+test('the shipped ships carry the thrusters their files have', () => {
+  for (const [name, s] of Object.entries(SHIPPED_SHIPS)) {
+    assert.ok(Array.isArray(s.thrusters) && s.thrusters.length >= 1 && s.thrusters.length <= 3, name);
+    for (const t of s.thrusters) assert.ok(Math.hypot(t.x, t.y) <= 22, name);
+  }
+  assert.equal(SHIPPED_SHIPS.Destroyer.thrusters.length, 3);
+});
+test('adding a thruster places it, with a twin when mirror is on, and owns the list', () => {
+  const e = editor();
+  const i = e.addThrusterAt(3.2, 8.1);
+  assert.equal(i, 0);
+  assert.deepEqual(e.ship.thrusters.map((t) => [t.x, t.y, t.size]), [[3, 8, 1], [-3, 8, 1]]);
+  assert.equal(e.selectedThruster, 0);
+  assert.equal(e.selected, -1);
+  const c = editor(); c.mirror = false; c.addThrusterAt(3, 8);
+  assert.equal(c.ship.thrusters.length, 1);
+});
+test('a thruster on the centre line is one thruster; the limit is three', () => {
+  const e = editor();
+  e.addThrusterAt(0.2, 8);
+  assert.deepEqual(e.ship.thrusters.map((t) => t.x), [0]);
+  e.addThrusterAt(4, 8); // room for a pair
+  assert.equal(e.ship.thrusters.length, 3);
+  assert.equal(e.addThrusterAt(6, 8), -1);
+  assert.equal(e.ship.thrusters.length, 3);
+  const f = editor();
+  f.addThrusterAt(4, 8);
+  f.addThrusterAt(5, 9); // a pair would make four: only the one goes in
+  assert.equal(f.ship.thrusters.length, 3);
+});
+test('dragging a thruster moves its twin; a tap without moving changes nothing', () => {
+  const e = editor();
+  e.addThrusterAt(4, 8);
+  const i = e.ship.thrusters.findIndex((t) => t.x > 0);
+  assert.ok(e.beginThrusterDrag(i));
+  e.dragTo(5.2, 9.4); e.endDrag();
+  assert.deepEqual(e.ship.thrusters.map((t) => [t.x, t.y]).sort(), [[-5, 9], [5, 9]]);
+  const undos = e.history.canUndo;
+  const f = editor();
+  assert.ok(f.beginThrusterDrag(0)); // an unplaced one: grabbing it places the list...
+  f.endDrag();                       // ...but not moving it puts that back
+  assert.equal(f.ship.thrusters, null);
+  assert.ok(undos);
+  e.undo(); // the drag
+  assert.deepEqual(e.ship.thrusters.map((t) => [t.x, t.y]).sort(), [[-4, 8], [4, 8]]);
+});
+test('a dragged thruster stays within the reach', () => {
+  const e = editor();
+  e.addThrusterAt(0, 8);
+  e.beginThrusterDrag(0); e.dragTo(40, 40); e.endDrag();
+  assert.ok(Math.hypot(e.ship.thrusters[0].x, e.ship.thrusters[0].y) <= 22.001);
+});
+test('deleting a thruster removes its twin; undo brings both back', () => {
+  const e = editor();
+  e.addThrusterAt(4, 8);
+  assert.ok(e.deleteThruster(0));
+  assert.deepEqual(e.ship.thrusters, []);
+  e.undo();
+  assert.equal(e.ship.thrusters.length, 2);
+  e.selectThruster(1);
+  assert.ok(e.deleteSelected());
+  assert.equal(e.ship.thrusters.length, 0);
+});
+test('size is kept to 0.5 to 2 and moves a pair together; one undo step per slide', () => {
+  const e = editor();
+  e.addThrusterAt(4, 8);
+  e.setThrusterSize(1.34); e.setThrusterSize(1.7); e.setThrusterSize(9);
+  assert.deepEqual(e.ship.thrusters.map((t) => t.size), [2, 2]);
+  e.setThrusterSize(0);
+  assert.deepEqual(e.ship.thrusters.map((t) => t.size), [0.5, 0.5]);
+  e.undo();
+  assert.deepEqual(e.ship.thrusters.map((t) => t.size), [1, 1]);
+});
+test('Automatic puts them back to not placed; None means no flame', () => {
+  const e = editor();
+  e.addThrusterAt(4, 8);
+  assert.ok(e.resetThrusters());
+  assert.equal(e.ship.thrusters, null);
+  assert.equal(e.resetThrusters(), false);
+  assert.ok(e.clearThrusters());
+  assert.deepEqual(e.ship.thrusters, []);
+  assert.deepEqual(e.thrusters, []);
+});
+test('centre, scale and flip take placed thrusters with the outline', () => {
+  const e = editor([[0, -10], [8, 8], [0, 4], [-8, 8]]);
+  e.addThrusterAt(0, 6);
+  e.flip();
+  assert.equal(e.ship.thrusters[0].y, -6);
+  const f = editor([[0, -10], [8, 8], [0, 4], [-8, 8]]);
+  f.addThrusterAt(0, 6);
+  f.scaleBy(0.5);
+  assert.equal(f.ship.thrusters[0].y, 3);
+  const g = editor([[0, 0], [8, 8], [-8, 8]]);
+  g.addThrusterAt(0, 6);
+  g.centre();
+  assert.equal(g.ship.thrusters[0].y, 2);
+});
+test('hit tests and partners', () => {
+  const list = [{ x: 4, y: 8 }, { x: -4, y: 8 }, { x: 0, y: 10 }];
+  assert.equal(hitThruster(list, 4.5, 8.2, 2), 0);
+  assert.equal(hitThruster(list, 20, 20, 2), -1);
+  assert.equal(thrusterPartner(list, 0), 1);
+  assert.equal(thrusterPartner(list, 2), -1);
+});
+test('thrusters are written after the outline and read back; not placed writes nothing', () => {
+  const e = editor();
+  assert.ok(!writeShip(e.ship).includes('Thrusters'));
+  e.addThrusterAt(4, 8);
+  const xml = writeShip(e.ship);
+  assert.ok(xml.indexOf('</Shape>') < xml.indexOf('<Thrusters>') && xml.indexOf('</Thrusters>') < xml.indexOf('<Name>'));
+  assert.ok(xml.includes('<Thruster X="4" Y="8" Size="1" />'));
+  const back = readShip(xml);
+  assert.deepEqual(back.warnings, []);
+  assert.deepEqual(back.ship.thrusters, e.ship.thrusters);
+  e.clearThrusters();
+  const none = writeShip(e.ship);
+  assert.ok(none.includes('<Thrusters />'));
+  assert.deepEqual(readShip(none).ship.thrusters, []);
+  assert.equal(readShip(writeShip(newShip('Plain'))).ship.thrusters, null);
+});
+test('a file with a bad thruster is read with a warning the game would agree with', () => {
+  const base = writeShip(newShip('X')).replace('<Name>', '<Thrusters><Thruster X="a" Y="2" /><Thruster X="1" Y="2" Size="big" /></Thrusters><Name>');
+  const { ship, warnings } = readShip(base);
+  assert.equal(warnings.length, 2);
+  assert.ok(warnings.every((w) => w.where === 'Thrusters'));
+  assert.equal(ship.thrusters.length, 1);
+});
+test('an unknown element is still kept next to thrusters', () => {
+  const xml = writeShip(newShip('X')).replace('<Name>', '<Thrusters><Thruster X="1" Y="2" /></Thrusters><Mystery>1</Mystery><Name>');
+  const out = writeShip(readShip(xml).ship);
+  assert.ok(out.includes('<Mystery>1</Mystery>') && out.includes('<Thruster X="1" Y="2" Size="1" />'));
+});
+test('checks: off the hull, too far, too many, odd size, none', () => {
+  const ids = (thrusters) => checkShip(newShip('Z', { fields: { thrusters } })).map((r) => r.id);
+  assert.ok(!ids(null).some((id) => id.startsWith('thruster')));
+  assert.ok(!ids([{ x: 9, y: 10, size: 1 }]).some((id) => id.startsWith('thruster')));
+  assert.ok(ids([{ x: 0, y: 3, size: 1 }]).includes('thruster-off-hull') === false); // inside, but within 4 px of the edge at (0,6)
+  assert.ok(ids([{ x: 0, y: -1, size: 1 }]).includes('thruster-off-hull'));
+  assert.ok(ids([{ x: 0, y: 30, size: 1 }]).includes('thruster-far'));
+  assert.ok(ids(Array.from({ length: 4 }, () => ({ x: 9, y: 10, size: 1 }))).includes('thrusters-many'));
+  assert.ok(ids([{ x: 9, y: 10, size: 3 }]).includes('thruster-size'));
+  assert.ok(ids([]).includes('thrusters-none'));
+  const r = checkShip(newShip('Z', { fields: { thrusters: [{ x: 9, y: 10, size: 1 }, { x: 0, y: 30, size: 1 }] } })).find((x) => x.id === 'thruster-far');
+  assert.equal(r.thruster, 1);
+});
+test('the flame colour is amber, ice blue on red, orange and yellow ships', () => {
+  assert.equal(flameColour('FF00FF00'), 'FFFFA000');
+  assert.equal(flameColour('FF6495ED'), 'FFFFA000');
+  assert.equal(flameColour('FFFF00FF'), 'FFFFA000');
+  assert.equal(flameColour('FFFFFFFF'), 'FFFFA000');
+  for (const red of ['FFFF0000', 'FFFF8000', 'FFFFFF00']) assert.equal(flameColour(red), 'FF6EC8FF', red);
+});

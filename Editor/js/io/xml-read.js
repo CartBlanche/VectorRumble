@@ -1,14 +1,14 @@
 // Reading the game's XML (XnaContent / Asset Type="VectorRumble:Arena" or "VectorRumble:Ship") into editor models.
 // Lenient: accepts what a person might hand-write (extra whitespace, odd line breaks) and says where the game would fail on it.
 // Anything it does not know is kept in `extra` and written back, so a re-save loses nothing.
-import { parseXml, childEl, textOf, attrOf, XmlError } from './xml.js';
+import { parseXml, childEl, childEls, textOf, attrOf, XmlError } from './xml.js';
 import { parseNumbers, isGameSafe, isColour, normaliseColour } from './numbers.js';
 import { isEditorStamp } from './stamp.js';
 
 export { XmlError };
 
 const LEVEL_TAGS = ['Name', 'Author', 'Description', 'Color', 'Walls'];
-const SHIP_TAGS = ['Mass', 'Radius', 'Color', 'Shape', 'Name', 'Author', 'Description', 'PlayerIndex'];
+const SHIP_TAGS = ['Mass', 'Radius', 'Color', 'Shape', 'Thrusters', 'Name', 'Author', 'Description', 'PlayerIndex'];
 
 function open(source) {
   const document = parseXml(source);
@@ -100,6 +100,22 @@ export function readLevel(source) {
   return { level, warnings };
 }
 
+// <Thrusters>: none means "not placed" (null); each <Thruster X Y Size>, kept as the file has it, with a warning where the game would refuse it
+function readThrusters(asset, warnings) {
+  const list = childEl(asset, 'Thrusters');
+  if (!list) return null;
+  const found = [];
+  childEls(list, 'Thruster').forEach((node, i) => {
+    const num = (name) => { const raw = attrOf(node, name); const n = raw == null ? NaN : Number(raw.trim()); return Number.isFinite(n) ? n : null; };
+    const x = num('X'), y = num('Y');
+    if (x == null || y == null) { warnings.push({ where: 'Thrusters', message: `Thruster ${i + 1} needs numbers for X and Y, so the game cannot load this ship.` }); return; }
+    const size = attrOf(node, 'Size') == null ? 1 : num('Size');
+    if (size == null) warnings.push({ where: 'Thrusters', message: `Thruster ${i + 1} has a Size that is not a number, so the game cannot load this ship.` });
+    found.push({ x, y, size: size ?? 1 });
+  });
+  return found;
+}
+
 export function readShip(source) {
   const { root, asset } = open(source);
   if (assetKind(source) !== 'ship') throw new XmlError('This file is an arena, not a ship.');
@@ -129,6 +145,7 @@ export function readShip(source) {
     mass: whole('Mass'),
     radius: whole('Radius'),
     points,
+    thrusters: readThrusters(asset, warnings),
     playerIndex: (field(asset, 'PlayerIndex', warnings, true) ?? '').trim(),
     extra: extraOf(root, asset, SHIP_TAGS),
   };

@@ -23,7 +23,7 @@ export function chooseShipStart({ first = false } = {}) {
       h('div', { class: 'cards' }, card(BLANK, newShip('Arrow'))),
       h('p', { class: 'section-title', style: 'margin-top:14px' }, 'Remix a ship that comes with the game'),
       h('div', { class: 'cards' }, Object.entries(SHIPPED_SHIPS).map(([name, s]) => card(
-        { shipped: true, name, points: s.points, color: s.color, radius: s.radius, mass: s.mass, description: `${s.points.length} points, radius ${s.radius}` },
+        { shipped: true, name, points: s.points, thrusters: s.thrusters, color: s.color, radius: s.radius, mass: s.mass, description: `${s.points.length} points, radius ${s.radius}` },
         { points: s.points, color: s.color },
       ))),
     ],

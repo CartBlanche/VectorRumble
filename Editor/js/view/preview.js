@@ -2,6 +2,7 @@
 // It shows size and shape, not handling: every ship in the game thrusts the same way.
 import { drawShipOutline } from './draw-ship.js';
 import { cssColour } from './draw-level.js';
+import { thrustersOf, flameColour } from '../model/ship.js';
 
 const W = 300, H = 170;
 const K = 2.2; // the preview draws the ship this much bigger than life, so its shape can be seen
@@ -51,12 +52,12 @@ export function createPreview(canvas, getShip) {
       ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(b.x - b.dx * 0.03, b.y - b.dy * 0.03); ctx.stroke(); ctx.restore();
     }
 
-    // The thrust flame, flickering behind the lowest point
-    if (pts.length) {
-      const tail = pts.reduce((m, p) => (p[1] > m[1] ? p : m), pts[0]);
-      const flick = 5 + Math.sin(t * 40) * 2 + Math.random() * 2;
-      const flame = [[tail[0] - 2.5, tail[1]], [tail[0], tail[1] + flick], [tail[0] + 2.5, tail[1]]];
-      drawShipOutline(ctx, flame.map(([x, y]) => [x, y]), 'FFFFA000', (x, y) => place(x, y), { width: 1.4, glow: 8, fill: 0.4 });
+    // The thrust flames, flickering at each thruster (the game's own rule when none are placed)
+    const flame = flameColour(ship.color);
+    for (const th of thrustersOf(ship)) {
+      const flick = (5 + Math.sin(t * 40 + th.x) * 2 + Math.random() * 2) * th.size;
+      const half = 2.5 * th.size;
+      drawShipOutline(ctx, [[th.x - half, th.y], [th.x, th.y + flick], [th.x + half, th.y]], flame, (x, y) => place(x, y), { width: 1.4, glow: 8, fill: 0.4 });
     }
     drawShipOutline(ctx, pts, ship.color, (x, y) => place(x, y), { width: 1.6, glow: 10 });
   }

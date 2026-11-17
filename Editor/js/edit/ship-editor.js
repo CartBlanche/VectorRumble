@@ -4,7 +4,7 @@
 // outline; Mass is the player's choice within the range that radius allows (see model/ship.js).
 import { pointSegmentDistance } from '../geometry.js';
 import { History, cloneModel } from '../model/history.js';
-import { MAX_POINTS, MIN_POINTS, MAX_REACH, deriveStats, massRange, baseMass, reach } from '../model/ship.js';
+import { MAX_POINTS, MIN_POINTS, MAX_REACH, MAX_THRUSTERS, MIN_THRUSTER_SIZE, MAX_THRUSTER_SIZE, deriveStats, massRange, baseMass, reach, autoThrusters, thrustersOf } from '../model/ship.js';
 
 export const SNAPS = [0.5, 1, 2];
 const AXIS = 0.3;       // a point this close to the centre line counts as on it
@@ -30,6 +30,24 @@ export function hitPoint(points, x, y, tolerance = 2) {
     if (d <= bestD) { bestD = d; best = i; }
   });
   return best;
+}
+
+// The index of the thruster nearest (x, y) within `tolerance` px, or -1
+export function hitThruster(thrusters, x, y, tolerance = 2) {
+  let best = -1;
+  let bestD = tolerance;
+  thrusters.forEach((t, i) => {
+    const d = Math.hypot(t.x - x, t.y - y);
+    if (d <= bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+
+// The thruster that mirrors thruster i (left to right), or -1 if there is none or i is on the centre line
+export function thrusterPartner(thrusters, i) {
+  const t = thrusters[i];
+  if (Math.abs(t.x) < AXIS) return -1;
+  return thrusters.findIndex((u, j) => j !== i && Math.hypot(u.x + t.x, u.y - t.y) < PAIR);
 }
 
 // The edge (index of its first point) nearest (x, y) and how far away it is
@@ -124,6 +142,7 @@ export class ShipEditor {
     this.onChange = () => {};
     this.history = new History();
     this.selected = -1;          // the selected point
+    this.selectedThruster = -1;  // the selected thruster (a point and a thruster are never both selected)
     this.mirror = true;          // edit both sides at once
     this.snap = 1;               // px
     this.open(ship);
@@ -136,6 +155,7 @@ export class ShipEditor {
     this.ship = ship;
     this.history.clear();
     this.selected = -1;
+    this.selectedThruster = -1;
     this.lastField = null;
     this.drag = null;
     this.onChange('open');
@@ -145,8 +165,8 @@ export class ShipEditor {
   checkpoint() { this.history.checkpoint(cloneModel(this.ship)); this.lastField = null; }
   get canUndo() { return this.history.canUndo; }
   get canRedo() { return this.history.canRedo; }
-  undo() { const s = this.history.undo(this.ship); if (s) { this.ship = s; this.selected = -1; this.onChange('undo'); } }
-  redo() { const s = this.history.redo(this.ship); if (s) { this.ship = s; this.selected = -1; this.onChange('redo'); } }
+  undo() { const s = this.history.undo(this.ship); if (s) { this.ship = s; this.selected = -1; this.selectedThruster = -1; this.onChange('undo'); } }
+  redo() { const s = this.history.redo(this.ship); if (s) { this.ship = s; this.selected = -1; this.selectedThruster = -1; this.onChange('redo'); } }
 
   // Edits in the middle of a drag or while typing share one undo step
   edit(reason, fn) {
@@ -196,7 +216,7 @@ export class ShipEditor {
   }
 
   // ---- points ----
-  select(i) { if (this.selected !== i) { this.selected = i; this.onChange('select'); } }
+  select(i) { if (this.selected !== i || (i >= 0 && this.selectedThruster >= 0)) { this.selected = i; if (i >= 0) this.selectedThruster = -1; this.onChange('select'); } }
 
   // Add a point where the player tapped: on the nearest edge. With mirror on, its mirror image goes into the matching edge.
   addPointAt(x, y) {
@@ -258,6 +278,7 @@ export class ShipEditor {
   dragTo(x, y) {
     const d = this.drag;
     if (!d) return;
+    if (d.thruster) return this.dragThrusterTo(x, y);
     const pts = this.points;
     let [nx, ny] = this.clean(x, y);
     // A point on the centre line stays on it while mirror is on
@@ -274,6 +295,11 @@ export class ShipEditor {
     const d = this.drag;
     this.drag = null;
     if (!d) return;
+    if (d.thruster) {
+      if (!d.moved) { this.history.discardLast(); if (d.wasAuto) this.ship.thrusters = null; this.onChange('select'); return; }
+      this.onChange('thrusters');
+      return;
+    }
     if (!d.moved) { this.history.discardLast(); this.onChange('select'); return; }
     this.onChange('points');
   }
@@ -292,7 +318,10 @@ export class ShipEditor {
       this.restat(this.ship.radius);
     });
   }
-  deleteSelected() { return this.selected >= 0 && this.deletePoint(this.selected); }
+  deleteSelected() {
+    if (this.selectedThruster >= 0) return this.deleteThruster(this.selectedThruster);
+    return this.selected >= 0 && this.deletePoint(this.selected);
+  }
 
   // ---- whole outline ----
   setOutline(points) {
@@ -312,18 +341,123 @@ export class ShipEditor {
     const xs = this.points.map((p) => p[0]), ys = this.points.map((p) => p[1]);
     const dx = r1(-(Math.min(...xs) + Math.max(...xs)) / 2), dy = r1(-(Math.min(...ys) + Math.max(...ys)) / 2);
     if (!dx && !dy) return false;
-    return this.edit('points', () => { this.ship.points = this.points.map(([x, y]) => [x + dx, y + dy]); this.restat(this.ship.radius); });
+    return this.edit('points', () => {
+      this.ship.points = this.points.map(([x, y]) => [x + dx, y + dy]);
+      this.moveThrusters(([x, y]) => [x + dx, y + dy]);
+      this.restat(this.ship.radius);
+    });
   }
 
   scaleBy(factor) {
     return this.edit('points', () => {
       const scaled = this.points.map(([x, y]) => clampReach(r1(x * factor), r1(y * factor)));
       this.ship.points = scaled;
+      this.moveThrusters(([x, y]) => clampReach(r1(x * factor), r1(y * factor)));
       this.restat(this.ship.radius);
     });
   }
 
-  flip() { return this.edit('points', () => { this.ship.points = this.points.map(([x, y]) => [x, -y]).reverse(); this.restat(this.ship.radius); }); }
+  flip() { return this.edit('points', () => { this.ship.points = this.points.map(([x, y]) => [x, -y]).reverse(); this.moveThrusters(([x, y]) => [x, -y]); this.restat(this.ship.radius); }); }
 
   get reach() { return reach(this.points); }
+
+  // ---- thrusters ----
+  // `ship.thrusters` is null until the player places one: then the game puts a flame at the rear points, and so do we.
+  get thrusters() { return thrustersOf(this.ship); }
+  get thrustersPlaced() { return this.ship.thrusters != null; }
+
+  // Make the thrusters the ship's own (what the game would have shown), so one can be moved or removed
+  ownThrusters() { if (!this.ship.thrusters) this.ship.thrusters = autoThrusters(this.points).map((t) => ({ ...t })); return this.ship.thrusters; }
+
+  // A whole-outline change (centre, scale, flip) takes placed thrusters along; not-placed ones follow the outline by themselves
+  moveThrusters(fn) {
+    if (!this.ship.thrusters) return;
+    this.ship.thrusters = this.ship.thrusters.map((t) => { const [x, y] = fn([t.x, t.y]); return { ...t, x: r1(x), y: r1(y) }; });
+  }
+
+  selectThruster(i) {
+    if (this.selectedThruster === i && this.selected < 0) return;
+    this.selectedThruster = i;
+    if (i >= 0) this.selected = -1;
+    this.onChange('select');
+  }
+
+  // A thruster put where the player tapped (snapped and kept within the reach). With mirror on, a pair if there is room for two.
+  addThrusterAt(x, y) {
+    if ((this.ship.thrusters ?? []).length >= MAX_THRUSTERS) return -1;
+    const [cx, cy] = this.clean(x, y);
+    let index = -1;
+    this.edit('thrusters', () => {
+      // the first one placed starts the ship's own list (the not-placed ones were only the game's guess)
+      const list = this.ship.thrusters ?? (this.ship.thrusters = []);
+      list.push({ x: cx, y: cy, size: 1 });
+      index = list.length - 1;
+      if (this.mirror && Math.abs(cx) >= AXIS && list.length < MAX_THRUSTERS) list.push({ x: -cx, y: cy, size: 1 });
+    });
+    if (index >= 0) { this.selectedThruster = index; this.selected = -1; this.onChange('select'); }
+    return index;
+  }
+
+  beginThrusterDrag(i) {
+    if (i < 0 || i >= this.thrusters.length) return false;
+    this.checkpoint();
+    const wasAuto = !this.ship.thrusters;
+    const list = this.ownThrusters();
+    this.drag = { thruster: true, i, wasAuto, partner: this.mirror ? thrusterPartner(list, i) : -1, moved: false, before: { ...list[i] } };
+    this.selectedThruster = i;
+    this.selected = -1;
+    return true;
+  }
+
+  dragThrusterTo(x, y) {
+    const d = this.drag;
+    if (!d?.thruster) return;
+    const list = this.ship.thrusters;
+    let [nx, ny] = this.clean(x, y);
+    if (this.mirror && Math.abs(d.before.x) < AXIS) nx = 0; // one on the centre line stays on it
+    if (nx === list[d.i].x && ny === list[d.i].y) return;
+    list[d.i] = { ...list[d.i], x: nx, y: ny };
+    if (d.partner >= 0) list[d.partner] = { ...list[d.partner], x: -nx, y: ny };
+    d.moved = true;
+    this.onChange('drag');
+  }
+
+  deleteThruster(i) {
+    if (i < 0 || i >= this.thrusters.length) return false;
+    return this.edit('thrusters', () => {
+      const list = this.ownThrusters();
+      const drop = new Set([i]);
+      const j = this.mirror ? thrusterPartner(list, i) : -1;
+      if (j >= 0) drop.add(j);
+      this.ship.thrusters = list.filter((_, k) => !drop.has(k));
+      this.selectedThruster = -1;
+    });
+  }
+
+  // The size slider: the selected thruster (and its twin with mirror on)
+  setThrusterSize(size) {
+    const i = this.selectedThruster;
+    if (i < 0 || !this.ship.thrusters?.[i]) return;
+    const value = Math.round(Math.min(MAX_THRUSTER_SIZE, Math.max(MIN_THRUSTER_SIZE, size)) * 10) / 10;
+    const list = this.ship.thrusters;
+    const j = this.mirror ? thrusterPartner(list, i) : -1;
+    if (list[i].size === value && (j < 0 || list[j].size === value)) return;
+    if (this.lastField !== 'thrusterSize') this.checkpoint();
+    this.lastField = 'thrusterSize';
+    list[i] = { ...list[i], size: value };
+    if (j >= 0) list[j] = { ...list[j], size: value };
+    this.onChange('field');
+  }
+
+  // Back to "not placed": the game puts a flame at the rear points
+  resetThrusters() {
+    if (this.ship.thrusters == null) return false;
+    return this.edit('thrusters', () => { this.ship.thrusters = null; this.selectedThruster = -1; });
+  }
+
+  // A ship with no flame at all
+  clearThrusters() {
+    if (this.ship.thrusters?.length === 0) return false;
+    return this.edit('thrusters', () => { this.ship.thrusters = []; this.selectedThruster = -1; });
+  }
 }

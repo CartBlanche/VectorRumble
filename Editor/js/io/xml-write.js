@@ -1,6 +1,6 @@
 // Writing editor models as the game's XML. Element order follows the shipped files. Numbers are single-spaced on one line.
 import { el, textEl, comment, serializeDocument } from './xml.js';
-import { joinNumbers, normaliseColour } from './numbers.js';
+import { joinNumbers, formatNumber, normaliseColour } from './numbers.js';
 import { stampText } from './stamp.js';
 
 function wrap(type, children, model) {
@@ -35,6 +35,7 @@ export function writeShip(ship) {
     textEl('Radius', Math.round(ship.radius)),
     textEl('Color', normaliseColour(ship.color)),
     el('Shape', [], [textEl('Points', joinNumbers(ship.points.flat()))]),
+    ship.thrusters ? el('Thrusters', [], ship.thrusters.map((t) => el('Thruster', [['X', formatNumber(t.x)], ['Y', formatNumber(t.y)], ['Size', formatNumber(t.size ?? 1)]]))) : null,
     textEl('Name', ship.name),
     optional('Author', ship.author),
     optional('Description', ship.description),
