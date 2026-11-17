@@ -318,6 +318,7 @@ namespace VectorRumble
         /// <summary>Makes the outline as much bigger as <see cref="ActorScale"/> says. Call once, when the ship's file has been loaded.</summary>
         internal void ApplyScale()
         {
+            thrusters = null;
             hullRadius = Math.Min(24f, Math.Max(12f, Radius)) * ActorScale.Value;
             radius = hullRadius;
             shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, hullRadius, 16);
@@ -432,6 +433,68 @@ namespace VectorRumble
         }
         #endregion
 
+
+        #region Thrusters
+        // The thrust flame: a filled triangle at each thruster, longer and brighter the harder the ship pushes, flickering.
+        // For now a thruster sits at each of the outline's rearmost points (up to 3); a ship file will say where they go.
+        const int maxThrusters = 3;
+        const float flameLength = 6f;        // px at scale 1
+        const float flameHalfWidth = 2.5f;
+        const float flameRampPerSecond = 8f; // how fast the flame grows and dies away
+
+        /// <summary>True while the ship is pushing: a person or an AI thrusting, or a remote ship moving the way it faces.</summary>
+        bool thrustWanted;
+        float thrustLevel;
+        float flameTime;
+        Vector2[] thrusters;
+        VectorPolygon flameOuter, flameInner;
+        readonly Random flameRandom = new Random();
+
+        Vector2[] FindThrusters()
+        {
+            if (Shape == null || Shape.Points.Length == 0) return new Vector2[0];
+            float rear = float.MinValue;
+            foreach (Vector2 p in Shape.Points) rear = Math.Max(rear, p.Y);
+            var found = new List<Vector2>();
+            foreach (Vector2 p in Shape.Points)
+            {
+                if (p.Y >= rear - 1f * ActorScale.Value && found.Count < maxThrusters) found.Add(p);
+            }
+            return found.ToArray();
+        }
+
+        void DrawThrusters(float elapsedTime, LineBatch lineBatch)
+        {
+            float step = flameRampPerSecond * elapsedTime;
+            thrustLevel = thrustWanted ? Math.Min(1f, thrustLevel + step) : Math.Max(0f, thrustLevel - step);
+            if (thrustLevel <= 0f) return;
+
+            thrusters ??= FindThrusters();
+            if (flameOuter == null)
+            {
+                flameOuter = new VectorPolygon(new[] { new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(-1f, 0f) });
+                flameInner = new VectorPolygon(new[] { new Vector2(1f, 0f), new Vector2(0f, 1f), new Vector2(-1f, 0f) });
+            }
+
+            flameTime += elapsedTime;
+            float scale = ActorScale.Value;
+            Matrix placeOnShip = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0f);
+            float alpha = thrustLevel * color.A / 255f;
+            foreach (Vector2 at in thrusters)
+            {
+                float flicker = 1f + 0.25f * (float)Math.Sin(flameTime * 40f + at.X) + 0.2f * (float)flameRandom.NextDouble();
+                float length = flameLength * scale * thrustLevel * flicker;
+                float half = flameHalfWidth * scale * (0.8f + 0.2f * thrustLevel);
+                Matrix toThruster = Matrix.CreateTranslation(at.X, at.Y, 0f) * placeOnShip;
+
+                flameOuter.Transform(Matrix.CreateScale(half, length, 1f) * toThruster);
+                lineBatch.DrawFilledPolygon(flameOuter, new Color(255, 160, 0) * (0.4f * alpha));
+                lineBatch.DrawEmptyPolygon(flameOuter, new Color(255, 160, 0) * alpha);
+                flameInner.Transform(Matrix.CreateScale(half * 0.5f, length * 0.6f, 1f) * toThruster);
+                lineBatch.DrawFilledPolygon(flameInner, new Color(255, 235, 170) * (0.9f * alpha));
+            }
+        }
+        #endregion
         #region Drawing
         /// <summary>
         /// Render the ship.
@@ -476,6 +539,7 @@ namespace VectorRumble
                 }
             }
             base.Draw(elapsedTime, lineBatch);
+            DrawThrusters(elapsedTime, lineBatch);
 
             if (Pilot != null && AIPilot.ShowDebug && !dead)
             {
@@ -718,6 +782,10 @@ namespace VectorRumble
                 fadeInTimer = Math.Min(fadeInTimer + elapsedTime, fadeInTimerMaximum);
             }
             radius = (shieldStrength > 0f) ? hullRadius : hullRadius * shieldDownRadiusRatio;
+
+            // a remote ship's controls are not here: it is pushing if it is moving the way it faces
+            Vector2 heading = new Vector2((float)Math.Sin(Rotation), -(float)Math.Cos(Rotation));
+            thrustWanted = !dead && velocity.LengthSquared() > 40f * 40f && Vector2.Dot(Vector2.Normalize(velocity), heading) > 0.5f;
         }
 
         /// <summary>
@@ -841,10 +909,12 @@ namespace VectorRumble
                 }
 
                 // a menu over the game, a ship not in the match, or a dead one: nothing to steer
+                thrustWanted = false;
                 if (overlayPresent || !selected || !playing || dead)
                 {
                     return;
                 }
+                thrustWanted = Input.Thrust || Input.Move.LengthSquared() > 0f;
 
                 // the ship is alive, so process movement and firing
                 // calculate the current forward vector
