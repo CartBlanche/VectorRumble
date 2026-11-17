@@ -76,6 +76,15 @@ choice for received ones on screen; show Author in the pickers.
 ## Later
 
 - Mockups (use agents): new ship types; clearer power-up types (today you cannot tell what you are picking up).
+- Ships and asteroids are drawn 1.5x bigger for native 720p (`Core/Gameplay/ActorScale.cs`, `VR_SCALE` overrides it to try values). Done for outlines,
+  collision radii, shield rings and asteroid sizes; community ship files are unchanged. Not scaled yet: ship speed, shot speed, weapon ranges. To check:
+  gaps in arenas, spawn points, the AI's nav grid. Every machine in a network match must use the same value.
+- Bug: the `Radius` in a ship's file is never used; `Ship.Update` sets 20 or 14 (shield down) every frame. Use the file's radius or drop it from the editor.
+- Thruster particle effects on ships. Future ships may have 1, 2 or 3 thrusters, so the file format and the Ships tab need a way to place them.
+  Idea to scope: a thruster is a pre-fab you attach to the outline (a position on the hull, a facing, maybe a size) rather than part of the
+  polygon. Open questions: the XML shape (a `<Thrusters>` list of position and angle, optional, so old files load unchanged); whether the game
+  loader limits the count (3) and clamps positions to the hull; one effect style or a few to choose from; how the editor shows them (draggable
+  markers on the outline, with the live preview firing the particles); the shipped five ships get thrusters by an engine default.
 - One new asteroid shape should be "the hat": the 13-sided aperiodic monotile found in 2023 by David Smith, Craig Kaplan, Joseph Myers and
   Chaim Goodman-Strauss, an homage to the discovery.
 - VectorEngine: a JSON loader for particle effects before v1.0; NuGet publishing (needs the user's API key and say-so); promote the

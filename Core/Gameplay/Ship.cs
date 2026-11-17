@@ -306,8 +306,17 @@ namespace VectorRumble
         {
             mass = 32f;
             playing = false;
-            radius = 20f;
-            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, 20f, 16);
+            radius = 20f * ActorScale.Value;
+            shieldPolygon = VectorPolygon.CreateCircle(Vector2.Zero, 20f * ActorScale.Value, 16);
+        }
+
+        /// <summary>Makes the outline as much bigger as <see cref="ActorScale"/> says. Call once, when the ship's file has been loaded.</summary>
+        internal void ApplyScale()
+        {
+            if (ActorScale.Value == 1f || Shape == null) return;
+            Vector2[] points = new Vector2[Shape.Points.Length];
+            for (int i = 0; i < points.Length; i++) points[i] = Shape.Points[i] * ActorScale.Value;
+            Shape = new VectorPolygon(points);
         }
         #endregion
 
@@ -390,7 +399,7 @@ namespace VectorRumble
             }
 
             // update the radius based on the shield
-            radius = (shieldStrength > 0f) ? 20f : 14f;
+            radius = ((shieldStrength > 0f) ? 20f : 14f) * ActorScale.Value;
 
             // update the spawn-in timer
             if (fadeInTimer < fadeInTimerMaximum)
@@ -700,7 +709,7 @@ namespace VectorRumble
             {
                 fadeInTimer = Math.Min(fadeInTimer + elapsedTime, fadeInTimerMaximum);
             }
-            radius = (shieldStrength > 0f) ? 20f : 14f;
+            radius = ((shieldStrength > 0f) ? 20f : 14f) * ActorScale.Value;
         }
 
         /// <summary>

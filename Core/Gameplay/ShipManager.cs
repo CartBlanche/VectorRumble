@@ -42,6 +42,7 @@ namespace VectorRumble
                 {
                     var ship = Ship.Load(XDocument.Load(stream).XPathSelectElement("/XnaContent/Asset"));
                     ship.World = world;
+                    ship.ApplyScale();
                     ships[i] = ship;
                 }
             }
@@ -57,6 +58,7 @@ namespace VectorRumble
                 if (CommunityContent.TryParseShip(bytes, out Ship ship, out string reason))
                 {
                     ship.World = world;
+                    ship.ApplyScale();
                     community.Add(ship);
                 }
                 else
@@ -81,6 +83,7 @@ namespace VectorRumble
             }
 
             ship.World = world;
+            ship.ApplyScale();
             ships = ships.Append(ship).ToArray();
             return ship;
         }

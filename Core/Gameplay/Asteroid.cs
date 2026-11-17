@@ -62,6 +62,7 @@ namespace VectorRumble
         public Asteroid(World world, float radius, Random shapeRandom)
             : base(world)
         {
+            radius *= ActorScale.Value;
             // all asteroids are gray
             this.color = Color.Gray;
             // create the polygon
