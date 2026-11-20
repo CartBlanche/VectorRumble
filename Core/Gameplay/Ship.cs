@@ -524,7 +524,7 @@ namespace VectorRumble
                 if (Math.Abs(side) < 0.2f)
                 {
                     puff = Math.Abs(turnLevel) * turnPuffStrength;
-                    at.X -= Math.Sign(turnLevel) * turnPuffOffset * scale;
+                    at.X -= turnLevel * (1f - thrustLevel) * turnPuffOffset * scale; // none while thrusting: the flame stays centred
                 }
                 else if (side * turnLevel < 0f)
                 {
