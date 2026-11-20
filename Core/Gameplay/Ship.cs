@@ -442,7 +442,7 @@ namespace VectorRumble
         const float flameHalfWidth = 2.5f;
         const float flameRampPerSecond = 8f; // how fast the flame grows and dies away
         const float turnFlameSwing = 0.4f;   // how much stronger the outer flames get, and the inner ones weaker, in a full-rate turn
-        const float turnPuffStrength = 0.55f; // the size of the puff a turn alone gives, against a full flame
+        const float turnPuffStrength = 0.75f; // the size of the puff a turn alone gives, against a full flame
         const float turnPuffOffset = 3f;      // px at scale 1 that a middle thruster's puff sits to the outer side
         const float turnFlameSpan = 8f;      // px at scale 1 from the middle at which a thruster takes the full swing
 
@@ -528,7 +528,7 @@ namespace VectorRumble
                 }
                 else if (side * turnLevel < 0f)
                 {
-                    puff = Math.Abs(turnLevel) * turnPuffStrength * Math.Abs(side);
+                    puff = Math.Abs(turnLevel) * turnPuffStrength;
                 }
 
                 float level = Math.Max(thrustLevel, puff);
