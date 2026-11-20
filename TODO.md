@@ -1,6 +1,6 @@
 # Vector Rumble 2.x: what is left
 
-State at 2026-11-14 (evening). VectorRumble `main` has everything from the UI revamp, AI pilots, screenshots, DevShots and the idle menus
+State at 2026-11-20. Since 11-14: ships and asteroids scaled 1.5x, ship Radius used for collision, thrusters (game, file format, editor 0.3.0), a Single Player preview with real ships, and the last ship and colour remembered (see "Later" and "Still to do on the UI"). Earlier state, 2026-11-14 (evening): VectorRumble `main` has everything from the UI revamp, AI pilots, screenshots, DevShots and the idle menus
 (`feature/ui-revamp` was merged into it); nothing of it is pushed yet. VectorEngine `main` is pushed, tagged `v0.1.0-preview.5`.
 
 ## How to pick this up
@@ -41,6 +41,10 @@ stuck events. Never watched in a long match by Claude; the user and testers are 
 
 - The in-match score text and the engine's loading screen are still in the old style.
 - Network match: no Rematch (needs the host to bring everyone back to the waiting room).
+- Single Player's preview (`Core/Screens/MatchPreview.cs`) shows your last ship and colour (a random built-in ship if none is saved or it is a
+  community ship) against one random rival per AI pilot (ships that come with the game only, up to 3). The last ship (`LastShip`, name or community
+  file id) and colour (`LastColour`) are saved in `UserSettings` and offered first on the ship screen, single player and network. Not tested: a
+  community ship as the saved one after the file is deleted, a network join with the saved colour already taken (it moves to the next free one).
 - Single player names the pilot after the computer's user name; no way to type a name. AI pilots are named "AI 1" to "AI 3" (`AI_Pilot_Name`).
 - Settings has no Controls row (the game has no controls screen).
 - CJK fonts: re-run `python3 scripts/generate-cjk-fonts.py ko ja zh-CN` whenever a `Core/Strings.<lang>.resx` changes (Korean, Japanese and Chinese are
@@ -86,6 +90,9 @@ choice for received ones on screen; show Author in the pickers.
   outline's rearmost points; an empty element: no flame. The five shipped ships have theirs. The flame is amber, ice blue on red, orange and yellow ships
   (`Ship.FlameColour`). Parsed by `CommunityContent.TryParseThrusters` (a bad one skips the file, with a reason). The editor (0.3.0) has a Thruster tool
   (T): place, drag, Size, Automatic, None, checks, flames in the canvas and preview; see `Editor/SPEC.md` 3b. Later: an Angle for side thrusters, a few flame styles.
+  Flames also lean into a turn (outer flames longer, inner shorter, from the change of heading, so remote ships show it) and a turn alone puffs
+  the outer thruster (a middle one puffs from its outer side); `turnFlameSwing`, `turnPuffStrength` and `turnPuffOffset` in `Ship.cs` tune it.
+  A remote ship's flame is still a guess from its speed and heading. Not checked: the editor Thruster tool by eye, a network match.
 - One new asteroid shape should be "the hat": the 13-sided aperiodic monotile found in 2023 by David Smith, Craig Kaplan, Joseph Myers and
   Chaim Goodman-Strauss, an homage to the discovery.
 - VectorEngine: a JSON loader for particle effects before v1.0; NuGet publishing (needs the user's API key and say-so); promote the
