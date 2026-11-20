@@ -79,9 +79,13 @@ choice for received ones on screen; show Author in the pickers.
 
 ## Later
 
-- **Before the v1.x launch (end of November 2026): power-up icons.** Today a power-up is a polygon with an inner polygon and the colour is the only clue
-  (`DoubleLaserPowerUp` lime, `TripleLaserPowerUp` cornflower blue, `RocketPowerUp` orange; drawn by `PowerUp.Draw`; `PowerUpKind` goes over the network, keep the numbers).
-  Design mockups first with agents (a distinct silhouette per kind, readable small, in line-art), then build. Do this before the ships and arenas below.
+- Power-up icons: built (a circle with twin lime bolts, a triangle fan with three blue bolts, a rocket in square brackets with a blue flame; 40 px across at
+  rest, pulsing and turning once every 4 s; pickup radius 20). See `Core/Simulation/PowerUp.cs` (`IconPart`) and the three `*PowerUp.cs` files. Not checked by
+  eye in a match: the triple laser and rocket pickups (only the double laser was seen), how they read at the real size, and a network match. The mockup is
+  `docs/mockups/powerup-icons.html`.
+- **After the v1.x launch, multiplayer icons:** make a set of icons (same line-art style, shapes that differ by outline first, colour second, readable at about
+  40 px) for what a multiplayer game needs, for example a flag for capture the flag, a base or goal, a hill to hold, a bomb or objective carrier, a team marker,
+  a shield or a heal pickup, a "ready" or "host" badge. Use designer agents for mockups first, then build the ones for modes that exist.
 - **After the v1.x launch:** the ships and arenas work below. Mockups are committed in `docs/mockups/ships-and-arenas.html` (open it in a browser).
   **Next up: more and better ships and arenas.** There are 5 ships and 4 arenas (`Content/Ships`, `Content/Arenas`); the user wants more of both.
   Plan: designer agents propose designs as mockups first (no game files until approved), then approved ones become files built and checked with the

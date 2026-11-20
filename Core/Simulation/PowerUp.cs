@@ -39,14 +39,62 @@ namespace VectorRumble
         /// The scalar between time elapsed and the scale period.
         /// </summary>
         protected float timeToScalePeriod = 8f;
+
+        /// <summary>The icons are drawn 1.25 times their design size, so a power-up is 40 px across at rest (before the pulse).</summary>
+        const float iconScale = 1.25f;
+
+        /// <summary>The icon turns once every four seconds.</summary>
+        const float spinRadiansPerSecond = MathHelper.TwoPi / 4f;
+
+        /// <summary>The collision radius in pixels: half of the 40 px icon, so a power-up is easy to hit.</summary>
+        const float pickupRadius = 20f;
+        #endregion
+
+        #region Icon
+        /// <summary>One line or outline of a power-up's icon, in design units (the icon is about 32 units across).</summary>
+        protected sealed class IconPart
+        {
+            /// <summary>The outline, closed back to its first point, or an open line.</summary>
+            public readonly VectorPolygon Shape;
+            /// <summary>True for an outline, false for an open line.</summary>
+            public readonly bool Closed;
+            /// <summary>A fixed colour, or null for the power-up's own colour.</summary>
+            public readonly Color? Colour;
+
+            public IconPart(float[] xy, bool closed, Color? colour)
+            {
+                var points = new Vector2[xy.Length / 2];
+                for (int i = 0; i < points.Length; ++i)
+                {
+                    points[i] = new Vector2(xy[2 * i], xy[2 * i + 1]);
+                }
+                Shape = new VectorPolygon(points);
+                Closed = closed;
+                Colour = colour;
+            }
+        }
+
+        /// <summary>The parts of this power-up's icon, set by each kind.</summary>
+        protected IconPart[] icon = Array.Empty<IconPart>();
+
+        /// <summary>The white 16-sided ring (radius 16) the double laser sits in.</summary>
+        protected static float[] Ring()
+        {
+            var circle = VectorPolygon.CreateCircle(Vector2.Zero, 16f, 16).Points;
+            var xy = new float[circle.Length * 2];
+            for (int i = 0; i < circle.Length; ++i)
+            {
+                xy[2 * i] = circle[i].X;
+                xy[2 * i + 1] = circle[i].Y;
+            }
+            return xy;
+        }
+
+        /// <summary>The spin of the icon, in radians (looks only; the collision does not use it).</summary>
+        float spin;
         #endregion
 
         #region Fields
-        /// <summary>
-        /// A second polygon for rendering the power-up.
-        /// </summary>
-        protected VectorPolygon innerPolygon;
-
         /// <summary>
         /// Keeps track of the period of the scale "pulse" of the power-up.
         /// </summary>
@@ -97,20 +145,25 @@ namespace VectorRumble
         public PowerUp(World world) : base(world) 
         {
             this.mass = 500f;
-            this.polygon = VectorPolygon.CreateCircle(Vector2.Zero, 16f, 16);
-            this.innerPolygon = VectorPolygon.CreateCircle(Vector2.Zero, 10f, 16);
+            this.radius = pickupRadius;
+            this.polygon = VectorPolygon.CreateCircle(Vector2.Zero, pickupRadius, 16);
         }
         #endregion
 
         #region Drawing
         /// <summary>
-        /// Render the power-up.
+        /// Render the power-up: its icon, pulsing and turning, with a trail when it moves fast.
         /// </summary>
         /// <param name="elapsedTime">The amount of elapsed time, in seconds.</param>
         /// <param name="lineBatch">The LineBatch to render to.</param>
         public override void Draw(float elapsedTime, LineBatch lineBatch)
         {
-            // update the scale period
+            if (lineBatch == null)
+            {
+                throw new ArgumentNullException(nameof(lineBatch));
+            }
+
+            // update the scale period and the spin
             scalePeriodElapsed += elapsedTime * timeToScalePeriod;
             while (scalePeriodElapsed < 0)
             {
@@ -120,59 +173,46 @@ namespace VectorRumble
             {
                 scalePeriodElapsed -= MathHelper.TwoPi;
             }
-            // draw the polygons 
-            if (polygon != null)
-            {
-                if (lineBatch == null)
-                {
-                    throw new ArgumentNullException(nameof(lineBatch));
-                }
+            spin = (spin + elapsedTime * spinRadiansPerSecond) % MathHelper.TwoPi;
 
-                // calculate the transformation
-                Matrix scaleMatrix = Matrix.CreateScale(0.8f + 
-                    0.1f * (float)Math.Cos(scalePeriodElapsed));
-                Matrix world = scaleMatrix * 
-                    Matrix.CreateTranslation(position.X, position.Y, 0f);
-                // transform the polygons
-                polygon.Transform(world);
-                innerPolygon.Transform(world);
-                // draw the polygons
-                lineBatch.DrawEmptyPolygon(polygon, Color.White);
-                if (innerPolygon != null)
+            Matrix shape = Matrix.CreateScale(iconScale * (0.8f + 0.1f * (float)Math.Cos(scalePeriodElapsed))) *
+                Matrix.CreateRotationZ(spin);
+            DrawIcon(lineBatch, shape * Matrix.CreateTranslation(position.X, position.Y, 0f), 255);
+
+            // draw the motion blur: copies behind the icon, fainter and fainter
+            if (useMotionBlur && velocity.LengthSquared() > 1024f)
+            {
+                Vector2 backwards = Vector2.Normalize(position - lastPosition);
+                float speed = velocity.Length();
+                for (int i = 1; i < speed / 16; ++i)
                 {
-                    lineBatch.DrawEmptyPolygon(innerPolygon, color, true);
+                    int alpha = 160 / (i + 1);
+                    if (alpha < 1)
+                        break;
+                    Vector2 blurPosition = this.position - backwards * (i * 4);
+                    DrawIcon(lineBatch, shape * Matrix.CreateTranslation(blurPosition.X, blurPosition.Y, 0), alpha);
                 }
-                // draw the motion blur
-                if (useMotionBlur && velocity.LengthSquared() > 1024f)
+            }
+        }
+
+        /// <summary>Draw every part of the icon with the given transform and alpha (255 is solid).</summary>
+        void DrawIcon(LineBatch lineBatch, Matrix world, int alpha)
+        {
+            foreach (IconPart part in icon)
+            {
+                part.Shape.Transform(world);
+                Color c = part.Colour ?? color;
+                if (alpha < 255)
                 {
-                    // draw several "blur" polygons behind the real polygons
-                    Vector2 backwards = Vector2.Normalize(position - lastPosition);
-                    float speed = velocity.Length();
-                    for (int i = 1; i < speed / 16; ++i)
-                    {
-                        // calculate the "blur" position
-                        Vector2 blurPosition = this.position - backwards * (i * 4);
-                        // calculate the transformation
-                        Matrix blurWorld = scaleMatrix *
-                            Matrix.CreateTranslation(blurPosition.X, blurPosition.Y, 0);
-                        // transform the polygons
-                        polygon.Transform(blurWorld);
-                        if (innerPolygon != null)
-                        {
-                            innerPolygon.Transform(blurWorld);
-                        }
-                        // calculate the alpha of the "blur" polygons polygons
-                        byte alpha = (byte)(160 / (i + 1));
-                        if (alpha < 1)
-                            break;
-                        // draw the "blur" polygons
-						lineBatch.DrawEmptyPolygon(polygon, new Color(255, 255, 255, (int)alpha));
-                        if (innerPolygon != null)
-                        {
-                            lineBatch.DrawEmptyPolygon(innerPolygon,
-                                new Color(color.R, color.G, color.B, alpha), true);
-                        }
-                    }
+                    c = new Color(c.R, c.G, c.B, alpha);
+                }
+                if (part.Closed)
+                {
+                    lineBatch.DrawEmptyPolygon(part.Shape, c);
+                }
+                else
+                {
+                    lineBatch.DrawPolygonSegments(part.Shape, c, false, 0, part.Shape.TransformedPoints.Length - 1);
                 }
             }
         }

@@ -1,0 +1,48 @@
+<!doctype html><meta charset="utf-8"><title>Vector Rumble power-up icons</title>
+<style>
+body{background:#05060f;color:#cde;font:14px system-ui;margin:20px}
+h1{font-weight:500}h2{border-bottom:1px solid #234;padding-bottom:4px;margin-top:32px}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.card{background:#0a0c1a;border:1px solid #1c2440;border-radius:6px;padding:10px;width:190px}
+.card b{display:block;margin-bottom:4px}.card small{color:#8a9bb8;display:block;margin-top:4px}
+svg{display:block;background:#000}
+.big{width:170px;height:170px}.sm{width:32px;height:32px;display:inline-block;margin-right:8px}
+.set{display:flex;gap:30px;align-items:center;background:#0a0c1a;border:1px solid #1c2440;border-radius:6px;padding:14px;margin-bottom:12px}
+.set .sm{width:64px;height:64px}.set .xs{width:32px;height:32px;display:inline-block}
+@keyframes pulse{0%,100%{transform:scale(.7)}50%{transform:scale(.9)}}
+.pulse g.p{animation:pulse 0.8s ease-in-out infinite;transform-origin:0 0;transform-box:view-box}
+</style>
+<body><h1>Power-up icon options</h1>
+<p>Big view, 32 px view, and pulsing view (scale 0.7 to 0.9, as in game). Then three candidate sets side by side at 64 px and 32 px.</p>
+<div id="root"></div>
+<script>
+const RING="16,0 15,6 11,11 6,15 0,16 -6,15 -11,11 -15,6 -16,0 -15,-6 -11,-11 -6,-15 0,-16 6,-15 11,-11 15,-6";
+const L="#9dff2e",B="#6495ed",O="#ff8c1a";
+// el: [type, points, colour]; type g=polygon, l=polyline
+const W=(t,p)=>[t,p,"#fff"];
+const icons={
+dA:{k:"Double",n:"A: Twin Rails",c:L,e:[W("g",RING),["g","-7,-10 -3,-10 -3,10 -7,10",L],["g","3,-10 7,-10 7,10 3,10",L]],d:"Two parallel bars in the ring."},
+dB:{k:"Double",n:"B: Twin Bolts",c:L,e:[W("g",RING),["g","-11,-7 5,-7 10,-5 5,-3 -11,-3",L],["g","-11,3 5,3 10,5 5,7 -11,7",L]],d:"Two stacked horizontal bolts."},
+dC:{k:"Double",n:"C: Crossfire Slashes",c:L,e:[W("g",RING),["g","-14,-2 -11,1 1,-11 -2,-14",L],["g","-8,4 -5,7 7,-5 4,-8",L]],d:"Two diagonal streaks."},
+dD:{k:"Double",n:"D: Emitter and Beams",c:L,e:[W("l","-11,10 -7,14 7,14 11,10"),["g","-6,-13 -3,-13 -3,8 -6,8",L],["g","3,-13 6,-13 6,8 3,8",L]],d:"No ring; U mount with two beams."},
+tA:{k:"Triple",n:"A: Ring Fan",c:B,e:[W("g",RING),["l","0,9 0,-10",B],["l","-3,-6 0,-10 3,-6",B],["l","0,9 -9,-8",B],["l","-7,-3 -9,-8 -4,-8",B],["l","0,9 9,-8",B],["l","7,-3 9,-8 4,-8",B]],d:"Three arrowed rays in the ring."},
+tB:{k:"Triple",n:"B: Fan Wedge",c:B,e:[W("g","0,14 -13,-8 -8,-13 0,-16 8,-13 13,-8"),["l","0,7 0,-11",B],["l","0,7 -8,-7",B],["l","0,7 8,-7",B]],d:"Fan-shaped outline, three rays."},
+tC:{k:"Triple",n:"C: Three Bolts",c:B,e:[W("g","0,9 3,12 0,15 -3,12"),["g","0,-15 3,-5 0,5 -3,-5",B],["g","-11,-9 -5,-4 -2,5 -9,-2",B],["g","11,-9 5,-4 2,5 9,-2",B]],d:"No ring; three bolts from an emitter."},
+tD:{k:"Triple",n:"D: Trident",c:B,e:[W("g","-2,-8 0,-14 2,-8"),W("g","-12,-6 -10,-12 -8,-6"),W("g","8,-6 10,-12 12,-6"),["l","-10,-6 -10,-1 -5,4 5,4 10,-1 10,-6",B],["l","0,-8 0,13",B]],d:"Three prongs; least laser-like."},
+rA:{k:"Rocket",n:"A: Ringed Rocket",c:O,e:[W("g",RING),["g","0,-11 3,-6 3,4 -3,4 -3,-6",O],["l","-3,0 -7,7 -3,5",O],["l","3,0 7,7 3,5",O],["l","-2,4 0,10 2,4",O]],d:"Upright rocket in the ring."},
+rB:{k:"Rocket",n:"B: Diagonal Rocket",c:O,e:[["g","10,-10 7,-3 -4,8 -8,4 3,-7",O],["l","0,4 -2,11 -4,8",O],["l","-4,0 -11,2 -8,4",O],["l","-4,8 -11,11 -8,4",O],W("l","10,-10 7,-7")],d:"45 degree rocket, no ring."},
+rC:{k:"Rocket",n:"C: Locked-On Rocket",c:O,e:[W("l","-14,-8 -14,-14 -8,-14"),W("l","8,-14 14,-14 14,-8"),W("l","14,8 14,14 8,14"),W("l","-8,14 -14,14 -14,8"),["g","0,-9 3,-4 3,3 -3,3 -3,-4",O],["l","-3,0 -6,6 -3,3",O],["l","3,0 6,6 3,3",O],["l","-2,3 0,8 2,3",O]],d:"Rocket in targeting brackets."},
+rD:{k:"Rocket",n:"D: Fat Missile",c:O,e:[W("g",RING),["g","0,-12 3,-9 4,-4 4,5 -4,5 -4,-4 -3,-9",O],["g","0,-4 2,-2 0,0 -2,-2",O],["l","-4,1 -8,8 -4,5",O],["l","4,1 8,8 4,5",O],["l","-3,5 -1,9 0,6 1,9 3,5",O]],d:"Busiest; weakest small."}
+};
+const el=([t,p,c])=>t=="g"?`<polygon stroke="${c}" points="${p}"/>`:`<polyline stroke="${c}" points="${p}"/>`;
+const svg=(i,cls,pulse)=>`<svg class="${cls}${pulse?' pulse':''}" viewBox="-20 -20 40 40"><g class="p" fill="none" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 1.5px ${i.c})">${i.e.map(el).join("")}</g></svg>`;
+const card=k=>{const i=icons[k];return `<div class="card"><b>${i.k} ${i.n}</b>${svg(i,"big")}<div style="margin-top:6px">${svg(i,"sm")}${svg(i,"sm",1)}</div><small>${i.d}</small></div>`};
+const set=(t,ks)=>`<div class="set"><b style="width:150px">${t}</b>${ks.map(k=>svg(icons[k],"sm")).join("")}<span>${ks.map(k=>svg(icons[k],"xs")).join("&nbsp;")}</span><span>${ks.map(k=>svg(icons[k],"xs",1)).join("&nbsp;")}</span></div>`;
+document.getElementById("root").innerHTML=
+["Double","Triple","Rocket"].map(g=>`<h2>${g} laser options`.replace(" laser options Rocket laser","")+`</h2><div class=grid>`+Object.keys(icons).filter(k=>icons[k].k==g).map(card).join("")+"</div>").join("")+
+"<h2>Candidate sets (Double, Triple, Rocket)</h2>"+
+set("Rings: dA, tA, rA",["dA","tA","rA"])+
+set("Mixed: dA, tB, rB",["dA","tB","rB"])+
+set("No rings: dD, tC, rB",["dD","tC","rB"])+
+set("Orientation: dB, tB, rC",["dB","tB","rC"]);
+</script>

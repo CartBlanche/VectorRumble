@@ -29,6 +29,16 @@ namespace VectorRumble
             : base(world) 
         { 
             this.color = Color.Orange;
+            // a rocket flying up and to the right (an upright one turned 45 degrees: wider base than flame, blue flame), in white corner brackets
+            icon = new[]
+            {
+                new IconPart(new float[] { -14, -8, -14, -14, -8, -14 }, false, Color.White),
+                new IconPart(new float[] { 8, -14, 14, -14, 14, -8 }, false, Color.White),
+                new IconPart(new float[] { 14, 8, 14, 14, 8, 14 }, false, Color.White),
+                new IconPart(new float[] { -8, 14, -14, 14, -14, 8 }, false, Color.White),
+                new IconPart(new float[] { 7.07f, -7.07f, 4.38f, -1.27f, -1.56f, 5.52f, -5.52f, 1.56f, 1.27f, -4.38f }, true, null),
+                new IconPart(new float[] { -4.81f, 2.26f, -7.42f, 7.42f, -2.26f, 4.81f }, false, new Color(77, 184, 255)),
+            };
         }
         #endregion
 

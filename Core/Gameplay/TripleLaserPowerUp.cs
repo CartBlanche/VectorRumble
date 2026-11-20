@@ -29,6 +29,15 @@ namespace VectorRumble
             : base(world) 
         {
             this.color = Color.CornflowerBlue;
+            // three bolts from an emitter, in a white triangle fan with its point down
+            icon = new[]
+            {
+                new IconPart(new float[] { 0, 15, -15, -12, 15, -12 }, true, Color.White),
+                new IconPart(new float[] { 0, 6, 2, 8.5f, 0, 11, -2, 8.5f }, true, Color.White),
+                new IconPart(new float[] { 0, -10, 2.5f, -3, 0, 4, -2.5f, -3 }, true, null),
+                new IconPart(new float[] { -8, -8, -4, -4, -1.5f, 3, -6, -1 }, true, null),
+                new IconPart(new float[] { 8, -8, 4, -4, 1.5f, 3, 6, -1 }, true, null),
+            };
         }
         #endregion
 

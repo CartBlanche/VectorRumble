@@ -32,6 +32,13 @@ namespace VectorRumble
             : base(world) 
         { 
             this.color = Color.Lime;
+            // twin bolts in the white ring
+            icon = new[]
+            {
+                new IconPart(Ring(), true, Color.White),
+                new IconPart(new float[] { -11, -7, 5, -7, 10, -5, 5, -3, -11, -3 }, true, null),
+                new IconPart(new float[] { -11, 3, 5, 3, 10, 5, 5, 7, -11, 7 }, true, null),
+            };
         }
         #endregion
 
