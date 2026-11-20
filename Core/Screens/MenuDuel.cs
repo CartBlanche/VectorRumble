@@ -20,6 +20,14 @@ namespace VectorRumble
         static bool chosen;
 
         static List<Vector2[]> loaded;
+        static readonly List<string> loadedNames = new List<string>();
+
+        /// <summary>The names of the ships <see cref="Shapes"/> returns, in the same order.</summary>
+        internal static List<string> Names()
+        {
+            Shapes();
+            return loadedNames;
+        }
 
         /// <summary>The outlines of the ships that come with the game (empty if they cannot be read).</summary>
         internal static List<Vector2[]> Shapes()
@@ -35,7 +43,9 @@ namespace VectorRumble
                 foreach (string file in Helper.GetFilesFromContent("Ships", "ships.txt"))
                 {
                     using var stream = TitleContainer.OpenStream(file);
-                    shapes.Add(Ship.Load(XDocument.Load(stream).XPathSelectElement("/XnaContent/Asset")).Shape.Points);
+                    Ship ship = Ship.Load(XDocument.Load(stream).XPathSelectElement("/XnaContent/Asset"));
+                    shapes.Add(ship.Shape.Points);
+                    loadedNames.Add(ship.Name);
                 }
             }
             catch (Exception)

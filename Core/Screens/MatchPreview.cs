@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework;
 namespace VectorRumble
 {
     /// <summary>
-    /// The picture beside the single player rules: the ships that come with the game, you on the left and one rival
+    /// The picture beside the single player rules: the ships that come with the game, you (in the ship and colour you
+    /// flew last, if that is saved) on the left and one rival
     /// on the right for each computer pilot chosen, picked at random. Raising the number of pilots rolls the new rival;
     /// the ones already shown stay.
     /// </summary>
@@ -24,8 +25,10 @@ namespace VectorRumble
                 return;
             }
 
-            shapes[0] = all[random.Next(all.Count)];
-            colours[0] = ShipPalette.Colours[1];
+            // you: the ship and colour from last time, a random ship if none was saved (or it is a community ship)
+            int last = MenuDuel.Names().IndexOf(UserSettings.Current.LastShip);
+            shapes[0] = all[last >= 0 ? last : random.Next(all.Count)];
+            colours[0] = ShipPalette.Colours[Math.Max(0, Math.Min(ShipPalette.Colours.Length - 1, UserSettings.Current.LastColour))];
             colours[1] = colours[2] = colours[3] = default; // nothing taken yet
             for (int i = 1; i <= MaxRivals; i++)
             {
