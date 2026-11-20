@@ -442,6 +442,8 @@ namespace VectorRumble
         const float flameHalfWidth = 2.5f;
         const float flameRampPerSecond = 8f; // how fast the flame grows and dies away
         const float turnFlameSwing = 0.4f;   // how much stronger the outer flames get, and the inner ones weaker, in a full-rate turn
+        const float turnPuffStrength = 0.55f; // the size of the puff a turn alone gives, against a full flame
+        const float turnPuffOffset = 3f;      // px at scale 1 that a middle thruster's puff sits to the outer side
         const float turnFlameSpan = 8f;      // px at scale 1 from the middle at which a thruster takes the full swing
 
         /// <summary>True while the ship is pushing: a person or an AI thrusting, or a remote ship moving the way it faces.</summary>
@@ -498,7 +500,7 @@ namespace VectorRumble
             float spin = elapsedTime > 0f ? MathHelper.WrapAngle(rotation - lastFlameRotation) / elapsedTime / rotationRadiansPerSecond : 0f;
             lastFlameRotation = rotation;
             turnLevel += (MathHelper.Clamp(spin, -1f, 1f) - turnLevel) * Math.Min(1f, 10f * elapsedTime);
-            if (thrustLevel <= 0f) return;
+            if (thrustLevel <= 0f && Math.Abs(turnLevel) < 0.05f) return;
 
             thrusters ??= FindThrusters();
             if (flameOuter == null)
@@ -510,18 +512,32 @@ namespace VectorRumble
             flameTime += elapsedTime;
             float scale = ActorScale.Value;
             Matrix placeOnShip = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0f);
-            float alpha = thrustLevel * color.A / 255f;
             Color flame = FlameColour(color);
             Color flameCore = Color.Lerp(flame, Color.White, 0.7f);
             foreach (Thruster thruster in thrusters)
             {
                 Vector2 at = thruster.At;
+                float side = MathHelper.Clamp(at.X / (turnFlameSpan * scale), -1f, 1f);
+
+                // turning on its own: only the outer thrusters puff (a middle one puffs from its outer side)
+                float puff = 0f;
+                if (Math.Abs(side) < 0.2f)
+                {
+                    puff = Math.Abs(turnLevel) * turnPuffStrength;
+                    at.X -= Math.Sign(turnLevel) * turnPuffOffset * scale;
+                }
+                else if (side * turnLevel < 0f)
+                {
+                    puff = Math.Abs(turnLevel) * turnPuffStrength * Math.Abs(side);
+                }
+
+                float level = Math.Max(thrustLevel, puff);
+                float alpha = level * color.A / 255f;
                 float flicker = 1f + 0.25f * (float)Math.Sin(flameTime * 40f + at.X) + 0.2f * (float)flameRandom.NextDouble();
                 // turning right is the left flames pushing harder (and the right ones easing), and the other way round
-                float side = MathHelper.Clamp(at.X / (turnFlameSpan * scale), -1f, 1f);
-                float turning = 1f - turnFlameSwing * turnLevel * side;
-                float length = flameLength * scale * thruster.Size * thrustLevel * flicker * turning;
-                float half = flameHalfWidth * scale * thruster.Size * (0.8f + 0.2f * thrustLevel);
+                float turning = thrustLevel > 0f ? 1f - turnFlameSwing * turnLevel * side : 1f;
+                float length = flameLength * scale * thruster.Size * level * flicker * turning;
+                float half = flameHalfWidth * scale * thruster.Size * (0.8f + 0.2f * level);
                 Matrix toThruster = Matrix.CreateTranslation(at.X, at.Y, 0f) * placeOnShip;
 
                 flameOuter.Transform(Matrix.CreateScale(half, length, 1f) * toThruster);
