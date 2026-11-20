@@ -79,13 +79,25 @@ choice for received ones on screen; show Author in the pickers.
 
 ## Later
 
-- Mockups (use agents): new ship types; clearer power-up types (today you cannot tell what you are picking up).
+- **Before the v1.x launch (end of November 2026): power-up icons.** Today a power-up is a polygon with an inner polygon and the colour is the only clue
+  (`DoubleLaserPowerUp` lime, `TripleLaserPowerUp` cornflower blue, `RocketPowerUp` orange; drawn by `PowerUp.Draw`; `PowerUpKind` goes over the network, keep the numbers).
+  Design mockups first with agents (a distinct silhouette per kind, readable small, in line-art), then build. Do this before the ships and arenas below.
+- **After the v1.x launch:** the ships and arenas work below. Mockups are committed in `docs/mockups/ships-and-arenas.html` (open it in a browser).
   **Next up: more and better ships and arenas.** There are 5 ships and 4 arenas (`Content/Ships`, `Content/Arenas`); the user wants more of both.
   Plan: designer agents propose designs as mockups first (no game files until approved), then approved ones become files built and checked with the
   editor's rules. Ships: outline 3..24 points, reach <= 22 px, nose toward -y, Radius 12..24, Mass 12..40 (from `Editor/js/model/ship.js`), 1 to 3
   thrusters, readable at 1.5x scale, flame colour rule (`Ship.FlameColour`) so avoid red/orange/yellow only if the ice-blue flame is wanted.
   Arenas: walls normalised 0..1 on 1280x720; ships are up to 72 px across at 1.5x (Radius 24), so keep gaps at least about 90 px; the AI's nav grid keeps
   30 px clear, so check a new arena with `VR_AIDEBUG=1`. Each design should say what makes it play differently (chokepoints, cover, open lanes), not just look different.
+  Mockups were made (2026-11-20): 5 ships, 5 arenas, 5 themed pairs; the user is picking which to build. Wall numbers in the agents' reports were
+  unreliable for Keep and Diamond Cut (the drawings were right), so regenerate the numbers from the drawings. Check how spawns are placed (arena files have none).
+  **Sci-fi homage ships as a paid itch.io pack with an ownership check.** The user wants the famous-ship homages (Vic Wyvern, Rusty Kestrel, Bold Venture,
+  Nostra Tug, Strike Foil, Grid Cycle, or whichever are picked) hosted on itch.io, singly or as a "SciFi pack", and the game to check on launch whether the
+  player owns them and unlock them. Start with a feasibility check (which is a first step, not a go-ahead to build): (1) the simplest route needs no code,
+  since community ship files already load, so the pack is a separate itch download of ship XMLs for the community folder, and the locked ships must not be in the free build;
+  (2) an ownership check on desktop would use the itch app's launch environment (`ITCHIO_API_KEY`) and the itch.io API (download keys / owned keys for the game id); confirm
+  the exact calls in the itch.io docs first, and whether a check without a server of ours is possible; (3) only works when launched from the itch app, not the web, mobile or
+  a plain download; (4) a client-side check can be bypassed, so decide how much that matters; (5) offline play needs a remembered unlock. Needs the user's say-so for any itch page or paid pack.
 - Ships and asteroids are drawn 1.5x bigger for native 720p (`Core/Gameplay/ActorScale.cs`, `VR_SCALE` overrides it to try values). Done for outlines,
   collision radii, shield rings and asteroid sizes; community ship files are unchanged. Not scaled yet: ship speed, shot speed, weapon ranges. To check:
   gaps in arenas, spawn points, the AI's nav grid. Every machine in a network match must use the same value.

@@ -1,0 +1,52 @@
+<!doctype html><meta charset="utf-8"><title>Vector Rumble mockups</title>
+<style>
+body{background:#05060f;color:#cde;font:14px system-ui;margin:20px}
+h1{font-weight:500}h2{border-bottom:1px solid #234;padding-bottom:4px;margin-top:36px}
+.grid{display:flex;flex-wrap:wrap;gap:18px}
+.card{background:#0a0c1a;border:1px solid #1c2440;border-radius:6px;padding:10px;width:250px}
+.card.arena{width:420px}.card.pair{width:auto}
+.card b{display:block;margin-bottom:2px}.card small{color:#8a9bb8;display:block;margin-top:4px}
+svg{display:block;background:#000;width:100%}
+.pair .row{display:flex;gap:12px;align-items:flex-start}.pair .row>div:first-child{width:170px}.pair .row>div:last-child{width:420px}
+</style>
+<body><h1>Vector Rumble: ship and arena mockups</h1><div id="root"></div>
+<script>
+const AMB="#ffb000",ICE="#9fdcff";
+const ships={
+vic:{n:"Vic Wyvern (Vic Viper homage)",c:"#00e5ff",f:AMB,p:"0,-18 4,-8 12,-14 10,2 18,12 6,10 0,14 -6,10 -18,12 -10,2 -12,-14 -4,-8",t:[[0,14,1.2]],R:15,M:18,d:"Nimble mid-weight fighter; wide wing tips make it easy to steer but a wide target."},
+kes:{n:"Rusty Kestrel (Millennium Falcon homage)",c:"#e6c84a",f:ICE,p:"-7,-18 -2,-18 -2,-10 2,-10 2,-18 7,-18 14,-8 19,0 15,10 7,16 -7,16 -15,10 -19,0 -14,-8",t:[[-6,16,.8],[0,16,.8],[6,16,.8]],R:20,M:34,d:"Big tanky disc with a forked nose; three weak engines give a gentle push."},
+bold:{n:"Bold Venture (Enterprise homage)",c:"#b0a0ff",f:AMB,p:"0,-20 6,-18 10,-13 10,-7 4,-3 9,0 9,18 5,18 4,8 -4,8 -5,18 -9,18 -9,0 -4,-3 -10,-7 -10,-13 -6,-18",t:[[-7,18,1],[7,18,1]],R:19,M:36,d:"Heavy cruiser, saucer and two nacelles; turns slowly, hard to shove."},
+needle:{n:"Needle",c:"#ff2e97",f:AMB,p:"0,-16 6,8 0,4 -6,8",t:[[0,5,.7]],R:12,M:12,d:"Smallest and lightest; twitchy and hard to hit, but any bump sends it flying."},
+anvil:{n:"Anvil",c:"#ff8c1a",f:ICE,p:"0,-21 9,-15 18,-8 18,10 9,19 3,14 -3,14 -9,19 -18,10 -18,-8 -9,-15",t:[[-9,19,1.6],[9,19,1.6]],R:24,M:40,d:"Slow max-mass bruiser that rams others aside; easiest to hit."},
+tug:{n:"Nostra Tug (Alien homage)",c:"#e8e27a",f:ICE,p:"0,-17 5,-12 6,-4 15,0 15,10 11,15 4,15 0,11 -4,15 -11,15 -15,10 -15,0 -6,-4 -5,-12",t:[[-7.5,15,1.3],[7.5,15,1.3]],R:20,M:36,d:"Heavy brick with twin big engines; wins by pushing through doorways, not dodging."},
+foil:{n:"Strike Foil (Star Wars homage)",c:"#ffffff",f:AMB,p:"0,-18 3,-6 14,-15 17,-2 6,6 6,13 2,15 0,10 -2,15 -6,13 -6,6 -17,-2 -14,-15 -3,-6",t:[[-5,13,.8],[5,13,.8]],R:14,M:14,d:"Lightest, twitchiest; small hit radius, but bounces hard off anything heavy."},
+cycle:{n:"Grid Cycle (Tron homage)",c:"#00e5ff",f:AMB,p:"0,-20 3,-12 3,-6 7,-4 7,10 4,16 -4,16 -7,10 -7,-4 -3,-6 -3,-12",t:[[0,16,1]],R:13,M:18,d:"Long thin single-engine dart; easy to point, hard to hit from the side, average ram."},
+bathy:{n:"Bathy",c:"#2e86de",f:AMB,p:"0,-18 5,-15 8,-8 8,4 14,8 14,13 7,12 4,16 -4,16 -7,12 -14,13 -14,8 -8,4 -8,-8 -5,-15",t:[[0,16,1.6]],R:21,M:34,d:"Round heavy hull, one big propeller; steady and hard to spin, a bully for tight lanes."},
+pros:{n:"Prospector",c:"#ff8c1a",f:ICE,p:"0,-19 3,-11 9,-9 10,0 16,4 16,14 10,14 7,16 -7,16 -10,14 -16,14 -16,4 -10,0 -9,-9 -3,-11",t:[[-10,14,.8],[0,16,1.4],[10,14,.8]],R:22,M:38,d:"Biggest and heaviest, drill nose and claw arms; strong straight-line thrust."}
+};
+const P=s=>s.split(" ").map(q=>q.split(",").map(Number));
+const R=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h],[x,y]];
+const arenas={
+pin:{n:"Pinwheel",c:"#ff4060",w:[[[590,150],[590,310]],[[850,310],[690,310]],[[690,570],[690,410]],[[430,410],[590,410]]],s:[[180,110],[1100,110],[1100,610],[180,610]],d:"Four offset arms around a 100 px hub; no straight crossing, every position has a blind side."},
+ser:{n:"Serpentine",c:"#40ff90",w:[[[240,252],[1216,252]],[[64,468],[1040,468]]],s:[[200,144],[1000,144],[280,576],[1080,576]],d:"S-shaped three-lane track, 176 px chokepoints at the ends; the middle lane is contested."},
+dia:{n:"Diamond Cut",c:"#ffd040",w:[[[640,230],[820,360],[640,490],[460,360],[640,230]],R(240,150,80,80),R(960,150,80,80),R(240,490,80,80),R(960,490,80,80)],s:[[130,360],[1150,360],[640,100],[640,620]],d:"Slanted diamond faces deflect shots; four pillars give hard cover. Angles and orbiting."},
+keep:{n:"Keep",c:"#40c0ff",w:[[[440,300],[440,240],[570,240]],[[710,240],[840,240],[840,300]],[[440,420],[440,480],[570,480]],[[710,480],[840,480],[840,420]]],s:[[130,100],[1150,100],[130,620],[1150,620],[130,360],[1150,360]],d:"Walled centre with four gates (120 to 140 px): king of the hill, camp inside or ambush the gates."},
+bow:{n:"Bowtie",c:"#c060ff",w:[[[300,210],[300,510],[560,360],[300,210]],[[980,210],[980,510],[720,360],[980,210]]],s:[[150,150],[150,570],[1130,150],[1130,570],[640,110],[640,610]],d:"One 160 px centre chokepoint and wide flank lanes: risky centre or long flank."},
+der:{n:"Derelict Corridors",c:"#8fbf6f",w:[[[64,260],[440,260]],[[840,260],[1216,260]],[[64,460],[440,460]],[[840,460],[1216,460]],[[640,290],[640,430]]],s:[[200,150],[1080,150],[200,570],[1080,570]],d:"Two bulkheads: airlock pockets, a 400 px central door with a lone pillar, open top and bottom corridors."},
+gan:{n:"Gantry Trench",c:"#9aa5b1",w:[[[200,200],[1080,200]],[[200,520],[1080,520]],[[420,200],[420,340]],[[860,520],[860,380]]],s:[[150,360],[1130,360],[640,120],[640,600]],d:"Central trench with staggered baffles forces weaving; 160 px outer lanes let a fast ship loop around."},
+grid:{n:"The Grid",c:"#00b8ff",w:[R(270,190,100,100),R(910,190,100,100),R(270,430,100,100),R(910,430,100,100),[[640,250],[640,470]]],s:[[160,120],[1120,120],[160,600],[1120,600],[480,360],[800,360]],d:"Open lanes, small square pillars; rewards circle-strafing and long chases."},
+kelp:{n:"Kelp Forest",c:"#2ecc71",w:[[[260,36],[290,120],[250,210],[285,300],[260,390]],[[760,36],[790,120],[750,210],[785,300],[760,390]],[[1020,684],[990,600],[1030,510],[995,420],[1020,330]],[[520,684],[490,600],[530,510],[495,420],[520,330]]],s:[[130,150],[1150,570],[130,570],[1150,150]],d:"Stalks alternate top and bottom, 200 px+ apart: slalom lanes and line-of-sight ambushes."},
+rock:{n:"Rock Field",c:"#b08968",w:[P("240,190 310,140 400,170 430,250 370,320 270,300 240,190"),P("1040,530 970,580 880,550 850,470 910,400 1010,420 1040,530"),P("880,175 960,135 1050,165 1070,235 1000,265 900,245 880,175"),P("400,545 320,585 230,555 210,485 280,455 380,475 400,545"),P("695,360 667,408 612,408 585,360 612,312 667,312 695,360")],s:[[130,360],[1150,360],[640,130],[640,590]],d:"Angled rock cover with open lanes between; hide behind a rock and still shoot across the middle."}
+};
+const pl=(pts,c,w)=>`<polyline fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round" points="${pts.map(p=>p.join(",")).join(" ")}"/>`;
+function shipSvg(s){const pts=P(s.p);let fl=s.t.map(([x,y,z])=>pl([[x-2*z,y],[x,y+7*z],[x+2*z,y]],s.f,1)).join("");
+return `<svg viewBox="-30 -30 60 60" style="filter:drop-shadow(0 0 2px ${s.c})"><circle r="${s.R}" fill="none" stroke="#223" stroke-dasharray="1 2" stroke-width=".4"/>${pl([...pts,pts[0]],s.c,1.2)}${fl}</svg>`}
+function arenaSvg(a){return `<svg viewBox="0 0 1280 720" style="filter:drop-shadow(0 0 4px ${a.c})">${pl(R(64,36,1152,648),a.c,3)}${a.w.map(w=>pl(w,a.c,3)).join("")}${a.s.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="14" fill="none" stroke="#fff" stroke-width="2"/>`).join("")}</svg>`}
+const sc=k=>{const s=ships[k];return `<div class="card"><b>${s.n}</b>${shipSvg(s)}<small>Radius ${s.R}, Mass ${s.M}, ${s.t.length} thruster(s), ${s.c}</small><small>${s.d}</small></div>`};
+const ac=k=>{const a=arenas[k];return `<div class="card arena"><b>${a.n}</b>${arenaSvg(a)}<small>${a.s.length} spawns</small><small>${a.d}</small></div>`};
+const pc=(s,a,t)=>`<div class="card pair"><b>${t}</b><div class="row"><div>${shipSvg(ships[s])}<small>${ships[s].n}: ${ships[s].d}</small></div><div>${arenaSvg(arenas[a])}<small>${arenas[a].n}: ${arenas[a].d}</small></div></div></div>`;
+document.getElementById("root").innerHTML=
+"<h2>Ships (5)</h2><div class=grid>"+["vic","kes","bold","needle","anvil"].map(sc).join("")+"</div>"+
+"<h2>Arenas (5)</h2><div class=grid>"+["pin","ser","dia","keep","bow"].map(ac).join("")+"</div>"+
+"<h2>Themed pairs (5)</h2><div class=grid>"+[["tug","der","Derelict Hauler (Alien)"],["foil","gan","Trench Run (Star Wars)"],["cycle","grid","Light Grid (Tron)"],["bathy","kelp","Deep Sea Trench"],["pros","rock","Asteroid Mine"]].map(x=>pc(...x)).join("")+"</div>";
+</script>
