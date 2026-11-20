@@ -32,6 +32,12 @@ namespace VectorRumble
 
         /// <summary>How well the computer's pilots fly in a game on this machine alone.</summary>
         public AIDifficulty AIDifficulty { get; set; } = AIDifficulty.Medium;
+
+        /// <summary>The ship the player flew last, by name (a community ship by its file id): offered first next time.</summary>
+        public string LastShip { get; set; }
+
+        /// <summary>The colour the player flew last, as its place in the palette.</summary>
+        public int LastColour { get; set; }
     }
 
     /// <summary>

@@ -20,6 +20,7 @@ namespace VectorRumble
         // what was chosen last time is what is offered next time
         static int shipIndex;
         static int colourIndex;
+        static bool shipRestored; // the ship from the last run is looked up once, when the game has just started
 
         readonly NetworkManager net;
         LanLobby lobby;                         // null on this machine alone, and once the match has started or the player has left
@@ -46,6 +47,7 @@ namespace VectorRumble
             ship.Adjusted += d =>
             {
                 shipIndex = Wrap(shipIndex + d, ShipCount);
+                RememberShip();
                 TellLobbyAboutShip();
             };
             Rows.Add(ship);
@@ -87,6 +89,22 @@ namespace VectorRumble
         {
             // the ships a player can choose between are loaded fresh for each game
             World.ShipManager.LoadContent(ScreenManager.Game.Content);
+            if (!shipRestored)
+            {
+                shipRestored = true;
+                colourIndex = Math.Max(0, Math.Min(ShipPalette.Colours.Length - 1, UserSettings.Current.LastColour));
+                string last = UserSettings.Current.LastShip;
+                for (int i = 0; last != null && i < ShipCount; i++)
+                {
+                    Ship s = World.ShipManager.Ships[i];
+                    if (s.Name == last || (s.Id != null && s.Id == last))
+                    {
+                        shipIndex = i;
+                        break;
+                    }
+                }
+            }
+
             shipIndex = Math.Min(shipIndex, ShipCount - 1);
 
             // an arena chosen last time may be gone from the folder
@@ -123,6 +141,14 @@ namespace VectorRumble
 
         // a community ship is offered in a network game too: the other players are sent its file
         int ShipCount => World.ShipManager.Ships.Length;
+
+        // the ship picked is the one offered first the next time, in this run and the next
+        void RememberShip()
+        {
+            Ship ship = CurrentShip;
+            UserSettings.Current.LastShip = shipIndex >= World.ShipManager.BuiltInCount && ship.Id != null ? ship.Id : ship.Name;
+            UserSettings.Save();
+        }
 
         // the lobby knows a ship that comes with the game by number, a community ship by its file's id
         void TellLobbyAboutShip()
@@ -221,6 +247,8 @@ namespace VectorRumble
                 if (!ColourTakenByOthers(candidate))
                 {
                     colourIndex = candidate;
+                    UserSettings.Current.LastColour = colourIndex;
+                    UserSettings.Save();
                     break;
                 }
             }
