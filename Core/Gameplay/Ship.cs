@@ -441,11 +441,14 @@ namespace VectorRumble
         const float flameLength = 6f;        // px at scale 1
         const float flameHalfWidth = 2.5f;
         const float flameRampPerSecond = 8f; // how fast the flame grows and dies away
+        const float turnFlameSwing = 0.4f;   // how much stronger the outer flames get, and the inner ones weaker, in a full-rate turn
+        const float turnFlameSpan = 8f;      // px at scale 1 from the middle at which a thruster takes the full swing
 
         /// <summary>True while the ship is pushing: a person or an AI thrusting, or a remote ship moving the way it faces.</summary>
         bool thrustWanted;
         float thrustLevel;
         float flameTime;
+        float lastFlameRotation, turnLevel; // turnLevel: -1 (full left) to 1 (full right), smoothed
         Thruster[] thrusters;
         VectorPolygon flameOuter, flameInner;
         readonly Random flameRandom = new Random();
@@ -490,6 +493,11 @@ namespace VectorRumble
         {
             float step = flameRampPerSecond * elapsedTime;
             thrustLevel = thrustWanted ? Math.Min(1f, thrustLevel + step) : Math.Max(0f, thrustLevel - step);
+
+            // how hard the ship is turning, from how its heading changed (so a remote ship shows it too)
+            float spin = elapsedTime > 0f ? MathHelper.WrapAngle(rotation - lastFlameRotation) / elapsedTime / rotationRadiansPerSecond : 0f;
+            lastFlameRotation = rotation;
+            turnLevel += (MathHelper.Clamp(spin, -1f, 1f) - turnLevel) * Math.Min(1f, 10f * elapsedTime);
             if (thrustLevel <= 0f) return;
 
             thrusters ??= FindThrusters();
@@ -509,7 +517,10 @@ namespace VectorRumble
             {
                 Vector2 at = thruster.At;
                 float flicker = 1f + 0.25f * (float)Math.Sin(flameTime * 40f + at.X) + 0.2f * (float)flameRandom.NextDouble();
-                float length = flameLength * scale * thruster.Size * thrustLevel * flicker;
+                // turning right is the left flames pushing harder (and the right ones easing), and the other way round
+                float side = MathHelper.Clamp(at.X / (turnFlameSpan * scale), -1f, 1f);
+                float turning = 1f - turnFlameSwing * turnLevel * side;
+                float length = flameLength * scale * thruster.Size * thrustLevel * flicker * turning;
                 float half = flameHalfWidth * scale * thruster.Size * (0.8f + 0.2f * thrustLevel);
                 Matrix toThruster = Matrix.CreateTranslation(at.X, at.Y, 0f) * placeOnShip;
 
