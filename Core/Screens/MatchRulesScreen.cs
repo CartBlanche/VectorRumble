@@ -26,6 +26,7 @@ namespace VectorRumble
         static string AIPilotsText(int count) => count == 0 ? Strings.Value_None : count.ToString(System.Globalization.CultureInfo.CurrentCulture);
 
         readonly bool hosting;
+        static MatchPreview preview;
         bool moreRules;
 
         // hosting: the game is being started on the network (null when idle)
@@ -35,6 +36,7 @@ namespace VectorRumble
         public MatchRulesScreen(bool hosting)
         {
             this.hosting = hosting;
+            preview = hosting ? null : new MatchPreview();
             Heading = hosting ? Strings.Lan_Host_A_Game : Strings.Single_Player;
             Layout = FrameLayout.Rows;
 
@@ -130,6 +132,11 @@ namespace VectorRumble
         {
             int count = MatchRules.MaxAIPilots + 1;
             MatchRules.Current.AIPilots = (MatchRules.Current.AIPilots + direction + count) % count;
+            // a rival who has just joined is a new one
+            if (MatchRules.Current.AIPilots > 0)
+            {
+                preview?.Roll(MatchRules.Current.AIPilots);
+            }
         }
 
         static void ChangeScoreLimit(int direction)
@@ -150,6 +157,12 @@ namespace VectorRumble
 
         protected override void DrawPanel(FrameCanvas c, Rectangle area, FrameRow selected)
         {
+            if (!hosting && preview != null && preview.Available)
+            {
+                preview.Draw(c, area, Time, MatchRules.Current.AIPilots);
+                return;
+            }
+
             c.Icon(hosting ? FrameIcon.Wifi : FrameIcon.Duel, new Vector2(area.Center.X, area.Y + 134), 92f, FrameScreen.Theme.Hot, Time);
         }
 

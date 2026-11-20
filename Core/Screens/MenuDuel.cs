@@ -19,9 +19,16 @@ namespace VectorRumble
         static Color leftColour, rightColour;
         static bool chosen;
 
-        static void Choose()
+        static List<Vector2[]> loaded;
+
+        /// <summary>The outlines of the ships that come with the game (empty if they cannot be read).</summary>
+        internal static List<Vector2[]> Shapes()
         {
-            chosen = true;
+            if (loaded != null)
+            {
+                return loaded;
+            }
+
             var shapes = new List<Vector2[]>();
             try
             {
@@ -35,6 +42,14 @@ namespace VectorRumble
             {
                 // no ships to show: the panel falls back to its plain picture
             }
+
+            return loaded = shapes;
+        }
+
+        static void Choose()
+        {
+            chosen = true;
+            var shapes = Shapes();
 
             if (shapes.Count == 0)
             {
