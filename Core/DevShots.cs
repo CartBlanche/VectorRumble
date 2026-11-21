@@ -35,6 +35,7 @@ namespace VectorRumble
     ///   VR_SEED=<n>               the AI pilots' random seed, so a run can be repeated
     ///   VR_PICK=<ship>,<colour>,<arena>   indexes into the pick screen's lists (ship and colour as listed there; arena in the arena list, 0 is the first, "Random" is last of the built in ones)
     ///   VR_BURST=<start>,<count>,<interval>  from <start> seconds, save <count> pictures <interval> seconds apart into VR_BURST_DIR (default ./burst), numbered, then quit
+    ///   VR_FIREWORKS=0            run with the "Menu fireworks" setting off (the real settings file is not touched), for clean menu pictures
     ///   VR_LOG=1                  print the input the game sees, and the splash's state, to the console
     ///   VR_AIDEBUG=1              (not here: see AIPilot) draw each AI pilot's state and route
     /// </summary>
@@ -86,6 +87,11 @@ namespace VectorRumble
         /// <summary>After the screen manager exists.</summary>
         public void Attach()
         {
+            if (Env("VR_FIREWORKS") == "0")
+            {
+                UserSettings.Current.MenuFireworks = false;
+            }
+
             if (Env("VR_LOG") == null)
             {
                 return;
