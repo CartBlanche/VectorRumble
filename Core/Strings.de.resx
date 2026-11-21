@@ -377,6 +377,9 @@ B/O Button, Esc = abbrechen</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>Neonleuchten</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>Menü-Feuerwerk</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>Unschärfe-Stärke</value>
     </data>

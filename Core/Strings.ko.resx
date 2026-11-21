@@ -380,6 +380,9 @@ B/O 버튼, Esc = 취소</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>네온 효과</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>메뉴 불꽃놀이</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>흐림 강도</value>
     </data>

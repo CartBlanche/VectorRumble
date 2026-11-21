@@ -41,6 +41,20 @@ namespace VectorRumble.Tests
         }
 
         [Fact]
+        public void Menu_fireworks_are_on_by_default_and_the_choice_survives_saving()
+        {
+            Assert.True(new VectorRumbleSettings().MenuFireworks);
+
+            var off = new VectorRumbleSettings { MenuFireworks = false };
+            var back = JsonSerializer.Deserialize<VectorRumbleSettings>(JsonSerializer.Serialize(off));
+            Assert.False(back.MenuFireworks);
+
+            // a settings file from before the option existed leaves them on
+            var old = JsonSerializer.Deserialize<VectorRumbleSettings>("{\"MusicPercent\":40}");
+            Assert.True(old.MenuFireworks);
+        }
+
+        [Fact]
         public void New_settings_default_to_the_devices_language_and_full_volume()
         {
             var settings = new VectorRumbleSettings();

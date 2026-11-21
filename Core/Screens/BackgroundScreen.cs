@@ -45,6 +45,9 @@ namespace VectorRumble
 
         public bool ShowParticles { get; set; }
 
+        /// <summary>The fireworks show when the screen wants them and the player has not turned them off in Settings.</summary>
+        bool FireworksOn => ShowParticles && UserSettings.Current.MenuFireworks;
+
         /// <summary>
         /// Whether the game's logo is drawn. The menus for starting a game turn it off, with the
         /// fireworks, so that they do not distract.
@@ -150,7 +153,7 @@ namespace VectorRumble
                 && screens.Length > 0 && screens[screens.Length - 1] is FrameScreen top && top.AllowsIdlePause;
             idle.Update((float)gameTime.ElapsedGameTime.TotalSeconds, MenuIdle.AnyActivity(ScreenManager.Input), canFreeze);
 
-            if (ShowParticles && !idle.Paused)
+            if (FireworksOn && !idle.Paused)
             {
                 addTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (addTimer > 0.25f)
@@ -194,7 +197,7 @@ namespace VectorRumble
             Viewport viewport = Display.Viewport;
             Vector2 viewportSize = new Vector2(viewport.Width, viewport.Height);
 
-            if (ShowParticles)
+            if (FireworksOn)
             {
                 // Apply bloom to the explosions 
                 ScreenManager.BloomComponent.BeginDraw();

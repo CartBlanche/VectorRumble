@@ -377,6 +377,9 @@ Botón B/O, Tecla Esc = Cancelar</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>Brillo neón</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>Fuegos artificiales del menú</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>Intensidad del desenfoque</value>
     </data>

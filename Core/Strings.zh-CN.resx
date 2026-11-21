@@ -380,6 +380,9 @@ B/O 按钮, Esc = 取消</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>霓虹光效</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>菜单烟花</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>模糊强度</value>
     </data>

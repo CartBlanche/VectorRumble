@@ -80,6 +80,18 @@ namespace VectorRumble
             moreRow.Selected += () => more = !more;
             Rows.Add(moreRow);
 
+            var fireworks = new FrameRow(Strings.Label_MenuFireworks, FrameRowKind.Toggle)
+            {
+                Value = () => OnOff(UserSettings.Current.MenuFireworks),
+                Hidden = () => !more,
+            };
+            fireworks.Adjusted += d =>
+            {
+                UserSettings.Current.MenuFireworks = !UserSettings.Current.MenuFireworks;
+                UserSettings.Save();
+            };
+            Rows.Add(fireworks);
+
             var blur = new FrameRow(Strings.Label_BlurIntensity, FrameRowKind.Choice)
             {
                 Value = () => WorldRules.BlurIntensity.ToString(CultureInfo.CurrentCulture),

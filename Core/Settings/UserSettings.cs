@@ -22,6 +22,9 @@ namespace VectorRumble
         /// <summary>The neon glow on the lines of the game.</summary>
         public bool NeonEffect { get; set; } = true;
 
+        /// <summary>The bursts of sparks behind the menus. On by default; some players find them too busy.</summary>
+        public bool MenuFireworks { get; set; } = true;
+
         /// <summary>The length of the trail behind moving things, 1 to 10.</summary>
         public int BlurIntensity { get; set; } = 5;
 

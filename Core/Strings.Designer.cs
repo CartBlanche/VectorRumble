@@ -774,6 +774,11 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Label_NeonGlow", resourceCulture);
             }
         }
+        internal static string Label_MenuFireworks {
+            get {
+                return ResourceManager.GetString("Label_MenuFireworks", resourceCulture);
+            }
+        }
         internal static string Label_BlurIntensity {
             get {
                 return ResourceManager.GetString("Label_BlurIntensity", resourceCulture);

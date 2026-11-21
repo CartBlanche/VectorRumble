@@ -380,6 +380,9 @@ Bouton B/O, Échap = Annuler</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>Lueur néon</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>Feux d'artifice du menu</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>Intensité du flou</value>
     </data>

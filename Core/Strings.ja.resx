@@ -380,6 +380,9 @@ B/Oボタン, Esc = キャンセル</value>
     <data name="Label_NeonGlow" xml:space="preserve">
         <value>ネオン発光</value>
     </data>
+    <data name="Label_MenuFireworks" xml:space="preserve">
+        <value>メニューの花火</value>
+    </data>
     <data name="Label_BlurIntensity" xml:space="preserve">
         <value>ブラーの強さ</value>
     </data>
