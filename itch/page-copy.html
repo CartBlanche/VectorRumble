@@ -1,0 +1,66 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Vector Rumble: itch.io page copy (draft)</title>
+<style>
+body{background:#06061a;color:#eaf0ff;font:16px/1.5 Lato,system-ui,sans-serif;max-width:820px;margin:24px auto;padding:0 16px}
+h1,h2{font-family:Orbitron,Eurostile,Arial,sans-serif;font-weight:600}
+h1{font-size:22px}h2.s{font-size:15px;color:#ff7ad9;border-bottom:1px solid #1c2440;padding-bottom:4px;margin-top:34px}
+.note{color:#8a9bb8;font-size:13px}
+.box{background:#0b0d2a;border:1px solid #1c2440;border-radius:6px;padding:12px 16px;margin:8px 0}
+button{background:#ff7ad9;color:#06061a;border:0;border-radius:4px;padding:4px 12px;font-weight:700;cursor:pointer}
+a{color:#ff7ad9}
+</style>
+<body>
+<h1>Vector Rumble: itch.io page copy (draft)</h1>
+<p class="note">Each box has a Copy button that copies its formatted text, ready to paste into itch's description editor. Check the claims marked (verify) against the game before publishing. Content counts and the LAN claim come from project notes, not from a playtest.</p>
+
+<h2 class="s">Tagline <button onclick="cp('tag')">Copy</button></h2>
+<div class="box" id="tag">Vector arcade dogfights. Thrust, shoot, shove your friends into the walls.</div>
+
+<h2 class="s">Short description (game card) <button onclick="cp('short')">Copy</button></h2>
+<div class="box" id="short">A glowing vector-line arena shooter for one to four pilots. Pick a ship, grab the power-ups, and out-fly everyone.</div>
+
+<h2 class="s">Page text <button onclick="cp('page')">Copy</button></h2>
+<div class="box" id="page">
+<p><b>Vector Rumble</b> is a fast, glowing, arcade arena shooter drawn entirely in lines. Pick a ship, pick an arena, and fight it out against friends or AI pilots until one of you is the last ship flying.</p>
+<h3>Fly it your way</h3>
+<ul>
+<li>Five ships to start (Blaster, Destroyer, Defender, Nimble and Bat-ter Up), each with its own size, mass and thrusters, so they handle differently.</li>
+<li>Heavy ships shove light ones around; ships collide, bounce and push each other into the walls.</li>
+<li>Up to three AI pilots, so a match works with nobody else in the room.</li>
+</ul>
+<h3>Grab a power-up</h3>
+<ul>
+<li>Double Laser, Triple Laser and Rockets, each with its own shape and colour so you can spot them across the arena.</li>
+</ul>
+<h3>Make it your own</h3>
+<ul>
+<li>A built-in browser editor for your own arenas and ships. Drop the files in and they show up in the game, and they travel to other players in network matches.</li>
+<li>Seven languages: English, German, Spanish, French, Japanese, Korean and Simplified Chinese.</li>
+</ul>
+<h3>Play together</h3>
+<ul>
+<li>Local network matches with a lobby. (verify: the engine does LAN; test two machines, and decide what to say about online play, before claiming it.)</li>
+</ul>
+<h3>Look and feel</h3>
+<ul>
+<li>Glowing vector lines with bloom, CRT-style sparks behind the menus (switch them off in Settings if they are too much), and an explosion for every kill.</li>
+</ul>
+</div>
+
+<h2 class="s">Controls block</h2>
+<div class="box note">Fill from the in-game controls screen (<code>Content/Textures/controls.png</code>, <code>gamepad.png</code>). Not written yet.</div>
+
+<h2 class="s">Tags to try <button onclick="cp('tags')">Copy</button></h2>
+<div class="box" id="tags">arcade, shooter, vector, retro, local multiplayer, 2D, singleplayer, space, fast-paced <span class="note">(verify against itch's tag list)</span></div>
+
+<h2 class="s">First devlog line <button onclick="cp('dev')">Copy</button></h2>
+<div class="box" id="dev">Vector Rumble 2.0 is here: new menus, new ships, new power-up icons and an arena and ship editor.</div>
+
+<script>
+function cp(id){
+  const el=document.getElementById(id),r=document.createRange();r.selectNodeContents(el);
+  const s=getSelection();s.removeAllRanges();s.addRange(r);
+  document.execCommand('copy');
+}
+</script>
