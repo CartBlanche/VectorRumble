@@ -30,6 +30,11 @@ namespace VectorRumble
     ///   VR_NOSKIP=1               the splash cannot be skipped
     ///   VR_SHOT=<png> VR_SHOT_AT=<seconds>   save the game's picture after that long and quit (10 seconds if VR_SHOT_AT is not set)
     ///   VR_SPLASH=<seconds> VR_OUT=<png>     save the picture when the splash has run that long, and quit
+    ///   VR_ALLAI=1                on the "pick" screen, the human ship is flown by an AI pilot too (a match with nobody at the keyboard that still looks busy)
+    ///   VR_AI=<0..3>              how many AI rivals (MatchRules.AIPilots)
+    ///   VR_SEED=<n>               the AI pilots' random seed, so a run can be repeated
+    ///   VR_PICK=<ship>,<colour>,<arena>   indexes into the pick screen's lists (ship and colour as listed there; arena in the arena list, 0 is the first, "Random" is last of the built in ones)
+    ///   VR_BURST=<start>,<count>,<interval>  from <start> seconds, save <count> pictures <interval> seconds apart into VR_BURST_DIR (default ./burst), numbered, then quit
     ///   VR_LOG=1                  print the input the game sees, and the splash's state, to the console
     ///   VR_AIDEBUG=1              (not here: see AIPilot) draw each AI pilot's state and route
     /// </summary>
@@ -41,7 +46,8 @@ namespace VectorRumble
         readonly GraphicsDevice device;
         readonly Action exit;
 
-        bool autoStarted, netGone, langStepped, thenDone;
+        bool autoStarted, netGone, langStepped, thenDone, picked;
+        int burstTaken;
         int actIndex;
 
         public DevShots(ScreenManager screens, GraphicsDevice device, Action exit)
@@ -58,6 +64,12 @@ namespace VectorRumble
 
         /// <summary>True unless VR_NOSKIP: the splash can be skipped by any input, which a script's mouse or keys might do.</summary>
         public static bool SplashSkippable => Env("VR_NOSKIP") == null;
+
+        /// <summary>VR_ALLAI: the human ship is flown by an AI pilot too.</summary>
+        public static bool AllAI => Env("VR_ALLAI") != null;
+
+        /// <summary>VR_SEED: the AI pilots' seed, or null for a random one.</summary>
+        public static int? Seed => int.TryParse(Env("VR_SEED"), out int v) ? v : null;
 
         /// <summary>A DEVSHOT build leaves the player's settings file alone.</summary>
         public static bool DoNotSave => true;
@@ -136,6 +148,54 @@ namespace VectorRumble
                         var input = screens.Input;
                         Console.WriteLine($"splash draw: elapsed {splash.Elapsed:F3} dt {gameTime.ElapsedGameTime.TotalMilliseconds:F1} any {VectorEngine.Splash.SplashScreen.AnyNewInput(input)} "
                             + $"kb {input.CurrentKeyboardStates[0].GetPressedKeyCount()}/{input.LastKeyboardStates[0].GetPressedKeyCount()} mouseL {input.IsLeftMouseButtonClicked()} touches {input.CurrentTouchState.Count}");
+                    }
+                }
+            }
+
+            if (Env("VR_AI") is string ai && int.TryParse(ai, out int aiCount))
+            {
+                MatchRules.Current.AIPilots = Math.Max(0, Math.Min(MatchRules.MaxAIPilots, aiCount));
+            }
+
+            if (Env("VR_PICK") is string pickSpec && !picked)
+            {
+                foreach (var screen in screens.GetScreens())
+                {
+                    if (screen is ShipArenaScreen room)
+                    {
+                        picked = true;
+                        string[] parts = pickSpec.Split(',');
+                        if (parts.Length > 0 && int.TryParse(parts[0], out int ship))
+                        {
+                            typeof(ShipArenaScreen).GetField("shipIndex", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, ship);
+                        }
+                        if (parts.Length > 1 && int.TryParse(parts[1], out int colour))
+                        {
+                            typeof(ShipArenaScreen).GetField("colourIndex", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, colour);
+                        }
+                        if (parts.Length > 2 && int.TryParse(parts[2], out int arena))
+                        {
+                            var arenas = FrameMenuScreen.World.ArenaManager.Arenas;
+                            typeof(ShipArenaScreen).GetMethod("SetArena", Hidden).Invoke(room, new object[] { arenas[Math.Max(0, Math.Min(arenas.Length - 1, arena))] });
+                        }
+                    }
+                }
+            }
+
+            if (Env("VR_BURST") is string burst)
+            {
+                string[] b = burst.Split(',');
+                double start = double.Parse(b[0], System.Globalization.CultureInfo.InvariantCulture);
+                int count = int.Parse(b[1]);
+                double interval = double.Parse(b[2], System.Globalization.CultureInfo.InvariantCulture);
+                if (now >= start + burstTaken * interval)
+                {
+                    string dir = Env("VR_BURST_DIR") ?? "burst";
+                    System.IO.Directory.CreateDirectory(dir);
+                    Screenshots.Save(device, System.IO.Path.Combine(dir, $"frame{burstTaken:D3}.png"));
+                    if (++burstTaken >= count)
+                    {
+                        exit();
                     }
                 }
             }

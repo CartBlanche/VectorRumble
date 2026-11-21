@@ -297,6 +297,13 @@ namespace VectorRumble
             pilot.PilotName = LanLobby.DisplayName(Environment.UserName);
             pilot.SetColor(CurrentColour);
             pilot.Controls = ShipControls.ForLocalPlayer();
+#if DEVSHOT
+            if (DevShots.AllAI)
+            {
+                pilot.Controls = null;
+                pilot.Pilot = new AIPilot(pilot, World, UserSettings.Current.AIDifficulty, DevShots.Seed ?? Environment.TickCount);
+            }
+#endif
             pilot.Selected = true;
             AddComputerPilots(manager, pilot);
             manager.UpdateSelectedList();
@@ -317,6 +324,9 @@ namespace VectorRumble
             int count = Math.Max(0, Math.Min(MatchRules.MaxAIPilots, MatchRules.Current.AIPilots));
             AIDifficulty difficulty = UserSettings.Current.AIDifficulty;
             int seed = Environment.TickCount;
+#if DEVSHOT
+            seed = DevShots.Seed ?? seed;
+#endif
 
             int nextShip = shipIndex;
             int nextColour = colourIndex;
