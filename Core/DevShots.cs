@@ -35,6 +35,7 @@ namespace VectorRumble
     ///   VR_SEED=<n>               the AI pilots' random seed, so a run can be repeated
     ///   VR_PICK=<ship>,<colour>,<arena>   indexes into the pick screen's lists (ship and colour as listed there; arena in the arena list, 0 is the first, "Random" is last of the built in ones)
     ///   VR_BURST=<start>,<count>,<interval>  from <start> seconds, save <count> pictures <interval> seconds apart into VR_BURST_DIR (default ./burst), numbered, then quit
+    ///   VR_LOCK=1                 frame-locked time: each drawn frame is exactly one 60 Hz tick of the game, however long saving pictures takes (use it with VR_BURST for smooth sequences; VR_BURST's times are then game seconds)
     ///   VR_FIREWORKS=0            run with the "Menu fireworks" setting off (the real settings file is not touched), for clean menu pictures
     ///   VR_LOG=1                  print the input the game sees, and the splash's state, to the console
     ///   VR_AIDEBUG=1              (not here: see AIPilot) draw each AI pilot's state and route
@@ -65,6 +66,23 @@ namespace VectorRumble
 
         /// <summary>True unless VR_NOSKIP: the splash can be skipped by any input, which a script's mouse or keys might do.</summary>
         public static bool SplashSkippable => Env("VR_NOSKIP") == null;
+
+        /// <summary>VR_LOCK: the game runs one 60 Hz tick per drawn frame, so a burst of pictures has none missing.</summary>
+        public static bool FrameLock => Env("VR_LOCK") != null;
+
+        static long frame;
+        static GameTime tick = new GameTime();
+
+        /// <summary>The next tick of the locked clock (called once per Update).</summary>
+        public static GameTime NextTick()
+        {
+            frame++;
+            tick = new GameTime(TimeSpan.FromTicks(frame * TimeSpan.TicksPerSecond / 60), TimeSpan.FromTicks(TimeSpan.TicksPerSecond / 60));
+            return tick;
+        }
+
+        /// <summary>The tick the last Update ran, for the Draw that follows.</summary>
+        public static GameTime CurrentTick => tick;
 
         /// <summary>VR_ALLAI: the human ship is flown by an AI pilot too.</summary>
         public static bool AllAI => Env("VR_ALLAI") != null;
@@ -194,7 +212,7 @@ namespace VectorRumble
                 double start = double.Parse(b[0], System.Globalization.CultureInfo.InvariantCulture);
                 int count = int.Parse(b[1]);
                 double interval = double.Parse(b[2], System.Globalization.CultureInfo.InvariantCulture);
-                if (now >= start + burstTaken * interval)
+                if (now + 1e-6 >= start + burstTaken * interval)
                 {
                     string dir = Env("VR_BURST_DIR") ?? "burst";
                     System.IO.Directory.CreateDirectory(dir);

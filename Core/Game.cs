@@ -56,6 +56,13 @@ namespace VectorRumble
                 AudioProject = "VectorRumble",
             })
         {
+#if DEVSHOT
+            if (DevShots.FrameLock)
+            {
+                // one 60 Hz tick per drawn frame, so a capture is smooth and repeatable however long saving a picture takes
+                IsFixedTimeStep = false;
+            }
+#endif
             // keeps this game from listing, or joining, the sessions of other games on the network
             // protocol 2: the packets carry a version byte now, so older builds neither join nor misread
             VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 3);
@@ -114,6 +121,12 @@ namespace VectorRumble
 
         protected override void Update(GameTime gameTime)
         {
+#if DEVSHOT
+            if (DevShots.FrameLock)
+            {
+                gameTime = DevShots.NextTick();
+            }
+#endif
             screenshots.Update();
             base.Update(gameTime);
         }
@@ -125,6 +138,12 @@ namespace VectorRumble
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+#if DEVSHOT
+            if (DevShots.FrameLock)
+            {
+                gameTime = DevShots.CurrentTick;
+            }
+#endif
             GraphicsDevice.Clear(Color.Black);
 
             // the screen manager owns the real drawing
