@@ -2,13 +2,16 @@
 name = "play"
 path = "VectorRumble.exe"
 platform = "windows"
+scope = "game:view:ownership"
 
 [[actions]]
 name = "play"
 path = "VectorRumble.app"
 platform = "osx"
+scope = "game:view:ownership"
 
 [[actions]]
 name = "play"
 path = "VectorRumble"
 platform = "linux"
+scope = "game:view:ownership"
