@@ -130,7 +130,7 @@ choice for received ones on screen; show Author in the pickers.
   language/settings code (`UserSettings`) to the engine if a third game needs it.
 - SolidOps: merge `develop` into `main` only after it is public on itch.io (unrelated histories); 720p; iOS; the Windows DirectX head.
 
-## Before v1.x: explosion shockwave and black holes (asked 2026-11-22)
+## Before v1.x: explosion shockwave, black holes, hopping over ships and the sky (asked 2026-11-22)
 
 1. **Shockwave on explosions.** A visible ripple that spreads out from a ship's (and later a mine's or rocket's) explosion. A shader is one way, not the only one:
    the game draws with `LineBatch` lines only and has no render target or effect of its own, so a first version can be expanding, fading vector rings (a
@@ -141,6 +141,21 @@ choice for received ones on screen; show Author in the pickers.
    which). Questions to settle: whether touching one kills a ship; the pull curve and range; whether the AI knows to keep away from them (it would
    need a new thing to avoid in `AIPilot`); a Match Rules switch; and the network (the host would decide where and when, and the pull must be the same on every
    machine, as asteroids sync at about 5 Hz). Draw it as a spinning vector spiral with a faint ring showing its reach.
+
+3. **Hop over other ships.** A jump that lifts a ship over other ships (not over walls or asteroids, which still stop it). The ship grows a little while it is up
+   (a height, drawn as scale), and a soft vector shadow under it (a dim copy of the outline, offset and fading) can come with it. Questions: does it carry its
+   momentum; a short cooldown; can it fire in the air, and can shots hit it (no is simpler, and makes a jump a dodge); what happens when it lands on a ship (push apart,
+   or damage); whether mines and rockets care. Touches: a new input on keyboard, pad and touch (`InputBindings`, the touch layout), the collision code between ships,
+   `ShipStateSync` and `RemoteShipInterpolator` (height must be sent, so a protocol version bump), a sound cue, and the AI (`AIPilot` should dodge with it and know that an airborne
+   rival cannot be hit). Shadows could then be drawn for every ship, a little under it, to read the height.
+
+4. **A real sky behind the arena (to decide).** Today `Core/Rendering/Starfield.cs` draws random single-pixel stars with parallax. Options discussed: (a) the sky as it is
+   at the player's time and place, which needs a star catalogue (bright stars only, a few hundred, as a small data file), the date and time, and a latitude
+   and longitude, which means asking for the location (privacy, and it would not match on a network match) or using only the time; (b) well known constellations as
+   fixed line-art shapes (Orion, the Plough, Cassiopeia, the Southern Cross) drawn in the vector style at different parallax depths, with their bright stars a little bigger
+   and twinkling; (c) planets as slowly moving dots, from a few lines of orbit maths for the date. Option (b) is cheap and fits the look; (a) and (c) are cheap to
+   compute but need a decision on whether the sky may differ between machines in a network match (it is only a background, so it can).
+   Mockup: `docs/mockups/sky.html` (constellations, planets, nebula as faint dots plus a soft glow in violet, magenta and teal, comet). Decided direction: use both nebula layers, and pick the sky for a match from a hand-made pool of about 5 (layers, hues, cloud positions, which constellations), chosen by the host and sent in the match setup so every machine shows the same one (a protocol version bump, so bundle it with other network changes); a community arena may name its sky, otherwise it is random; draw only from a fixed seed in the pool entry. Keep the nebula dim enough that no ship colour (magenta, cyan) disappears into it. Decided 2026-11-22: random only for now, no Match Rules switch (add one later only if asked).
 
 ## Screenshots (F12) and the local scripted harness
 

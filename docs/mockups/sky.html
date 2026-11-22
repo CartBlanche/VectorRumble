@@ -1,0 +1,100 @@
+<!doctype html><meta charset="utf-8"><title>Sky behind the arena: constellations, planets and extras</title>
+<style>
+body{background:#05060f;color:#cde;font:14px system-ui;margin:20px;max-width:1320px}
+h1{font-weight:500}h2{border-bottom:1px solid #234;padding-bottom:4px;margin-top:28px}
+canvas{display:block;background:#000;border:1px solid #1c2440;border-radius:4px}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0}
+label{background:#0a0c1a;border:1px solid #1c2440;border-radius:4px;padding:5px 9px;cursor:pointer}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.card{background:#0a0c1a;border:1px solid #1c2440;border-radius:6px;padding:10px;width:300px}
+.card b{display:block;margin-bottom:4px}.card small{color:#8a9bb8;display:block;margin-top:4px}
+</style>
+<body><h1>Sky behind the arena</h1>
+<p>Mockup only (nothing in the game yet). The big picture is a 1280x720 game frame, 1:1: an arena with the H walls, two ships drifting about, and the sky behind it. The sky moves opposite to the ships' average position, as <code>Starfield</code> does today, with each layer at its own depth (near layers move more). Switch the layers on and off below. Constellations are real star positions (bright stars only, RA and declination, rounded) drawn as faint line art; their layout on screen is by hand, not for any time or place. Planets are only dots in this mockup.</p>
+<div class="row" id="ctl"></div>
+<canvas id="c" width="1280" height="720" style="width:1280px;height:720px"></canvas>
+
+<h2>The four constellations on their own</h2>
+<div class="grid" id="cards"></div>
+
+<h2>Notes</h2>
+<ul>
+<li>Constellation lines are drawn very dim (about 25% white) with the stars on them a little brighter and bigger, so they read as a background, not as a map, and never compete with ships, shots and walls.</li>
+<li>Three depths: far (small, moves 4% of the camera), middle (12%), near (25%). A constellation sits on one depth, so Orion drifts slowly and the Plough a little faster.</li>
+<li>Stars on the lines twinkle by a few percent of brightness, slowly and out of step.</li>
+<li>Planets: a dot (Saturn with a thin ring), a name label if labels are on, a slow drift of about a pixel a second.</li>
+<li>The nebula is made of faint dots, like the stars (violet, magenta and teal, so it is not mistaken for the blue walls); "Nebula glow" is a soft painted version of the same cloud, to compare. The comet crosses every minute or so, with a short fading tail.</li>
+<li>Real star positions: fixed in the game as a small table (names, RA, Dec, brightness). A real sky for the player's time and place would use a catalogue of a few hundred stars and is a separate decision.</li>
+</ul>
+
+<script>
+// RA in hours, Dec in degrees, magnitude (smaller is brighter)
+const C={
+ Orion:{depth:0.04,at:[330,230],scale:9,stars:{Betelgeuse:[5.919,7.41,0.5],Rigel:[5.242,-8.20,0.1],Bellatrix:[5.419,6.35,1.6],Saiph:[5.796,-9.67,2.1],Alnitak:[5.679,-1.94,1.7],Alnilam:[5.603,-1.20,1.7],Mintaka:[5.533,-0.30,2.2],Meissa:[5.585,9.93,3.5]},
+  lines:[["Meissa","Betelgeuse"],["Meissa","Bellatrix"],["Betelgeuse","Alnitak"],["Bellatrix","Mintaka"],["Mintaka","Alnilam"],["Alnilam","Alnitak"],["Alnitak","Saiph"],["Mintaka","Rigel"]]},
+ "Big Dipper (the Plough)":{depth:0.12,at:[1000,150],scale:6,stars:{Dubhe:[11.062,61.75,1.8],Merak:[11.031,56.38,2.4],Phecda:[11.897,53.69,2.4],Megrez:[12.257,57.03,3.3],Alioth:[12.900,55.96,1.8],Mizar:[13.399,54.93,2.2],Alkaid:[13.792,49.31,1.9]},
+  lines:[["Dubhe","Merak"],["Merak","Phecda"],["Phecda","Megrez"],["Megrez","Dubhe"],["Megrez","Alioth"],["Alioth","Mizar"],["Mizar","Alkaid"]]},
+ Cassiopeia:{depth:0.25,at:[680,95],scale:12,stars:{Caph:[0.153,59.15,2.3],Schedar:[0.675,56.54,2.2],"Gamma Cas":[0.945,60.72,2.5],Ruchbah:[1.430,60.24,2.7],Segin:[1.907,63.67,3.4]},
+  lines:[["Caph","Schedar"],["Schedar","Gamma Cas"],["Gamma Cas","Ruchbah"],["Ruchbah","Segin"]]},
+ "Southern Cross":{depth:0.12,at:[1090,560],scale:14,stars:{Acrux:[12.443,-63.10,0.8],Mimosa:[12.795,-59.69,1.3],Gacrux:[12.519,-57.11,1.6],"Delta Crucis":[12.252,-58.75,2.8]},
+  lines:[["Acrux","Gacrux"],["Mimosa","Delta Crucis"]]}
+};
+// project a constellation to local pixels around its own centre
+function project(k){const c=C[k],e=Object.entries(c.stars);const ra0=e.reduce((s,[,v])=>s+v[0],0)/e.length,de0=e.reduce((s,[,v])=>s+v[1],0)/e.length;
+ c.pts={};for(const [n,v] of e){c.pts[n]={x:-(v[0]-ra0)*15*Math.cos(de0*Math.PI/180)*c.scale,y:-(v[1]-de0)*c.scale,m:v[2]}}}
+Object.keys(C).forEach(project);
+
+// random stars like the game's now (for the base layer)
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const dots=[];for(let i=0;i<260;i++)dots.push({x:rnd()*1280,y:rnd()*720,d:[0.04,0.12,0.25][i%3],b:0.25+rnd()*0.5});
+
+// a nebula as many faint dots (the same kind of mark as the stars), in violet, magenta and teal so that it does not look like the blue walls
+const gauss=()=>(rnd()+rnd()+rnd()+rnd()-2)*1.2;
+const cloud=[],blobs=[];
+for(const [cx,cy,w,h,hue] of [[430,500,170,90,285],[560,540,130,80,320],[330,560,110,70,190]]){
+ blobs.push({x:cx,y:cy,r:w*1.5,h:hue});
+ for(let i=0;i<650;i++){const x=cx+gauss()*w,y=cy+gauss()*h;const edge=Math.exp(-(((x-cx)/w)**2+((y-cy)/h)**2)/2);cloud.push({x,y,s:rnd()<.12?2:1,a:.12+.5*rnd()*edge,h:hue+(rnd()-.5)*40})}}
+const opts={Constellations:true,Names:false,Planets:true,Nebula:false,"Nebula glow":false,Comet:false,"Arena walls":true};
+const ctl=document.getElementById("ctl");
+for(const k in opts){const l=document.createElement("label");l.innerHTML=`<input type=checkbox ${opts[k]?"checked":""}> ${k}`;l.firstChild.onchange=e=>opts[k]=e.target.checked;ctl.appendChild(l)}
+
+const cv=document.getElementById("c"),g=cv.getContext("2d");
+const walls=[[.05,.05,.05,.95],[.95,.05,.95,.95],[.05,.05,.95,.05],[.05,.95,.95,.95],[.275,.5,.725,.5],[.275,.275,.275,.725],[.725,.275,.725,.725]];
+const planets=[{n:"Venus",x:230,y:120,c:"#fff3c4",r:2.6,d:.12,ring:0},{n:"Mars",x:860,y:470,c:"#ff9a6a",r:2.2,d:.12,ring:0},{n:"Jupiter",x:560,y:610,c:"#ffe2b0",r:3.4,d:.25,ring:0},{n:"Saturn",x:130,y:560,c:"#f2dc9a",r:3,d:.25,ring:1}];
+
+function frame(t){
+ t/=1000;g.clearRect(0,0,1280,720);
+ // the two ships drift; the camera is their mean position
+ const s1={x:560+Math.cos(t*.5)*260,y:320+Math.sin(t*.7)*160},s2={x:760+Math.cos(t*.4+2)*200,y:380+Math.sin(t*.6+1)*150};
+ const cam={x:(s1.x+s2.x)/2-640,y:(s1.y+s2.y)/2-360};
+ const par=d=>({x:-cam.x*d,y:-cam.y*d});
+ // random dots
+ for(const s of dots){const p=par(s.d);const x=((s.x+p.x)%1280+1280)%1280,y=((s.y+p.y)%720+720)%720;g.fillStyle=`rgba(255,255,255,${s.b})`;g.fillRect(x,y,1,1)}
+ if(opts.Nebula){const p=par(.04);for(const d of cloud){g.fillStyle=`hsla(${d.h},70%,65%,${d.a})`;g.fillRect(d.x+p.x,d.y+p.y,d.s,d.s)}}
+ if(opts["Nebula glow"]){const p=par(.04);g.save();g.globalCompositeOperation="lighter";for(const b of blobs){const x=b.x+p.x,y=b.y+p.y;const gr=g.createRadialGradient(x,y,0,x,y,b.r);gr.addColorStop(0,`hsla(${b.h},70%,45%,.16)`);gr.addColorStop(1,`hsla(${b.h},70%,45%,0)`);g.fillStyle=gr;g.fillRect(x-b.r,y-b.r,b.r*2,b.r*2)}g.restore()}
+ if(opts.Constellations){for(const k in C){const c=C[k],p=par(c.depth);
+  g.strokeStyle="rgba(170,200,255,.25)";g.lineWidth=1;
+  for(const [a,b] of c.lines){const A=c.pts[a],B=c.pts[b];g.beginPath();g.moveTo(c.at[0]+p.x+A.x,c.at[1]+p.y+A.y);g.lineTo(c.at[0]+p.x+B.x,c.at[1]+p.y+B.y);g.stroke()}
+  let i=0;for(const n in c.pts){const P=c.pts[n];const r=Math.max(1,2.6-P.m*.5);const tw=.85+.15*Math.sin(t*1.3+i*2.1);g.fillStyle=`rgba(225,236,255,${tw})`;g.beginPath();g.arc(c.at[0]+p.x+P.x,c.at[1]+p.y+P.y,r,0,7);g.fill();
+   if(opts.Names&&P.m<2.2){g.fillStyle="rgba(150,175,220,.55)";g.font="11px system-ui";g.fillText(n,c.at[0]+p.x+P.x+7,c.at[1]+p.y+P.y-5)}i++}
+  if(opts.Names){g.fillStyle="rgba(150,175,220,.4)";g.font="12px system-ui";g.fillText(k,c.at[0]+p.x-40,c.at[1]+p.y+90)}}}
+ if(opts.Planets){for(const q of planets){const p=par(q.d);const x=q.x+p.x+t*0.8,y=q.y+p.y;g.fillStyle=q.c;g.beginPath();g.arc(x,y,q.r,0,7);g.fill();
+  if(q.ring){g.strokeStyle="rgba(242,220,154,.6)";g.beginPath();g.ellipse(x,y,q.r*2.4,q.r*.8,-.4,0,7);g.stroke()}
+  if(opts.Names){g.fillStyle="rgba(200,190,150,.55)";g.font="11px system-ui";g.fillText(q.n,x+8,y-6)}}}
+ if(opts.Comet){const u=(t%40)/40;const x=-100+u*1500,y=80+u*260;const gr=g.createLinearGradient(x,y,x-130,y-45);gr.addColorStop(0,"rgba(255,255,255,.8)");gr.addColorStop(1,"rgba(255,255,255,0)");g.strokeStyle=gr;g.lineWidth=2;g.beginPath();g.moveTo(x,y);g.lineTo(x-130,y-45);g.stroke();g.fillStyle="#fff";g.beginPath();g.arc(x,y,2.4,0,7);g.fill()}
+ // arena
+ if(opts["Arena walls"]){g.strokeStyle="#2b49ff";g.lineWidth=2;g.shadowColor="#2b49ff";g.shadowBlur=10;for(const w of walls){g.beginPath();g.moveTo(w[0]*1280,w[1]*720);g.lineTo(w[2]*1280,w[3]*720);g.stroke()}g.shadowBlur=0}
+ // ships (stand-ins)
+ const ship=(s,c,a)=>{g.save();g.translate(s.x,s.y);g.rotate(a);g.strokeStyle=c;g.lineWidth=2;g.beginPath();g.moveTo(0,-20);g.lineTo(14,16);g.lineTo(0,9);g.lineTo(-14,16);g.closePath();g.stroke();g.restore()};
+ ship(s1,"#ff4fd8",Math.sin(t*.5)*1.2);ship(s2,"#4fe0ff",2.2+Math.cos(t*.4));
+ requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+
+// cards: each constellation alone
+const cards=document.getElementById("cards");
+for(const k in C){const c=C[k];const xs=Object.values(c.pts).map(p=>p.x),ys=Object.values(c.pts).map(p=>p.y);
+ const x0=Math.min(...xs)-30,x1=Math.max(...xs)+30,y0=Math.min(...ys)-30,y1=Math.max(...ys)+30;
+ const lines=c.lines.map(([a,b])=>`<line x1="${c.pts[a].x}" y1="${c.pts[a].y}" x2="${c.pts[b].x}" y2="${c.pts[b].y}" stroke="rgba(170,200,255,.45)"/>`).join("");
+ const dotsS=Object.entries(c.pts).map(([n,p])=>`<circle cx="${p.x}" cy="${p.y}" r="${Math.max(1.2,2.8-p.m*.5)}" fill="#e1ecff"/><text x="${p.x+7}" y="${p.y-5}" fill="#8aa0c8" font-size="9">${n}</text>`).join("");
+ const d=document.createElement("div");d.className="card";d.innerHTML=`<b>${k}</b><svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" width="270" style="background:#000;display:block" stroke-width=".8">${lines}${dotsS}</svg><small>${Object.keys(c.pts).length} stars, ${c.lines.length} lines. Drawn at depth ${Math.round(c.depth*100)}%.</small>`;cards.appendChild(d)}
+</script>
