@@ -834,5 +834,45 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Confirm_ExitButton", resourceCulture);
             }
         }
+        internal static string Label_Sky {
+            get {
+                return ResourceManager.GetString("Label_Sky", resourceCulture);
+            }
+        }
+        internal static string Sky_Stars {
+            get {
+                return ResourceManager.GetString("Sky_Stars", resourceCulture);
+            }
+        }
+        internal static string Sky_Constellations {
+            get {
+                return ResourceManager.GetString("Sky_Constellations", resourceCulture);
+            }
+        }
+        internal static string Sky_Names {
+            get {
+                return ResourceManager.GetString("Sky_Names", resourceCulture);
+            }
+        }
+        internal static string Sky_Planets {
+            get {
+                return ResourceManager.GetString("Sky_Planets", resourceCulture);
+            }
+        }
+        internal static string Sky_Nebula {
+            get {
+                return ResourceManager.GetString("Sky_Nebula", resourceCulture);
+            }
+        }
+        internal static string Sky_NebulaGlow {
+            get {
+                return ResourceManager.GetString("Sky_NebulaGlow", resourceCulture);
+            }
+        }
+        internal static string Sky_Comet {
+            get {
+                return ResourceManager.GetString("Sky_Comet", resourceCulture);
+            }
+        }
     }
 }

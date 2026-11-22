@@ -128,6 +128,7 @@ choice for received ones on screen; show Author in the pickers.
   Chaim Goodman-Strauss, an homage to the discovery.
 - VectorEngine: a JSON loader for particle effects before v1.0; NuGet publishing (needs the user's API key and say-so); promote the
   language/settings code (`UserSettings`) to the engine if a third game needs it.
+- The sky (built 2026-11-22, `Core/Rendering/Sky*.cs`): more variety after v1.x. Nebula hues are only violet, magenta and teal so far, kept cool so no ship or wall colour (orange, red, green, blue, yellow) disappears into them. NASA pictures also show amber, gold and red (supernova remnants, infrared), blue (reflection nebulae) and dark silhouettes; try one very dim warm hue in one or two skies and check it by eye with orange and red ships and red walls. Also: more skies in the pool, more constellations, and the real sky (see item 4 above). Tuning constants are at the top of `Sky.cs` (`GlowStrength`, `StarBrightness`, `CometBrightness`).
 - SolidOps: merge `develop` into `main` only after it is public on itch.io (unrelated histories); 720p; iOS; the Windows DirectX head.
 
 ## Before v1.x: explosion shockwave, black holes, hopping over ships, the sky and directional sound (asked 2026-11-22)

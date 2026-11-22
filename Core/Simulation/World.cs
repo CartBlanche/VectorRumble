@@ -216,7 +216,12 @@ namespace VectorRumble
             // set up the power-up timer for the initial delay
             powerUpTimer = initialPowerUpDelay;
 
-            // set up the starfield
+            // set up the starfield, with a sky chosen at random for this match (a different sky each time)
+#if DEVSHOT
+            starfield.SetSky(DevShots.SkyIndex ?? SkyPool.Pick(new Random()));
+#else
+            starfield.SetSky(SkyPool.Pick(new Random()));
+#endif
             starfield.SetTargetPosition(Dimensions * 0.5f);
         }
 

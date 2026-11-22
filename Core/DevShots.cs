@@ -32,6 +32,7 @@ namespace VectorRumble
     ///   VR_SPLASH=<seconds> VR_OUT=<png>     save the picture when the splash has run that long, and quit
     ///   VR_ALLAI=1                on the "pick" screen, the human ship is flown by an AI pilot too (a match with nobody at the keyboard that still looks busy)
     ///   VR_AI=<0..3>              how many AI rivals (MatchRules.AIPilots)
+    ///   VR_SKY=<n>                the sky behind the arena (0 to 4; random when not set)
     ///   VR_SEED=<n>               the AI pilots' random seed, so a run can be repeated
     ///   VR_PICK=<ship>,<colour>,<arena>   indexes into the pick screen's lists (ship and colour as listed there; arena in the arena list, 0 is the first, "Random" is last of the built in ones)
     ///   VR_BURST=<start>,<count>,<interval>  from <start> seconds, save <count> pictures <interval> seconds apart into VR_BURST_DIR (default ./burst), numbered, then quit
@@ -89,6 +90,9 @@ namespace VectorRumble
 
         /// <summary>VR_SEED: the AI pilots' seed, or null for a random one.</summary>
         public static int? Seed => int.TryParse(Env("VR_SEED"), out int v) ? v : null;
+
+        /// <summary>VR_SKY: the number of the sky to use, or null for a random one.</summary>
+        public static byte? SkyIndex => byte.TryParse(Env("VR_SKY"), out byte v) ? v : null;
 
         /// <summary>A DEVSHOT build leaves the player's settings file alone.</summary>
         public static bool DoNotSave => true;

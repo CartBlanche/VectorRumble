@@ -443,4 +443,28 @@ B/O Button, Esc = abbrechen</value>
     <data name="Label_PauseIdleMenus" xml:space="preserve">
         <value>Menüs bei Inaktivität pausieren</value>
     </data>
+  <data name="Label_Sky" xml:space="preserve">
+    <value>Himmel</value>
+  </data>
+  <data name="Sky_Stars" xml:space="preserve">
+    <value>Pixelsterne</value>
+  </data>
+  <data name="Sky_Constellations" xml:space="preserve">
+    <value>Sternbilder</value>
+  </data>
+  <data name="Sky_Names" xml:space="preserve">
+    <value>Namen</value>
+  </data>
+  <data name="Sky_Planets" xml:space="preserve">
+    <value>Planeten</value>
+  </data>
+  <data name="Sky_Nebula" xml:space="preserve">
+    <value>Nebel</value>
+  </data>
+  <data name="Sky_NebulaGlow" xml:space="preserve">
+    <value>Nebelleuchten</value>
+  </data>
+  <data name="Sky_Comet" xml:space="preserve">
+    <value>Komet</value>
+  </data>
 </root>

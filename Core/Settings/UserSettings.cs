@@ -30,6 +30,33 @@ namespace VectorRumble
 
         public bool MotionBlur { get; set; } = true;
 
+        /// <summary>Sky behind the arena: the single pixel stars.</summary>
+        public bool SkyStars { get; set; } = true;
+
+        /// <summary>Sky behind the arena: constellations as faint line art.</summary>
+        public bool SkyConstellations { get; set; } = true;
+
+        /// <summary>Sky behind the arena: names of the bright stars, constellations and planets.</summary>
+        public bool SkyNames { get; set; }
+
+        /// <summary>Sky behind the arena: planets.</summary>
+        public bool SkyPlanets { get; set; } = true;
+
+        /// <summary>Sky behind the arena: the nebula as faint dots.</summary>
+        public bool SkyNebula { get; set; } = true;
+
+        /// <summary>Sky behind the arena: the soft glow of the nebula.</summary>
+        public bool SkyGlow { get; set; } = true;
+
+        /// <summary>Sky behind the arena: the comet that crosses now and then.</summary>
+        public bool SkyComet { get; set; } = true;
+
+        /// <summary>The parts of the sky to draw.</summary>
+        internal SkyLayers SkyLayers =>
+            (SkyStars ? SkyLayers.Stars : 0) | (SkyConstellations ? SkyLayers.Constellations : 0) |
+            (SkyNames ? SkyLayers.Names : 0) | (SkyPlanets ? SkyLayers.Planets : 0) |
+            (SkyNebula ? SkyLayers.Nebula : 0) | (SkyGlow ? SkyLayers.Glow : 0) | (SkyComet ? SkyLayers.Comet : 0);
+
         /// <summary>The menus freeze, with a dim "Paused", after ten seconds without input.</summary>
         public bool PauseIdleMenus { get; set; } = true;
 

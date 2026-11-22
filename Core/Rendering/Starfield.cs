@@ -16,7 +16,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace VectorRumble
 {
     /// <summary>
-    /// A starfield represented by single-pixel "stars", with parallax-scrolling.
+    /// A starfield represented by single-pixel "stars", with parallax-scrolling, in front of a sky (see <see cref="Sky"/>).
     /// </summary>
     class Starfield
     {
@@ -28,7 +28,13 @@ namespace VectorRumble
         #endregion
 
         #region Fields
-        Random random;
+        readonly int count;
+        readonly Rectangle bounds;
+
+        /// <summary>
+        /// The sky behind the stars: nebula, constellations, planets and a comet.
+        /// </summary>
+        Sky sky;
 
         /// <summary>
         /// The positions of each star.
@@ -39,6 +45,11 @@ namespace VectorRumble
         /// The depth of each star, used for parallax.
         /// </summary>
         byte[] starDepths;
+
+        /// <summary>
+        /// Where the starfield began, and what it is measured from.
+        /// </summary>
+        readonly Vector2 centre;
 
         /// <summary>
         /// The relative "target position" of the starfield, compared with the
@@ -59,17 +70,44 @@ namespace VectorRumble
         /// </summary>
         /// <param name="count">The number of stars in the starfield.</param>
         /// <param name="bounds">The bounds of star generation.</param>
-        public Starfield(int count, Rectangle bounds)
+        /// <param name="skyIndex">The number of the sky behind the stars (see <see cref="SkyPool"/>).</param>
+        public Starfield(int count, Rectangle bounds, byte skyIndex = 0)
         {
             if (count <= 0)
             {
                 throw new ArgumentOutOfRangeException("count");
             }
 
-            random = new Random();
-            currentPosition = targetPosition = new Vector2(
+            this.count = count;
+            this.bounds = bounds;
+            centre = new Vector2(
                 bounds.Left + (bounds.Right - bounds.Left) / 2,
                 bounds.Top + (bounds.Bottom - bounds.Top) / 2);
+            SetSky(skyIndex);
+        }
+
+        /// <summary>
+        /// The number of the sky now behind the stars.
+        /// </summary>
+        public byte SkyIndex { get; private set; }
+
+        /// <summary>
+        /// The sky now behind the stars.
+        /// </summary>
+        public Sky Sky => sky;
+
+        /// <summary>
+        /// Choose the sky behind the stars. The stars are made again from the sky's own seed, so every machine with
+        /// the same number sees the same picture, and the movement starts from rest.
+        /// </summary>
+        public void SetSky(byte skyIndex)
+        {
+            SkyIndex = skyIndex;
+            SkyEntry entry = SkyPool.Get(skyIndex);
+            sky = new Sky(entry);
+
+            var random = new SkyRandom(entry.Seed ^ 0x5157);
+            currentPosition = targetPosition = centre;
             starPositions = new Vector2[count];
             starDepths = new byte[count];
             for (int i = 0; i < count; i++)
@@ -89,6 +127,7 @@ namespace VectorRumble
         /// <param name="elapsedTime">The amount of elapsed time, in seconds.</param>
         public void Update(float elapsedTime)
         {
+            sky.Update(elapsedTime);
             if (targetPosition != currentPosition)
             {
                 Vector2 movement = targetPosition - currentPosition;
@@ -111,28 +150,44 @@ namespace VectorRumble
         }
 
         /// <summary>
-        /// Render the starfield.
+        /// Render the sky and the stars, behind everything else.
         /// </summary>
         /// <param name="spriteBatch">The spritebatch that renders the stars.</param>
-        /// <param name="spriteTexture">The simple texture used when rendering.</param>
-        public void Draw(SpriteBatch spriteBatch, Texture2D spriteTexture)
+        /// <param name="lineBatch">The line batch that renders the constellation lines.</param>
+        /// <param name="assets">The textures the sky is made of.</param>
+        /// <param name="font">The font of the name labels (may be null).</param>
+        /// <param name="layers">The parts of the sky to draw.</param>
+        public void Draw(SpriteBatch spriteBatch, LineBatch lineBatch, SkyAssets assets, SpriteFont font, SkyLayers layers)
         {
             if (spriteBatch == null)
             {
                 throw new ArgumentNullException(nameof(spriteBatch));
             }
 
-            if (spriteTexture == null)
+            if (lineBatch == null)
             {
-                throw new ArgumentNullException(nameof(spriteTexture));
+                throw new ArgumentNullException(nameof(lineBatch));
             }
 
-            for (int i = 0; i < starPositions.Length; i++)
+            if (assets == null)
             {
-                Color starColor = new Color(starDepths[i], starDepths[i],
-                    starDepths[i]);
-                spriteBatch.Draw(spriteTexture, new Rectangle((int)starPositions[i].X,
-                    (int)starPositions[i].Y, 1, 1), starColor);
+                throw new ArgumentNullException(nameof(assets));
+            }
+
+            sky.Draw(spriteBatch, lineBatch, assets, font, layers, currentPosition - centre);
+
+            if ((layers & SkyLayers.Stars) != 0)
+            {
+                spriteBatch.Begin();
+                for (int i = 0; i < starPositions.Length; i++)
+                {
+                    Color starColor = new Color(starDepths[i], starDepths[i],
+                        starDepths[i]);
+                    spriteBatch.Draw(assets.Blank, new Rectangle((int)starPositions[i].X,
+                        (int)starPositions[i].Y, 1, 1), starColor);
+                }
+
+                spriteBatch.End();
             }
         }
         #endregion

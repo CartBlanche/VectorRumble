@@ -446,4 +446,28 @@ B/O 버튼, Esc = 취소</value>
     <data name="Label_PauseIdleMenus" xml:space="preserve">
         <value>대기 중 메뉴 일시 정지</value>
     </data>
+  <data name="Label_Sky" xml:space="preserve">
+    <value>하늘</value>
+  </data>
+  <data name="Sky_Stars" xml:space="preserve">
+    <value>픽셀 별</value>
+  </data>
+  <data name="Sky_Constellations" xml:space="preserve">
+    <value>별자리</value>
+  </data>
+  <data name="Sky_Names" xml:space="preserve">
+    <value>이름</value>
+  </data>
+  <data name="Sky_Planets" xml:space="preserve">
+    <value>행성</value>
+  </data>
+  <data name="Sky_Nebula" xml:space="preserve">
+    <value>성운</value>
+  </data>
+  <data name="Sky_NebulaGlow" xml:space="preserve">
+    <value>성운 광채</value>
+  </data>
+  <data name="Sky_Comet" xml:space="preserve">
+    <value>혜성</value>
+  </data>
 </root>

@@ -446,4 +446,28 @@ B/O 按钮, Esc = 取消</value>
     <data name="Label_PauseIdleMenus" xml:space="preserve">
         <value>闲置时暂停菜单</value>
     </data>
+  <data name="Label_Sky" xml:space="preserve">
+    <value>天空</value>
+  </data>
+  <data name="Sky_Stars" xml:space="preserve">
+    <value>像素星</value>
+  </data>
+  <data name="Sky_Constellations" xml:space="preserve">
+    <value>星座</value>
+  </data>
+  <data name="Sky_Names" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Sky_Planets" xml:space="preserve">
+    <value>行星</value>
+  </data>
+  <data name="Sky_Nebula" xml:space="preserve">
+    <value>星云</value>
+  </data>
+  <data name="Sky_NebulaGlow" xml:space="preserve">
+    <value>星云光晕</value>
+  </data>
+  <data name="Sky_Comet" xml:space="preserve">
+    <value>彗星</value>
+  </data>
 </root>

@@ -443,4 +443,28 @@ Botón B/O, Tecla Esc = Cancelar</value>
     <data name="Label_PauseIdleMenus" xml:space="preserve">
         <value>Pausar menús inactivos</value>
     </data>
+  <data name="Label_Sky" xml:space="preserve">
+    <value>Cielo</value>
+  </data>
+  <data name="Sky_Stars" xml:space="preserve">
+    <value>Estrellas de píxeles</value>
+  </data>
+  <data name="Sky_Constellations" xml:space="preserve">
+    <value>Constelaciones</value>
+  </data>
+  <data name="Sky_Names" xml:space="preserve">
+    <value>Nombres</value>
+  </data>
+  <data name="Sky_Planets" xml:space="preserve">
+    <value>Planetas</value>
+  </data>
+  <data name="Sky_Nebula" xml:space="preserve">
+    <value>Nebulosa</value>
+  </data>
+  <data name="Sky_NebulaGlow" xml:space="preserve">
+    <value>Brillo de la nebulosa</value>
+  </data>
+  <data name="Sky_Comet" xml:space="preserve">
+    <value>Cometa</value>
+  </data>
 </root>

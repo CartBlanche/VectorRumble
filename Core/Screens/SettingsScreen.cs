@@ -76,6 +76,10 @@ namespace VectorRumble
             };
             Rows.Add(neon);
 
+            var sky = new FrameRow(Strings.Label_Sky, FrameRowKind.Action) { Chevron = true };
+            sky.Selected += () => ScreenManager.AddScreen(new SkyScreen());
+            Rows.Add(sky);
+
             var moreRow = new FrameRow(Strings.Label_More, FrameRowKind.Expander) { Expanded = () => more };
             moreRow.Selected += () => more = !more;
             Rows.Add(moreRow);

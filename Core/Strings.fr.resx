@@ -446,4 +446,28 @@ Bouton B/O, Échap = Annuler</value>
     <data name="Label_PauseIdleMenus" xml:space="preserve">
         <value>Mettre les menus en pause si inactifs</value>
     </data>
+  <data name="Label_Sky" xml:space="preserve">
+    <value>Ciel</value>
+  </data>
+  <data name="Sky_Stars" xml:space="preserve">
+    <value>Étoiles en pixels</value>
+  </data>
+  <data name="Sky_Constellations" xml:space="preserve">
+    <value>Constellations</value>
+  </data>
+  <data name="Sky_Names" xml:space="preserve">
+    <value>Noms</value>
+  </data>
+  <data name="Sky_Planets" xml:space="preserve">
+    <value>Planètes</value>
+  </data>
+  <data name="Sky_Nebula" xml:space="preserve">
+    <value>Nébuleuse</value>
+  </data>
+  <data name="Sky_NebulaGlow" xml:space="preserve">
+    <value>Lueur de la nébuleuse</value>
+  </data>
+  <data name="Sky_Comet" xml:space="preserve">
+    <value>Comète</value>
+  </data>
 </root>

@@ -30,7 +30,7 @@ namespace VectorRumble
         protected SpriteBatch spriteBatch;
         SpriteFont spriteFont;
 
-        Texture2D starTexture;
+        SkyAssets skyAssets;
         protected VirtualGamePad virtualGamePad;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace VectorRumble
             }
             spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
             spriteFont = content.LoadLocalized<SpriteFont>("Fonts/retroSmall");
-            starTexture = content.Load<Texture2D>("Textures/blank");
+            skyAssets = new SkyAssets(ScreenManager.GraphicsDevice);
 
 
             lineBatch = new LineBatch(ScreenManager.GraphicsDevice);
@@ -97,6 +97,12 @@ namespace VectorRumble
                 if (World.Particles == effects)
                     World.Particles = new ParticleField();
                 effects = null;
+            }
+
+            if (skyAssets != null)
+            {
+                skyAssets.Dispose();
+                skyAssets = null;
             }
 
             if (spriteBatch != null)
@@ -150,6 +156,9 @@ namespace VectorRumble
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            // the sky and the stars, behind everything
+            World.Starfield.Draw(spriteBatch, lineBatch, skyAssets, spriteFont, UserSettings.Current.SkyLayers);
+
             lineBatch.Begin();
 
             // draw all actors
@@ -165,9 +174,7 @@ namespace VectorRumble
 
             DrawHud(elapsedTime);
 
-            // draw the stars
             spriteBatch.Begin();
-            World.Starfield.Draw(spriteBatch, starTexture);
             virtualGamePad?.Draw(spriteBatch);
             spriteBatch.End();
 
