@@ -936,6 +936,14 @@ namespace VectorRumble
 
 
         /// <summary>
+        /// How far (radians, signed by <paramref name="facing"/>: 1 turns right, -1 left) the nose turns in one update towards a heading
+        /// <paramref name="angleDiff"/> away: a full step, or less when that would pass the heading. A turn to the left used to take the
+        /// full step whatever the angle, so the nose overshot and swung back every frame.
+        /// </summary>
+        internal static float TurnStep(float angleDiff, float facing, float elapsedTime) =>
+            facing * Math.Min(angleDiff, elapsedTime * rotationRadiansPerSecond);
+
+        /// <summary>
         /// Process the input for this ship, from the gamepad assigned to it.
         /// </summary>
         /// <param name="elapsedTime">The amount of elapsed time, in seconds.</param>
@@ -986,8 +994,7 @@ namespace VectorRumble
                         1f : -1f;
                     if (angleDiff > 0f)
                     {
-                        Rotation += Math.Min(angleDiff, facing * elapsedTime *
-                            rotationRadiansPerSecond);
+                        Rotation += TurnStep(angleDiff, facing, elapsedTime);
                     }
                     // add velocity
                     Velocity += leftStick * (elapsedTime * speed);
