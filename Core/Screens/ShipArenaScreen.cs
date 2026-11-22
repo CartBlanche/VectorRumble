@@ -106,6 +106,17 @@ namespace VectorRumble
             }
 
             shipIndex = Math.Min(shipIndex, ShipCount - 1);
+#if DEVSHOT
+            if (int.TryParse(Environment.GetEnvironmentVariable("VR_SHIP"), out int devShip))
+            {
+                shipIndex = Math.Max(0, Math.Min(ShipCount - 1, devShip));
+            }
+
+            if (int.TryParse(Environment.GetEnvironmentVariable("VR_COLOUR"), out int devColour))
+            {
+                colourIndex = Math.Max(0, Math.Min(ShipPalette.Colours.Length - 1, devColour));
+            }
+#endif
 
             // an arena chosen last time may be gone from the folder
             if (net == null || Hosting)

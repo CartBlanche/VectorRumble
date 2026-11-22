@@ -11,6 +11,10 @@
   stop               stop recording, prints the file it wrote
   folder [path]      show or set the recording folder
   windows            list the windows OBS can capture (to check the name the game's window has)
+  bind-all [names]   make four scenes, "Vector Rumble - Dominique", "... - John", "... - Jane" and "... - Alison", each showing
+                     one of the four game windows (the lowest window id is the first named, Dominique by default: the games are started in that order; or name
+                     them in their starting order, for example: bind-all John Jane Alison Dominique)
+  cut <name>         switch to that player's scene (Dominique, John, Jane or Alison)
   bind               make the "Vector Rumble" scene (made if it is not there) show the running game's window, scaled
                      to fill the canvas with the title bar cropped off. When several game windows are open (the
                      video runs four), the lowest window id is taken: the host, which starts first.
@@ -187,6 +191,54 @@ def bind(obs):
     print("capturing window %d of %d matching %r" % (window, len(windows), WINDOW_MATCH))
 
 
+PLAYERS = ["Dominique", "John", "Jane", "Alison"]
+
+
+def scene_of(player):
+    return "Vector Rumble - " + player
+
+
+def bind_all(obs, order=None):
+    """One scene per player, each showing that player's game window, filling the canvas (title bar cropped)."""
+    windows = sorted(w for w in list_windows(obs) if WINDOW_MATCH.lower() in w[1].lower())
+    if len(windows) < len(PLAYERS):
+        raise RuntimeError("expected %d game windows matching %r, found %d: start the games first" % (len(PLAYERS), WINDOW_MATCH, len(windows)))
+    video = obs.request("GetVideoSettings")
+    width, height = video["baseWidth"], video["baseHeight"]
+    scenes = {s["sceneName"] for s in obs.request("GetSceneList")["scenes"]}
+    # the sources of earlier runs go (only ours: they start with this prefix); a name that was just removed stays busy for a
+    # while, so each run's sources get a name of their own
+    for i in obs.request("GetInputList")["inputs"]:
+        if i["inputName"].startswith("Vector Rumble window - "):
+            try:
+                obs.request("RemoveInput", {"inputName": i["inputName"]})
+            except RuntimeError:
+                pass
+    run = str(int(time.time()))
+    # the windows are in the order the games were started, and the players are named in that order
+    for (window, _), player in zip(windows, order or PLAYERS):
+        scene = scene_of(player)
+        source = "Vector Rumble window - %s %s" % (player, run)
+        if scene not in scenes:
+            obs.request("CreateScene", {"sceneName": scene})
+        item = obs.request("CreateInput", {"sceneName": scene, "inputName": source, "inputKind": "screen_capture",
+            "inputSettings": {"type": 1, "window": window, "show_cursor": False}, "sceneItemEnabled": True})["sceneItemId"]
+        for _ in range(20):
+            time.sleep(0.5)
+            got = obs.request("GetSceneItemTransform", {"sceneName": scene, "sceneItemId": item})["sceneItemTransform"]
+            if got["sourceWidth"] > 0:
+                break
+        else:
+            raise RuntimeError("%s never started delivering frames (window %d)" % (source, window))
+        src_w, src_h = got["sourceWidth"], got["sourceHeight"] - TITLE_BAR
+        scale = min(width / src_w, height / src_h)
+        obs.request("SetSceneItemTransform", {"sceneName": scene, "sceneItemId": item, "sceneItemTransform": {
+            "positionX": (width - src_w * scale) / 2, "positionY": (height - src_h * scale) / 2,
+            "scaleX": scale, "scaleY": scale, "cropTop": TITLE_BAR, "cropLeft": 0, "cropRight": 0, "cropBottom": 0,
+            "alignment": 5, "boundsType": "OBS_BOUNDS_NONE"}})
+        print("%s: window %d, %dx%d at %.2fx" % (player, window, src_w, src_h, scale))
+
+
 def main(argv):
     host = os.environ.get("OBS_HOST", "localhost")
     port = int(os.environ.get("OBS_PORT", "4455"))
@@ -234,6 +286,10 @@ def main(argv):
                 print("%d  %s" % (wid, name))
         elif cmd == "bind":
             bind(obs)
+        elif cmd == "bind-all":
+            bind_all(obs, rest or None)
+        elif cmd == "cut":
+            obs.request("SetCurrentProgramScene", {"sceneName": scene_of(rest[0])})
         elif cmd == "call":
             print(json.dumps(obs.request(rest[0], json.loads(rest[1]) if len(rest) > 1 else None), indent=2))
         else:

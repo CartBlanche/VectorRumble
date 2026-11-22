@@ -44,6 +44,9 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     /// <summary>The heading. Empty on the main menu, which shows the game's big title instead.</summary>
     protected string Heading { get; set; } = "";
 
+    /// <summary>A name shown after the heading, " - NAME", in blue (the Multiplayer screen shows who the player is).</summary>
+    protected string HeadingName { get; set; } = "";
+
     /// <summary>How the lines are laid out.</summary>
     protected FrameLayout Layout { get; set; } = FrameLayout.List;
 
@@ -405,7 +408,13 @@ public abstract class FrameScreen : VectorEngine.Screens.GameScreen, ILanguageAw
     void DrawHeading()
     {
         if (string.IsNullOrEmpty(Heading)) return;
-        canvas.Text(canvas.Display, Heading.ToUpperInvariant(), new Vector2(88, 128), Style.Text, 50f);
+        string text = Heading.ToUpperInvariant() + (string.IsNullOrEmpty(HeadingName) ? "" : " - ");
+        canvas.Text(canvas.Display, text, new Vector2(88, 128), Style.Text, 50f);
+        if (!string.IsNullOrEmpty(HeadingName))
+        {
+            canvas.Text(canvas.Display, HeadingName.ToUpperInvariant(), new Vector2(88 + FrameCanvas.Measure(canvas.Display, text, 50f), 128),
+                new Color(90, 170, 255), 50f);
+        }
     }
 
     // rows slide in one after another; the delay stops growing after the fifth row, so a long list is settled when the transition is over

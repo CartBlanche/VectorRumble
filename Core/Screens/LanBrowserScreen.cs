@@ -44,7 +44,15 @@ namespace VectorRumble
         public LanBrowserScreen()
         {
             Heading = Strings.Multiplayer;
+            HeadingName = PlayerName();
             RebuildEntries();
+        }
+
+        // who the player is on the network, as the others see them in the lobby (kept short enough for the heading)
+        static string PlayerName()
+        {
+            string name = LanLobby.DisplayName(Microsoft.Xna.Framework.GamerServices.SignedInGamer.Current?.Gamertag);
+            return name.Length > 14 ? name.Substring(0, 14) : name;
         }
 
         #region Entries

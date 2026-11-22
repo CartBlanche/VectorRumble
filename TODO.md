@@ -39,6 +39,8 @@ stuck events. Never watched in a long match by Claude; the user and testers are 
 
 ## Still to do on the UI
 
+- Player name (asked 2026-11-22): the Multiplayer screen's heading now reads "Multiplayer - <name>" (the name the others see in the lobby; today the computer's user name, or `VR_NAME` in a DevShots build). Still to do: let the player type a name, on the Multiplayer screen and the Single Player screen, defaulting to the passed in one, saved in `UserSettings`; show it in the Single Player pick screen too. Questions: a length limit (about 12 characters) and what is allowed; text entry on a gamepad and on touch (an on-screen keyboard, per platform); not defaulting to a real name from the OS user name without saying so (it goes out to everyone on the LAN); the name's `_xxxxxxxx` network suffix stays hidden (`LanLobby.DisplayName`).
+
 - The in-match score text and the engine's loading screen are still in the old style.
 - Network match: no Rematch (needs the host to bring everyone back to the waiting room).
 - Single Player's preview (`Core/Screens/MatchPreview.cs`) shows your last ship and colour (a random built-in ship if none is saved or it is a

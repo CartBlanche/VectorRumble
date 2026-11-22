@@ -35,9 +35,17 @@ namespace VectorRumble
     ///   VR_DIEAT=<s>              every ship is destroyed s seconds in
     ///   VR_NAME=<name>            the player's name in the lobby and the match (instead of the computer's user name)
     ///   VR_WIN=<x>,<y>,<w>,<h>    put the window here, this size, in points (to tile several games on one screen)
+    ///   VR_TOURFILE=<path>        the tour starts VR_TOURSTART seconds after this file appears (instead of that many seconds after launch)
     ///   VR_TOUR=<rows>            from VR_TOURSTART seconds (default 4), pick these menu rows in turn, as a person would: for example
     ///                             "Play Game,Multiplayer,Host a Game" (the highlight moves, a pause, then it is pressed); after the last,
     ///                             on the host's rules screen, start hosting VR_RULESHOLD seconds later (default 3)
+    ///   VR_SHIP=<n>, VR_COLOUR=<n>  the ship (0 Blaster, 1 Destroyer, 2 Bat-ter Up, 3 Nimble, 4 Defender) and colour this player starts with in a lobby
+    ///   VR_GOFILE=<path>          a joining copy (VR_OPEN=browse) shows the host's game in the list at once, but only selects and joins it once this file exists
+    ///   VR_STARTFILE=<path>       the host starts the match once this file exists (a director script makes it)
+    ///   VR_SCORELIMIT=<n>         kills to win (5 to 25)
+    ///   VR_QUITAFTEROVER=<s>      quit s seconds after the game over screen appears
+    ///   Cues: "[DEVSHOT] cue <name> unix-ms <n>" lines (host-lobby, session-visible, join-highlight, join-pressed, joined, ready,
+    ///   match-start, game-over) tell a director script what is on screen
     ///   VR_DEMOHOP=1              two AI pilots hop every 10 to 15 s (for the video)
     ///   VR_ENDAFTER=<s>           quit s seconds after the match starts (VR_AUTOSTART); prints "[DEVSHOT] match-start unix-ms N" when it does
     ///   VR_CLEANSETTINGS=1        use the default sky layers and volumes, whatever the settings file says (for the video)
@@ -63,6 +71,8 @@ namespace VectorRumble
         int tourStep, tourPhase;
         double tourDoneAt = -1;
         bool hostingStarted, arenaToLobby;
+        double browseShownAt = -1, browseHighlightAt = -1, joinedAt = -1, gameOverAt = -1;
+        bool browserCued, hostLobbyCued, joinedCued, readyDone, startedByFile;
         bool autoStarted, netGone, langStepped, thenDone, picked;
         int burstTaken;
         int actIndex;
@@ -140,6 +150,11 @@ namespace VectorRumble
                 UserSettings.Current.MenuFireworks = false;
             }
 
+            if (int.TryParse(Env("VR_SCORELIMIT"), out int scoreLimit))
+            {
+                MatchRules.Current.ScoreLimit = Math.Max(MatchRules.MinScoreLimit, Math.Min(MatchRules.MaxScoreLimit, scoreLimit));
+            }
+
             if (Env("VR_NAME") is string name)
             {
                 // the lobby takes the player's name from the signed in gamer
@@ -171,6 +186,7 @@ namespace VectorRumble
                 s.SkyStars = d.SkyStars; s.SkyConstellations = d.SkyConstellations; s.SkyNames = d.SkyNames;
                 s.SkyPlanets = d.SkyPlanets; s.SkyNebula = d.SkyNebula; s.SkyGlow = d.SkyGlow; s.SkyComet = d.SkyComet;
                 s.MusicPercent = d.MusicPercent; s.EffectsPercent = d.EffectsPercent; s.DirectionalSound = d.DirectionalSound;
+                s.PauseIdleMenus = false;      // a recording must not freeze behind a "Paused" while it waits
                 s.NeonEffect = d.NeonEffect; s.MotionBlur = d.MotionBlur; s.BlurIntensity = d.BlurIntensity;
             }
 
@@ -339,23 +355,106 @@ namespace VectorRumble
                 }
             }
 
-            if (open == "browse" && now > 13 && !autoStarted)
+            if (open == "browse" && !autoStarted)
             {
                 foreach (var screen in screens.GetScreens())
                 {
                     if (screen is LanBrowserScreen browser)
                     {
+                        if (!browserCued)
+                        {
+                            browserCued = true;
+                            Cue("browser-open", now);
+                        }
+
                         var sessions = (IList)typeof(LanBrowserScreen).GetField("sessions", Hidden).GetValue(browser);
-                        if (sessions.Count > 0)
+                        if (sessions.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        if (browseShownAt < 0)
+                        {
+                            browseShownAt = now;
+                            Cue("session-visible", now);
+                        }
+
+                        // wait for the go signal (if there is one), then select the game in the list, rest a moment and join it
+                        string go = Env("VR_GOFILE");
+                        if (go != null && !System.IO.File.Exists(go))
+                        {
+                            continue;
+                        }
+
+                        if (browseHighlightAt < 0)
+                        {
+                            browseHighlightAt = now;
+                            typeof(FrameScreen).GetProperty("SelectedIndex", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(browser, 1);
+                            Cue("join-highlight", now);
+                        }
+                        else if (now > browseHighlightAt + 1.6)
                         {
                             autoStarted = true;
+                            Cue("join-pressed", now);
                             typeof(LanBrowserScreen).GetMethod("Join", Hidden).Invoke(browser, new[] { sessions[0] });
                         }
                     }
                 }
             }
 
-            if (Env("VR_NETGO") != null && now > Seconds("VR_NETGO", 0) && !netGone)
+            // in the lobby: a joining copy gets ready a moment after it arrives; the host says when its lobby opens, and starts the
+            // match when its start file appears
+            foreach (var screen in screens.GetScreens())
+            {
+                if (screen is ShipArenaScreen room && typeof(ShipArenaScreen).GetField("lobby", Hidden).GetValue(room) != null)
+                {
+                    if (open == "browse")
+                    {
+                        if (!joinedCued)
+                        {
+                            joinedCued = true;
+                            joinedAt = now;
+                            Cue("joined", now);
+                        }
+                        else if (!readyDone && now > joinedAt + 2.5)
+                        {
+                            readyDone = true;
+                            Cue("ready", now);
+                            Call(room, "ToggleReady");
+                        }
+                    }
+                    else if (Env("VR_TOUR") != null)
+                    {
+                        if (!hostLobbyCued)
+                        {
+                            hostLobbyCued = true;
+                            Cue("host-lobby", now);
+                        }
+
+                        if (Env("VR_STARTFILE") is string startFile && System.IO.File.Exists(startFile) && !startedByFile)
+                        {
+                            startedByFile = true;
+                            autoStarted = true;
+                            matchStartedAt = now;
+                            Cue("match-start", now);
+                            Console.WriteLine("[DEVSHOT] match-start unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+                            Call(room, "StartNetworkMatch");
+                        }
+                    }
+                }
+                else if (screen is GameOverScreen && gameOverAt < 0)
+                {
+                    gameOverAt = now;
+                    Cue("game-over", now);
+                }
+            }
+
+            if (Env("VR_QUITAFTEROVER") is string quitOver && gameOverAt >= 0 && now > gameOverAt + double.Parse(quitOver, System.Globalization.CultureInfo.InvariantCulture))
+            {
+                exit();
+            }
+
+            if (Env("VR_NETGO") != null && now > Seconds("VR_NETGO", 0) && !netGone && Env("VR_STARTFILE") == null)
             {
                 foreach (var screen in screens.GetScreens())
                 {
@@ -428,7 +527,20 @@ namespace VectorRumble
         {
             if (tourNext == 0)
             {
-                tourNext = Seconds("VR_TOURSTART", 4);
+                if (Env("VR_TOURFILE") is string tourFile)
+                {
+                    // the tour waits for a signal from the script that records it
+                    if (!System.IO.File.Exists(tourFile))
+                    {
+                        return;
+                    }
+
+                    tourNext = now + Seconds("VR_TOURSTART", 0.5);
+                }
+                else
+                {
+                    tourNext = Seconds("VR_TOURSTART", 4);
+                }
             }
 
             if (now < tourNext)
@@ -500,6 +612,9 @@ namespace VectorRumble
                 tourNext = now + 2.4;
             }
         }
+
+        static void Cue(string name, double now) =>
+            Console.WriteLine("[DEVSHOT] cue " + name + " unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
         static void Call(object screen, string method) => screen.GetType().GetMethod(method, Hidden).Invoke(screen, null);
 

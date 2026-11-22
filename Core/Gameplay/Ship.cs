@@ -348,20 +348,14 @@ namespace VectorRumble
         float demoTimer, demoWaited;
         bool demoArmed;
 
-        // The video: two of the computer's pilots (slots 1 and 3) hop every 10 to 15 s. The hop is timed to clear a shot that
+        // The video: the computer's pilots on the copies of the game started with VR_DEMOHOP hop every 10 to 15 s. The hop is timed to clear a shot that
         // is about to reach the ship (a rocket, a laser, a mine drifting in), so the shot passes under it at the top of the
         // hop; if none comes within 6 s it hops anyway.
         void DemoHopUpdate(float elapsedTime)
         {
-            int slot = Array.IndexOf(((World)world).Ships, this);
-            if (slot != 1 && slot != 3)
-            {
-                return;
-            }
-
             if (demoRandom == null)
             {
-                demoRandom = new Random((DevShots.Seed ?? 1) * 7 + slot);
+                demoRandom = new Random((DevShots.Seed ?? 1) * 7 + (PilotName ?? "").Length);
             }
 
             if (!demoArmed)
@@ -381,7 +375,7 @@ namespace VectorRumble
             Projectile over = ShotArrivingSoon();
             if (over != null || demoWaited > 6f)
             {
-                Console.WriteLine("[DEVSHOT] demo hop, slot " + slot + (over != null ? " over a " + over.GetType().Name : " with nothing coming"));
+                Console.WriteLine("[DEVSHOT] demo hop, " + PilotName + (over != null ? " over a " + over.GetType().Name : " with nothing coming"));
                 TryHop();
                 demoArmed = false;
             }

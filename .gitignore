@@ -270,3 +270,4 @@ paket-files/
 
 # the video recordings and logs (itch/video/record-video.sh)
 /video/
+__pycache__/
