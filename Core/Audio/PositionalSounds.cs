@@ -55,6 +55,7 @@ namespace VectorRumble
             ["playerDeath"] = new SoundCue(0, new[] { "explosion2" }, new[] { "explosion3" }),
             ["playerSpawn"] = new SoundCue(0, new[] { "phase_expire_alt" }),
             ["powerUpSpawn"] = new SoundCue(0, new[] { "menu_back" }),
+            ["hop"] = new SoundCue(0, new[] { "menu_scroll" }),
             ["powerUpTouch"] = new SoundCue(0, new[] { "weapon_pickup_alt_retro" }),
         };
 

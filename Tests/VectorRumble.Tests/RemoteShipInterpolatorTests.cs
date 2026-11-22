@@ -31,7 +31,7 @@ namespace VectorRumble.Tests
         static void Sample(RemoteShipInterpolator interpolator, double now,
             out Vector2 position, out float rotation, out byte shield)
         {
-            interpolator.Sample(now, out position, out rotation, out _, out shield);
+            interpolator.Sample(now, out position, out rotation, out _, out shield, out _);
         }
 
         static Vector2 PositionAt(RemoteShipInterpolator interpolator, double now)

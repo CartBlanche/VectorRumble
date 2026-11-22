@@ -65,7 +65,7 @@ namespace VectorRumble
 #endif
             // keeps this game from listing, or joining, the sessions of other games on the network
             // protocol 2: the packets carry a version byte now, so older builds neither join nor misread
-            VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 3);
+            VectorEngine.Networking.MultiplayerSessionService.Initialize("VectorRumble", protocolVersion: 4);
 
             // what the player chose last time: the language (before any content loads), the display, the glow
             UserSettings.Initialize();

@@ -61,8 +61,8 @@ namespace VectorRumble.Networking
                     continue;
 
                 interpolators[slot].Sample(clock, out var position, out var rotation,
-                    out var velocity, out var shield);
-                ships[slot].ApplyRemoteState(position, rotation, velocity, shield);
+                    out var velocity, out var shield, out var height);
+                ships[slot].ApplyRemoteState(position, rotation, velocity, shield, height);
             }
         }
 

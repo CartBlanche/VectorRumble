@@ -27,6 +27,9 @@ namespace VectorRumble
         /// <summary>Lay a mine behind the ship.</summary>
         public bool Mine;
 
+        /// <summary>Hop over other ships (true only on the update the button went down).</summary>
+        public bool Hop;
+
     }
 
     /// <summary>
@@ -39,6 +42,7 @@ namespace VectorRumble
         public readonly List<Keys> Thrust = new List<Keys>();
         public readonly List<Keys> Fire = new List<Keys>();
         public readonly List<Keys> Mine = new List<Keys>();
+        public readonly List<Keys> Hop = new List<Keys>();
 
         public static KeyboardLayout Wasd()
         {
@@ -48,6 +52,7 @@ namespace VectorRumble
             layout.Thrust.Add(Keys.W);
             layout.Fire.Add(Keys.Tab);
             layout.Mine.Add(Keys.S);
+            layout.Hop.Add(Keys.Space);
             return layout;
         }
 
@@ -65,6 +70,7 @@ namespace VectorRumble
                 layout.Thrust.AddRange(part.Thrust);
                 layout.Fire.AddRange(part.Fire);
                 layout.Mine.AddRange(part.Mine);
+                layout.Hop.AddRange(part.Hop);
             }
             return layout;
         }
@@ -78,6 +84,7 @@ namespace VectorRumble
             layout.Fire.Add(Keys.RightControl);
             layout.Fire.Add(Keys.RightAlt);
             layout.Mine.Add(Keys.Down);
+            layout.Hop.Add(Keys.RightShift);
             return layout;
         }
     }
@@ -102,6 +109,7 @@ namespace VectorRumble
         private readonly PlayerIndex pad;
 
         private GamePadState lastPad;
+        private bool lastHopKey;
 
         /// <summary>The gamepad this player uses (it also shakes when the ship is hit).</summary>
         public PlayerIndex Pad => pad;
@@ -132,6 +140,13 @@ namespace VectorRumble
 
             input.FireAhead = padState.Buttons.RightShoulder == ButtonState.Pressed;
             input.Mine = padState.Buttons.B == ButtonState.Pressed && lastPad.Buttons.B == ButtonState.Released;
+
+            // A is the hop button on a pad and on the touch controls
+            input.Hop = padState.Buttons.A == ButtonState.Pressed && lastPad.Buttons.A == ButtonState.Released;
+
+            bool hopKey = Keyboard != null && IsDown(keys, Keyboard.Hop);
+            input.Hop |= hopKey && !lastHopKey;
+            lastHopKey = hopKey;
 
             if (Keyboard != null)
             {

@@ -27,6 +27,7 @@ namespace VectorRumble.Networking
             public float Rotation;
             public Vector2 Velocity;
             public byte Shield;
+            public byte Height;
         }
 
         readonly Snapshot[] buffer = new Snapshot[Capacity];
@@ -81,6 +82,7 @@ namespace VectorRumble.Networking
                 Rotation = state.Rotation,
                 Velocity = state.Velocity,
                 Shield = state.Shield,
+                Height = state.Height,
             };
             return true;
         }
@@ -89,7 +91,7 @@ namespace VectorRumble.Networking
         /// Where the ship should be drawn at the given local time
         /// </summary>
         public void Sample(double now, out Vector2 position, out float rotation,
-            out Vector2 velocity, out byte shield)
+            out Vector2 velocity, out byte shield, out byte height)
         {
             if (count == 0)
             {
@@ -97,6 +99,7 @@ namespace VectorRumble.Networking
                 rotation = 0f;
                 velocity = Vector2.Zero;
                 shield = 0;
+                height = 0;
                 return;
             }
 
@@ -111,6 +114,7 @@ namespace VectorRumble.Networking
                 rotation = first.Rotation;
                 velocity = first.Velocity;
                 shield = first.Shield;
+                height = first.Height;
                 return;
             }
 
@@ -122,6 +126,7 @@ namespace VectorRumble.Networking
                 rotation = newest.Rotation;
                 velocity = newest.Velocity;
                 shield = newest.Shield;
+                height = newest.Height;
                 return;
             }
 
@@ -140,6 +145,7 @@ namespace VectorRumble.Networking
             rotation = a.Rotation + MathHelper.WrapAngle(b.Rotation - a.Rotation) * amount;
             velocity = Vector2.Lerp(a.Velocity, b.Velocity, amount);
             shield = b.Shield;
+            height = (byte)(a.Height + (int)System.Math.Round((b.Height - a.Height) * amount));
         }
     }
 }

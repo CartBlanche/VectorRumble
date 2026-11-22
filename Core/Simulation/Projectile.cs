@@ -176,6 +176,11 @@ namespace VectorRumble
                 {
                     return false;
                 }
+                // a ship in the air is hopped over: shots, mines and rockets pass under it
+                if (target is Ship hopping && hopping.Airborne)
+                {
+                    return false;
+                }
                 // don't hit the owner if the damageOwner flag isn't set
                 if ((target == owner) && (this.damageOwner == false))
                 {

@@ -163,6 +163,7 @@ namespace VectorRumble.Networking
         public float Rotation { get; set; }             // radians
         public Vector2 Velocity { get; set; }           // units per second
         public byte Shield { get; set; }                // 0 (none) to 100 (full)
+        public byte Height { get; set; }                // 0 on the ground, 1 to 255 in a hop (full height is the top)
 
         public void Serialize(BinaryWriter writer)
         {
@@ -172,6 +173,7 @@ namespace VectorRumble.Networking
             writer.Write(Rotation);
             writer.Write(Velocity);
             writer.Write(Shield);
+            writer.Write(Height);
         }
 
         public static ShipStatePacket Deserialize(BinaryReader reader)
@@ -184,6 +186,7 @@ namespace VectorRumble.Networking
                 Rotation = reader.ReadSingle(),
                 Velocity = reader.ReadVector2(),
                 Shield = reader.ReadByte(),
+                Height = reader.ReadByte(),
             };
         }
     }

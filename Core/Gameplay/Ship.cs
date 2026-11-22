@@ -329,6 +329,169 @@ namespace VectorRumble
         }
         #endregion
 
+        #region Hop
+        /// <summary>How long a hop lasts, in seconds.</summary>
+        public const float HopDuration = 0.7f;
+
+        /// <summary>The time from one take-off to the next possible one, in seconds.</summary>
+        public const float HopCooldown = 1.5f;
+
+        /// <summary>How much bigger the ship is drawn at the top of a hop (0.4 is 40% bigger).</summary>
+        public const float HopGrowth = 0.4f;
+
+        /// <summary>How hard two ships are pushed apart when one lands on the other, in pixels a second.</summary>
+        const float landingPush = 220f;
+
+#if DEVSHOT
+        float devClock;
+#endif
+        float hopTime = -1f;            // seconds since take-off, or -1 on the ground
+        float hopCooldownLeft;
+        Vector2[] hullBase;             // the outline at normal size, for drawing it bigger in the air
+        VectorPolygon hullBaseOf;
+        float hullScale = 1f;
+
+        /// <summary>How high the ship is: 0 on the ground, 1 at the top of a hop.</summary>
+        public float Height { get; private set; }
+
+        /// <summary>True while the ship is in the air: shots and other ships pass under it, asteroids and walls still stop it.</summary>
+        public bool Airborne => Height > 0f;
+
+        /// <summary>True when a hop would start now: this machine's own live ship, on the ground, and rested.</summary>
+        public bool CanHop => !IsRemote && selected && playing && !dead && hopTime < 0f && hopCooldownLeft <= 0f;
+
+        /// <summary>The height as sent to the other machines: 0 on the ground, 1 to 255 in the air.</summary>
+        internal byte HeightByte => Height <= 0f ? (byte)0 : (byte)Math.Max(1, Math.Round(Height * 255f));
+
+        /// <summary>Starts a hop if one can start. Momentum is kept: a hop changes nothing but the height.</summary>
+        public bool TryHop()
+        {
+            if (!CanHop)
+            {
+                return false;
+            }
+
+            hopTime = 0f;
+            hopCooldownLeft = HopCooldown;
+            Height = HopHeightAt(0f);
+            world.PlaySound("hop", position);
+            return true;
+        }
+
+        static float HopHeightAt(float time) =>
+            Math.Max(0.02f, (float)Math.Sin(Math.PI * Math.Min(time, HopDuration) / HopDuration));
+
+        void UpdateHop(float elapsedTime)
+        {
+            hopCooldownLeft = Math.Max(0f, hopCooldownLeft - elapsedTime);
+            if (hopTime < 0f)
+            {
+                return;
+            }
+
+            hopTime += elapsedTime;
+            if (hopTime >= HopDuration)
+            {
+                Land();
+            }
+            else
+            {
+                Height = HopHeightAt(hopTime);
+            }
+        }
+
+        // down again: a ship that comes down on another is shoved clear of it, nobody is hurt
+        void Land()
+        {
+            hopTime = -1f;
+            Height = 0f;
+            foreach (Actor actor in world.Actors)
+            {
+                if (actor is Ship other && other != this && !other.Dead && other.Playing && !other.Airborne)
+                {
+                    Vector2 apart = position - other.Position;
+                    float reach = radius + other.Radius;
+                    if (apart.LengthSquared() < reach * reach)
+                    {
+                        apart = apart.LengthSquared() > 0.01f ? Vector2.Normalize(apart) : new Vector2((float)Math.Sin(rotation), -(float)Math.Cos(rotation));
+                        velocity += apart * landingPush;
+                        if (!other.IsRemote)
+                        {
+                            other.Velocity -= apart * landingPush;
+                        }
+                    }
+                }
+            }
+        }
+
+        // back on the ground, with the outline at its normal size
+        void ResetHop()
+        {
+            hopTime = -1f;
+            hopCooldownLeft = 0f;
+            Height = 0f;
+            SetHullScale(1f);
+        }
+
+        // the outline is drawn bigger at the top of a hop: the points are set from the normal ones, only when the size changes
+        void SetHullScale(float scale)
+        {
+            if (Shape == null)
+            {
+                return;
+            }
+
+            if (hullBaseOf != Shape)
+            {
+                hullBase = (Vector2[])Shape.Points.Clone();
+                hullBaseOf = Shape;
+                hullScale = 1f;
+            }
+
+            if (scale == hullScale)
+            {
+                return;
+            }
+
+            for (int i = 0; i < hullBase.Length; i++)
+            {
+                Shape.Points[i] = hullBase[i] * scale;
+            }
+
+            hullScale = scale;
+        }
+
+        // a dim copy of the outline a little down and to the right: close under a ship on the ground, further away and fainter in the air
+        void DrawShadow(LineBatch lineBatch)
+        {
+            if (Shape == null)
+            {
+                return;
+            }
+
+            Vector2 offset = new Vector2(3f + 20f * Height, 4f + 26f * Height) * ActorScale.Value;
+            Shape.Transform(Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X + offset.X, position.Y + offset.Y, 0f));
+            float alpha = (0.2f - 0.08f * Height) * color.A;
+            lineBatch.DrawEmptyPolygon(Shape, new Color(color.R, color.G, color.B, (byte)alpha));
+        }
+
+        /// <summary>A ship in the air is not touched by other ships or by shots, and does not touch them.</summary>
+        public override bool Touch(Actor target)
+        {
+            if (target is Ship other && (Airborne || other.Airborne))
+            {
+                return false;
+            }
+
+            if (Airborne && target is Projectile)
+            {
+                return false;
+            }
+
+            return base.Touch(target);
+        }
+        #endregion
+
         #region Update
         /// <summary>
         /// Update the ship.
@@ -368,6 +531,14 @@ namespace VectorRumble
             }
             else
             {
+                UpdateHop(elapsedTime);
+#if DEVSHOT
+                devClock += elapsedTime;
+                if (DevShots.HopAt is float at && devClock >= at && (devClock - at) % 2f < elapsedTime)
+                {
+                    TryHop();
+                }
+#endif
                 // apply drag to the velocity
                 velocity -= velocity * (elapsedTime * dragPerSecond);
                 if (velocity.LengthSquared() <= 0f)
@@ -511,7 +682,7 @@ namespace VectorRumble
 
             flameTime += elapsedTime;
             float scale = ActorScale.Value;
-            Matrix placeOnShip = Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0f);
+            Matrix placeOnShip = Matrix.CreateScale(1f + HopGrowth * Height) * Matrix.CreateRotationZ(rotation) * Matrix.CreateTranslation(position.X, position.Y, 0f);
             Color flame = FlameColour(color);
             Color flameCore = Color.Lerp(flame, Color.White, 0.7f);
             foreach (Thruster thruster in thrusters)
@@ -562,6 +733,9 @@ namespace VectorRumble
                 return;
             }
 
+            DrawShadow(lineBatch);
+            SetHullScale(1f + HopGrowth * Height);
+
             // We won't have shields during selection
             if (shieldPolygon != null)
             {
@@ -576,8 +750,8 @@ namespace VectorRumble
                 Matrix translationMatrix = Matrix.CreateTranslation(position.X,
                     position.Y, 0f);
 
-                shieldPolygon.Transform(Matrix.CreateScale(1f + shieldRotationToScaleScalar
-                    * (float)Math.Cos(shieldRotation * shieldRotationToScalePeriodScalar)) *
+                shieldPolygon.Transform(Matrix.CreateScale((1f + HopGrowth * Height) * (1f + shieldRotationToScaleScalar
+                    * (float)Math.Cos(shieldRotation * shieldRotationToScalePeriodScalar))) *
                     Matrix.CreateRotationZ(shieldRotation) * translationMatrix);
 
                 // draw the shield
@@ -645,6 +819,12 @@ namespace VectorRumble
         /// <returns>If true, this object was damaged.</returns>
         public override bool Damage(Actor source, float damageAmount)
         {
+            // shots, mines and rockets (and their blasts) pass under a ship in the air
+            if (Airborne && source is Projectile)
+            {
+                return false;
+            }
+
             // in a network match the host decides what hits which ship and tells the ship's owner
             NetworkMatch match = world.Match;
             if (match != null)
@@ -764,6 +944,7 @@ namespace VectorRumble
                 }
 
                 // ships should not be added to the garbage list, so just set dead
+                ResetHop();
                 dead = true;
             }
         }
@@ -797,6 +978,7 @@ namespace VectorRumble
                 // reset the safety timers
                 safeTimer = safeTimerMaximum;
                 // create the default weapons
+                ResetHop();
                 weapon = new LaserWeapon(this);
                 mineWeapon = new MineWeapon(this);
                 // play the ship-spawn cue
@@ -877,14 +1059,16 @@ namespace VectorRumble
         {
             playing = false;
             selected = false;
+            ResetHop();
             dead = true;
         }
 
         /// <summary>
         /// Place a remote ship where the network says it is.
         /// </summary>
-        internal void ApplyRemoteState(Vector2 newPosition, float newRotation, Vector2 newVelocity, byte shield)
+        internal void ApplyRemoteState(Vector2 newPosition, float newRotation, Vector2 newVelocity, byte shield, byte height)
         {
+            Height = height / 255f;
             position = newPosition;
             rotation = newRotation;
             velocity = newVelocity;
@@ -904,6 +1088,7 @@ namespace VectorRumble
                 Rotation = rotation,
                 Velocity = velocity,
                 Shield = (byte)MathHelper.Clamp(shieldStrength, 0f, shieldMaximum),
+                Height = HeightByte,
             };
         }
 
@@ -1027,6 +1212,17 @@ namespace VectorRumble
 
                     //finally, add this vector to our velocity.
                     Velocity += shipVelocityAdd;
+                }
+
+                if (Input.Hop)
+                {
+                    TryHop();
+                }
+
+                // a ship in the air cannot fire or lay mines
+                if (Airborne)
+                {
+                    return;
                 }
 
                 if (MatchRules.Current.ControllersCanShootInAllDirections && Input.Aim != Vector2.Zero)

@@ -49,6 +49,9 @@
 #begin Audio/Waves/phase_expire_alt.wav
 /copy:Audio/Waves/phase_expire_alt.wav
 
+#begin Audio/Waves/menu_scroll.wav
+/copy:Audio/Waves/menu_scroll.wav
+
 #begin Audio/Waves/menu_back.wav
 /copy:Audio/Waves/menu_back.wav
 
