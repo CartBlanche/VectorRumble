@@ -186,7 +186,8 @@ namespace VectorRumble
         readonly List<Vector2> path = new List<Vector2>();
 
         AIState state = AIState.Patrol;
-        Ship rival;                     // the nearest rival in the match, seen or not
+        Ship rival;                     // the rival in the match it is dealing with, seen or not: the nearest, but not swapped at every look
+        float rivalSince;               // when it took this rival
         bool sees;                      // the rival is in clear sight, as of the last look
         Vector2 lastKnown;              // where the rival was last seen
         float lookTimer;
@@ -409,6 +410,11 @@ namespace VectorRumble
             // not exact, except on Hard: the pilot only knows the direction it came from
             Vector2 jitter = new Vector2((float)random.NextDouble() * 2f - 1f, (float)random.NextDouble() * 2f - 1f) * profile.HitLocateError;
             lastKnown = attacker.Position + jitter;
+            if (rival != attacker)
+            {
+                rivalSince = time;
+            }
+
             rival = attacker;
 
             if (state == AIState.Patrol || state == AIState.Search)
@@ -524,7 +530,8 @@ namespace VectorRumble
 
         void FindRival()
         {
-            rival = null;
+            Ship current = rival != null && !rival.Dead && rival.Playing ? rival : null;
+            Ship nearest = null;
             float best = float.MaxValue;
             var actors = world.Actors;
             for (int i = 0; i < actors.Count; i++)
@@ -535,10 +542,24 @@ namespace VectorRumble
                     if (d < best)
                     {
                         best = d;
-                        rival = other;
+                        nearest = other;
                     }
                 }
             }
+
+            // stay with the rival it has, unless another has been much nearer for a while
+            if (current != null && nearest != null && nearest != current
+                && !ShouldSwitchRival(time - rivalSince, Vector2.Distance(ship.Position, current.Position), (float)Math.Sqrt(best)))
+            {
+                nearest = current;
+            }
+
+            if (nearest != rival)
+            {
+                rivalSince = time;
+            }
+
+            rival = nearest;
         }
 
         void FindPowerUp()
@@ -977,6 +998,18 @@ namespace VectorRumble
         #endregion
 
         #region The arithmetic (static, so that it can be tested)
+
+        // how long (seconds) a pilot keeps a rival before it may turn to another, and how much nearer the other must be (as a share of the distance)
+        const float RivalHold = 2.5f;
+        const float RivalCloser = 0.75f;
+
+        /// <summary>
+        /// Whether to turn from the rival the pilot has to another that is nearer: only after it has had this one for <see cref="RivalHold"/>
+        /// seconds, and only if the other is clearly nearer. Without that, two rivals about as far off swap places in the pilot's mind at every look,
+        /// and it turns back and forth between them.
+        /// </summary>
+        internal static bool ShouldSwitchRival(float heldSeconds, float currentDistance, float candidateDistance) =>
+            heldSeconds >= RivalHold && candidateDistance < currentDistance * RivalCloser;
 
         /// <summary>True once a chasing pilot has gone this many looks, <paramref name="reactionTime"/> apart, without seeing its rival: long enough to give up.</summary>
         internal static bool LostChase(int unseenLooks, float reactionTime) => unseenLooks * reactionTime >= ChaseGrace;

@@ -179,5 +179,14 @@ namespace VectorRumble.Tests
             Assert.False(AIPilot.LostChase(4, AIProfile.For(AIDifficulty.Hard).ReactionTime));
             Assert.True(AIPilot.LostChase(7, AIProfile.For(AIDifficulty.Hard).ReactionTime));
         }
+
+        [Fact]
+        public void A_pilot_keeps_its_rival_for_a_while_and_only_turns_to_one_that_is_clearly_nearer()
+        {
+            Assert.False(AIPilot.ShouldSwitchRival(0.5f, 400f, 100f));     // just took this one: stay, even if another is much nearer
+            Assert.False(AIPilot.ShouldSwitchRival(5f, 300f, 280f));       // held long enough, but the other is barely nearer
+            Assert.True(AIPilot.ShouldSwitchRival(5f, 300f, 150f));        // held long enough and the other is much nearer
+            Assert.False(AIPilot.ShouldSwitchRival(5f, 300f, 400f));       // never to one that is further
+        }
 }
 }
