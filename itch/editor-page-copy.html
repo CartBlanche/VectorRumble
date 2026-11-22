@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Vector Rumble Editor: itch.io page copy (draft)</title>
+<style>
+body{background:#06061a;color:#eaf0ff;font:16px/1.5 Lato,system-ui,sans-serif;max-width:820px;margin:24px auto;padding:0 16px}
+h1,h2{font-family:Orbitron,Eurostile,Arial,sans-serif;font-weight:600}
+h1{font-size:22px}h2.s{font-size:15px;color:#ff7ad9;border-bottom:1px solid #1c2440;padding-bottom:4px;margin-top:34px}
+.note{color:#8a9bb8;font-size:13px}
+.box{background:#0b0d2a;border:1px solid #1c2440;border-radius:6px;padding:12px 16px;margin:8px 0}
+button{background:#ff7ad9;color:#06061a;border:0;border-radius:4px;padding:4px 12px;font-weight:700;cursor:pointer}
+</style>
+<body>
+<h1>Vector Rumble Editor: itch.io page copy (draft)</h1>
+<p class="note">For the separate HTML project that hosts the editor (<code>Editor/dist/vector-rumble-editor-0.3.0.zip</code>). Screenshots: <code>itch/editor/editor_arenas.png</code> and <code>editor_ships.png</code> (1280x720). The "(verify)" notes are claims I have not tested in itch's embed or on a phone.</p>
+
+<h2 class="s">Title and tagline <button onclick="cp('tag')">Copy</button></h2>
+<div class="box" id="tag"><b>Vector Rumble Editor</b><br>Draw your own arenas and ships for Vector Rumble, in your browser.</div>
+
+<h2 class="s">Short description (game card) <button onclick="cp('short')">Copy</button></h2>
+<div class="box" id="short">A free browser editor for Vector Rumble arenas and ships. Draw, check, export, and drop the file into the game.</div>
+
+<h2 class="s">Page text <button onclick="cp('page')">Copy</button></h2>
+<div class="box" id="page">
+<p>The <b>Vector Rumble Editor</b> lets you build your own arenas and ships for <b>Vector Rumble</b>, right in your browser. Nothing to install, and nothing to sign up for.</p>
+<h3>Arenas</h3>
+<ul>
+<li>Start from a template (Empty frame, Cross, Four pillars, Diamond, Lanes) or remix one of the arenas that comes with the game.</li>
+<li>Draw walls, add shapes, drag corners to reshape, and use symmetry and snapping to keep it fair.</li>
+<li>Live checks warn you about gaps, closed-off areas and walls that are too close, without ever stopping you from exporting.</li>
+</ul>
+<h3>Ships</h3>
+<ul>
+<li>Start from an arrow or remix a ship from the game. Move, add and delete points, draw freehand, and mirror one side onto the other.</li>
+<li>Place up to three thrusters, and watch a live preview of your ship's size and shape.</li>
+<li>Compare against a ship from the game, with the radius and mass limits shown on the grid.</li>
+</ul>
+<h3>Share them</h3>
+<ul>
+<li>Press <b>Export</b> to download an XML file, then drop it in the game's <code>Arenas</code> or <code>Ships</code> folder. The editor tells you where each folder is.</li>
+<li>Your arena or ship then shows up in the game's pickers, and it is sent to the other players in a network match.</li>
+<li>Your work saves in your browser as you go, with undo and redo. Use the Library to find it again, and <b>Import XML</b> to bring in files you already have.</li>
+</ul>
+<h3>Good to know</h3>
+<ul>
+<li>You need Vector Rumble itself to play your creations; this is only the editor.</li>
+<li>Touch controls are built in (pinch and tap), so it also works on a tablet. (verify on a real device)</li>
+<li>Your files stay on your own computer; the editor does not upload them anywhere. (verify against itch's embed)</li>
+</ul>
+</div>
+
+<h2 class="s">Tags to try <button onclick="cp('tags')">Copy</button></h2>
+<div class="box" id="tags">level editor, editor, tool, vector, retro, creative <span class="note">(verify against itch's tag list)</span></div>
+
+<h2 class="s">Upload settings</h2>
+<div class="box note">Kind of project: HTML. Upload the zip, tick "This file will be played in the browser". Embed size: wide, for example 1280x720 (verify itch's options), and tick fullscreen button and mobile friendly only if you have tested them. Price: free.</div>
+
+<script>
+function cp(id){const el=document.getElementById(id),r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');}
+</script>

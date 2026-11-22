@@ -102,6 +102,15 @@ choice for received ones on screen; show Author in the pickers.
   (2) an ownership check on desktop would use the itch app's launch environment (`ITCHIO_API_KEY`) and the itch.io API (download keys / owned keys for the game id); confirm
   the exact calls in the itch.io docs first, and whether a check without a server of ours is possible; (3) only works when launched from the itch app, not the web, mobile or
   a plain download; (4) a client-side check can be bypassed, so decide how much that matters; (5) offline play needs a remembered unlock. Needs the user's say-so for any itch page or paid pack.
+- **After the v1.x launch, arenas wider than one screen** (decided 2026-11-22: not for v1.x). SolidOps already has wide levels (`Level.Width` above 1, panning,
+  `SolidOps/Core/Rendering/GameCamera.cs`, `PlanningScreen`, and a width in its editor), but VectorEngine has no camera (only a transform hook in `ParticleManager`),
+  and Vector Rumble is fixed at 1280x720 (`Display.Viewport`, arena walls normalised 0..1 across one screen). Pieces: (1) move `GameCamera` into VectorEngine so both games share it;
+  (2) a camera for a multi-ship brawl that keeps the local ship (and where useful the others) in view; (3) an optional `Width` in the arena file, default 1 so existing arenas
+  and community files still load, and a width and pan in the editor (`Editor/SPEC.md`, `js/model`, the validators); (4) the AI nav grid, spawn placement, asteroids, background and HUD
+  for a larger world; (5) networking: every machine simulates the whole arena (ships, shots, asteroids sync at about 5 Hz, the host decides damage and scores, see
+  `Core/Networking/PacketType.cs`), so a per-device camera is fine for drawing, but `ShipStateSync` and `RemoteShipInterpolator` assume everyone is on one screen. Nothing
+  draws off-screen ships yet: add edge-of-screen arrows or a minimap from the positions already received, and consider sending less for far-away ships. The packet
+  list was read but a network match was not traced or tested. Also decide fairness (a player who cannot see an attacker) and the effect on arena file transfer between players.
 - Ships and asteroids are drawn 1.5x bigger for native 720p (`Core/Gameplay/ActorScale.cs`, `VR_SCALE` overrides it to try values). Done for outlines,
   collision radii, shield rings and asteroid sizes; community ship files are unchanged. Not scaled yet: ship speed, shot speed, weapon ranges. To check:
   gaps in arenas, spawn points, the AI's nav grid. Every machine in a network match must use the same value.
