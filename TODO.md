@@ -132,6 +132,19 @@ choice for received ones on screen; show Author in the pickers.
 
 ## Before v1.x: explosion shockwave, black holes, hopping over ships, the sky and directional sound (asked 2026-11-22)
 
+**Order of work (decided 2026-11-22, re-ordered the same day; the OBS video waits until all of these are in, or it would be filmed twice).** Why: the sky and the sound are
+independent of gameplay and have the longest testing, so they go first; hopping is the biggest gameplay change, so it goes next while there is the most time to settle it;
+then a checkpoint on two real machines; the small shockwave, black holes and the AI pass come after, because black holes and hopping give the AI new things to avoid and use.
+1. The sky (item 4): drawn only at first (constellations, planets, dotted nebula plus glow, comet; mockup `docs/mockups/sky.html`); the host's choice of sky in the match setup is added with the protocol change in step 4.
+2. Directional sound (item 5): engine work shared with SolidOps, independent of gameplay, so the longest test time (Desktop, Android, iOS, Content build). Needs a VectorEngine tag and the CI `EngineRef` bumped.
+3. Hopping over ships and shadows (item 3): the biggest (new input on keyboard, pad and touch, ship collisions, height on the network, shadows). If time is short this is the one to move to v1.1.
+4. Checkpoint: the network changes so far (the sky choice, the hop height) with the protocol version bumped, then a test on two real machines (see "Not yet tested"). The version only has to differ from the last RELEASED build, so black holes (step 6) can add to the same bump if nothing has been released in between; no second bump is needed.
+5. Shockwave (item 1): small, drawn only, no network. Also gives black holes and hop landings something to show.
+6. Black holes (item 2): gameplay, host-decided and the same on every machine (sent like asteroids). The open questions in the item come first (does touching one kill; what it pulls; the AI keeping away).
+7. AI pass: keep away from black holes, dodge and cross ships with a hop, then the open Chase circling problem and the dodge (see the AI pilots section and the memory note `vector-rumble-ai-and-video-plan`). Measure as before (parallel 90 s runs).
+8. Release path (below): push, CI on Desktop and Android, iOS and Android content builds, README, CHANGELOG, itch page, translation review.
+9. The OBS video (the plan is in the memory note `vector-rumble-ai-and-video-plan`).
+
 1. **Shockwave on explosions.** A visible ripple that spreads out from a ship's (and later a mine's or rocket's) explosion. A shader is one way, not the only one:
    the game draws with `LineBatch` lines only and has no render target or effect of its own, so a first version can be expanding, fading vector rings (a
    few circles of `LineBatch` lines, ring radius growing with time), which also keeps the vector look. A real screen-space distortion needs a render target
