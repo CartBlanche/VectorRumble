@@ -301,6 +301,7 @@ namespace VectorRumble.Networking
             {
                 Rules = matchRules,
                 Seed = new Random().Next(),
+                Sky = SkyPool.Pick(new Random()),
                 Players = new List<LobbyPlayerInfo>(players),
             };
 

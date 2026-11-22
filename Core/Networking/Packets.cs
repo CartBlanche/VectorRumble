@@ -129,12 +129,14 @@ namespace VectorRumble.Networking
         public byte Type { get { return (byte)PacketType.MatchStart; } }
         public MatchRules Rules { get; set; }
         public int Seed { get; set; }                       // for anything every machine must random the same way
+        public byte Sky { get; set; }                       // the number of the sky behind the arena (see SkyPool), picked by the host
         public List<LobbyPlayerInfo> Players { get; set; }
 
         public void Serialize(BinaryWriter writer)
         {
             Rules.Write(writer);
             writer.Write(Seed);
+            writer.Write(Sky);
             LobbyPlayerInfo.WriteList(writer, Players);
         }
 
@@ -144,6 +146,7 @@ namespace VectorRumble.Networking
             {
                 Rules = MatchRules.Read(reader),
                 Seed = reader.ReadInt32(),
+                Sky = reader.ReadByte(),
                 Players = LobbyPlayerInfo.ReadList(reader),
             };
         }

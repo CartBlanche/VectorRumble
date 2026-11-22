@@ -94,10 +94,11 @@ namespace VectorRumble.Tests
         public void Match_start_round_trips_with_players_in_slot_order()
         {
             var start = MatchStartPacket.Deserialize(Reader(Write(
-                new MatchStartPacket { Rules = SomeRules(), Seed = -12345, Players = SomePlayers() })));
+                new MatchStartPacket { Rules = SomeRules(), Seed = -12345, Sky = 3, Players = SomePlayers() })));
 
             Assert.Equal(15, start.Rules.ScoreLimit);
             Assert.Equal(-12345, start.Seed);
+            Assert.Equal(3, start.Sky);
             Assert.Equal(new[] { "a", "b" }, start.Players.ConvertAll(p => p.Id));
         }
 

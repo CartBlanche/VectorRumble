@@ -49,6 +49,7 @@ namespace VectorRumble.Networking
             this.ships = ships;
             this.localSlot = localSlot;
             Seed = start.Seed;
+            Sky = start.Sky;
 
             slotIds = start.Players.Select(p => p.Id).ToArray();
             scores = new short[slotIds.Length];
@@ -82,6 +83,9 @@ namespace VectorRumble.Networking
 
         /// <summary>The host's seed, which every machine makes the asteroids from.</summary>
         public int Seed { get; }
+
+        /// <summary>The number of the sky behind the arena, the host's pick, so every machine shows the same one.</summary>
+        public byte Sky { get; }
 
         public bool IsHost
         {

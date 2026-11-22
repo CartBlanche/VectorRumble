@@ -72,7 +72,7 @@ choice for received ones on screen; show Author in the pickers.
 
 ## Not yet tested
 
-- Two real machines on a LAN; a phone against a PC.
+- Two real machines on a LAN; a phone against a PC. Check in that match: both show the same sky as the host's; a hop on one machine is seen (bigger, shadow, shots passing under) on the other; an older build (protocol 3) is refused.
 - The host leaving mid-lobby; joining a match already started; an older build being refused (protocol version).
 - Gamepad and touch on the new screens; how a phone pauses a match (Escape/Start on desktop and pad).
 - The pause "Leave?" box and game over on a phone.
@@ -139,7 +139,7 @@ then a checkpoint on two real machines; the small shockwave, black holes and the
 1. The sky (item 4): drawn only at first (constellations, planets, dotted nebula plus glow, comet; mockup `docs/mockups/sky.html`); the host's choice of sky in the match setup is added with the protocol change in step 4.
 2. Directional sound (item 5): engine work shared with SolidOps, independent of gameplay, so the longest test time (Desktop, Android, iOS, Content build). Needs a VectorEngine tag and the CI `EngineRef` bumped.
 3. Hopping over ships and shadows (item 3): BUILT 2026-11-22 (Space or Right Shift or pad A or touch A; 0.7 s hop, 1.5 s between; no firing in the air, shots and ships pass under, asteroids and walls still stop; landing on a ship pushes apart; shadows under every ship; height is a byte in the ship state packet and the protocol version is now 4; sound reuses the menu tick; the AI does not hop yet, that is step 7; `VR_HOPAT=<s>` makes every ship hop in DevShots) - was: the biggest (new input on keyboard, pad and touch, ship collisions, height on the network, shadows). If time is short this is the one to move to v1.1.
-4. Checkpoint: the network changes so far (the sky choice, the hop height) with the protocol version bumped, then a test on two real machines (see "Not yet tested"). The version only has to differ from the last RELEASED build, so black holes (step 6) can add to the same bump if nothing has been released in between; no second bump is needed.
+4. Checkpoint: BUILT 2026-11-22 (protocol 4: the ship state carries the hop height, the match start carries the host's sky number, one byte); tried with a host and a client on one machine (same sky and arena on both); still to do: two real machines (the user), see "Not yet tested". Was: the network changes so far (the sky choice, the hop height) with the protocol version bumped, then a test on two real machines (see "Not yet tested"). The version only has to differ from the last RELEASED build, so black holes (step 6) can add to the same bump if nothing has been released in between; no second bump is needed.
 5. Shockwave (item 1): small, drawn only, no network. Also gives black holes and hop landings something to show.
 6. Black holes (item 2): gameplay, host-decided and the same on every machine (sent like asteroids). The open questions in the item come first (does touching one kill; what it pulls; the AI keeping away).
 7. AI pass: keep away from black holes, dodge and cross ships with a hop, then the open Chase circling problem and the dodge (see the AI pilots section and the memory note `vector-rumble-ai-and-video-plan`). Measure as before (parallel 90 s runs).
