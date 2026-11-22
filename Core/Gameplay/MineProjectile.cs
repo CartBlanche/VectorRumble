@@ -86,6 +86,7 @@ namespace VectorRumble
             // add a double-particle system effect
             world.Particles.Emit(ParticleEffects.Burst(64, 32f, 64f, 3f, 0.05f, explosionColors), this.position);
             world.Particles.Emit(ParticleEffects.Burst(16, 128f, 256f, 4f, 0.1f, explosionColors), this.position);
+            Shockwave.Emit(world.Particles, this.position, Shockwave.MineRadius, Color.OrangeRed);
 
             base.Explode(touchedActor);
         }

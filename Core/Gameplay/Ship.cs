@@ -405,6 +405,7 @@ namespace VectorRumble
         {
             hopTime = -1f;
             Height = 0f;
+            Shockwave.Emit(world.Particles, position, Shockwave.LandingRadius, new Color(color.R, color.G, color.B));
             foreach (Actor actor in world.Actors)
             {
                 if (actor is Ship other && other != this && !other.Dead && other.Playing && !other.Airborne)
@@ -537,6 +538,10 @@ namespace VectorRumble
                 if (DevShots.HopAt is float at && devClock >= at && (devClock - at) % 2f < elapsedTime)
                 {
                     TryHop();
+                }
+                if (DevShots.DieAt is float dieAt && devClock >= dieAt && devClock < dieAt + elapsedTime * 1.5f)
+                {
+                    Die(null);
                 }
 #endif
                 // apply drag to the velocity
@@ -898,6 +903,7 @@ namespace VectorRumble
                 // add several particle systems for effect
                 world.Particles.Emit(ParticleEffects.Burst(128, 64f, 256f, 3f, 0.05f, explosionColors), this.position);
                 world.Particles.Emit(ParticleEffects.Burst(64, 256f, 1024f, 3f, 0.05f, explosionColors), this.position);
+                Shockwave.Emit(world.Particles, this.position, Shockwave.ShipRadius, new Color(color.R, color.G, color.B));
                 // reset the respawning timer
                 respawnTimer = respawnTimerOnDeath;
 
@@ -1068,6 +1074,12 @@ namespace VectorRumble
         /// </summary>
         internal void ApplyRemoteState(Vector2 newPosition, float newRotation, Vector2 newVelocity, byte shield, byte height)
         {
+            // a remote ship coming down: its own machine made the landing, this one only draws the ring
+            if (Height > 0f && height == 0)
+            {
+                Shockwave.Emit(world.Particles, newPosition, Shockwave.LandingRadius, new Color(color.R, color.G, color.B));
+            }
+
             Height = height / 255f;
             position = newPosition;
             rotation = newRotation;
