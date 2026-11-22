@@ -149,7 +149,9 @@ namespace VectorRumble
         const float PreferredRange = 260f;
         const float TooClose = 120f;
 
-        const float WallClearance = 110f;
+        // how far from a wall the pilot starts to steer off it, beyond its own radius: close, so that a ship can fly a corridor and
+        // does not stall where the pull of its goal and the push of the wall are equal (it was 110, which covered most of an arena)
+        const float WallClearance = 40f;
         const float AsteroidClearance = 90f;
         const float MineRange = 220f;
 
@@ -157,9 +159,15 @@ namespace VectorRumble
         const float ShotRadius = 4f;
         const float ShipRadius = 26f;
 
+        // how far from a wall a straight run or a smoothed route must stay (a ship's radius is up to 36 px)
+        const float RouteClearance = 40f;
+
         const float ArriveDistance = 45f;
         const float RecoveredShield = 0.7f;
         const float MinFleeTime = 1.5f;
+
+        // how long (seconds) a chasing pilot may lose sight of its rival before it gives up the chase and searches
+        const float ChaseGrace = 1.2f;
         const float ZigzagTime = 0.45f;
 
         /// <summary>Shows what each pilot is doing: its state as a colour, and its route. Set by the VR_AIDEBUG environment variable.</summary>
@@ -244,6 +252,8 @@ namespace VectorRumble
             Vector2 shot = ShotAvoidance();
             Vector2 want = time < unstickUntil ? unstickDirection : Want(elapsedTime);
 
+            float awayLength = away.Length();
+            bool conflict = awayLength > 0.3f && Vector2.Dot(want, away) < -0.3f * awayLength * want.Length();   // the goal points into what it keeps away from (for the metrics)
             want = SlideAlong(away, want);
             Vector2 move = away + shot * profile.Dodge * 1.5f + want;
             if (move.LengthSquared() > 0.0001f)
@@ -253,6 +263,11 @@ namespace VectorRumble
             }
 
             Fight(elapsedTime, ref input);
+            if (ShowDebug)
+            {
+                AIMetrics.Frame(ship, elapsedTime, conflict, awayLength > 0.05f, world.Actors);
+            }
+
             return input;
         }
 
@@ -276,7 +291,9 @@ namespace VectorRumble
                 slideSide = -slideSide;
                 if (ShowDebug)
                 {
-                    Console.WriteLine("[AI] " + (ship.PilotName ?? ship.Name) + " stuck in " + state + " at " + ship.Position);
+                    AIMetrics.Stuck(ship);
+                    Console.WriteLine("[AI] " + (ship.PilotName ?? ship.Name) + " stuck in " + state + " at " + ship.Position
+                        + " (" + Nearest() + ", want " + (hasPatrolPoint ? "patrol point" : "none") + ")");
                 }
 
                 Vector2 push = WallAvoidance() + AsteroidAvoidance();
@@ -286,6 +303,33 @@ namespace VectorRumble
             }
 
             stuckPosition = ship.Position;
+        }
+
+        // the nearest wall or asteroid, for the stuck log
+        string Nearest()
+        {
+            float wall = float.MaxValue;
+            Vector2[] walls = world.SelectedArena?.Walls;
+            if (walls != null)
+            {
+                Vector2 size = world.Dimensions;
+                for (int i = 0; i + 1 < walls.Length; i += 2)
+                {
+                    wall = Math.Min(wall, NavGrid.PointSegmentDistance(ship.Position, walls[i] * size, walls[i + 1] * size));
+                }
+            }
+
+            float rock = float.MaxValue;
+            var actors = world.Actors;
+            for (int i = 0; i < actors.Count; i++)
+            {
+                if (actors[i] is Asteroid a && !a.Dead)
+                {
+                    rock = Math.Min(rock, Vector2.Distance(a.Position, ship.Position) - a.Radius);
+                }
+            }
+
+            return "wall " + wall.ToString("0") + " px, asteroid edge " + rock.ToString("0") + " px";
         }
 
         /// <summary>
@@ -394,9 +438,9 @@ namespace VectorRumble
                     break;
 
                 case AIState.Chase:
-                    // two looks in a row without sight (not one: the edge of an asteroid would make it flicker)
+                    // a while without sight (not a look or two: the edge of an asteroid or a wall's end would make it flicker)
                     unseenLooks = sees ? 0 : unseenLooks + 1;
-                    if (unseenLooks >= 2)
+                    if (LostChase(unseenLooks, profile.ReactionTime))
                     {
                         Switch(AIState.Search);
                         lostTimer = 0f;
@@ -541,6 +585,13 @@ namespace VectorRumble
                 return Vector2.Zero;
             }
 
+            // out of sight (behind a wall or an asteroid) the pilot does not know where the rival is: it goes to where it last saw it,
+            // by a route, and is not drawn at the rival through the wall
+            if (!sees)
+            {
+                return GoTo(lastKnown);
+            }
+
             Vector2 toRival = rival.Position - ship.Position;
             float distance = toRival.Length();
             if (distance <= 1f)
@@ -647,7 +698,7 @@ namespace VectorRumble
             }
 
             NavGrid nav = world.Navigation;
-            if (nav == null || nav.LineClear(ship.Position, goal, ShipRadius))
+            if (nav == null || nav.LineClear(ship.Position, goal, RouteClearance))
             {
                 path.Clear();
                 return Vector2.Normalize(toGoal);
@@ -659,7 +710,7 @@ namespace VectorRumble
                 replanTimer = 0.7f;
                 pathGoal = goal;
                 pathIndex = 0;
-                if (!nav.FindPath(ship.Position, goal, path, ShipRadius))
+                if (!nav.FindPath(ship.Position, goal, path, RouteClearance))
                 {
                     // no way there (a sealed pocket): forget the goal
                     hasPatrolPoint = false;
@@ -670,7 +721,7 @@ namespace VectorRumble
             // on to the next point once this one is reached, or once the one after it is in clear view
             while (pathIndex < path.Count - 1
                 && (Vector2.DistanceSquared(ship.Position, path[pathIndex]) < ArriveDistance * ArriveDistance
-                    || nav.LineClear(ship.Position, path[pathIndex + 1], ShipRadius)))
+                    || nav.LineClear(ship.Position, path[pathIndex + 1], RouteClearance)))
             {
                 pathIndex++;
             }
@@ -887,6 +938,9 @@ namespace VectorRumble
         #endregion
 
         #region The arithmetic (static, so that it can be tested)
+
+        /// <summary>True once a chasing pilot has gone this many looks, <paramref name="reactionTime"/> apart, without seeing its rival: long enough to give up.</summary>
+        internal static bool LostChase(int unseenLooks, float reactionTime) => unseenLooks * reactionTime >= ChaseGrace;
 
         /// <summary>Forward as a ship faces it: rotation 0 is up the screen.</summary>
         internal static Vector2 Forward(float rotation) => new Vector2((float)Math.Sin(rotation), -(float)Math.Cos(rotation));

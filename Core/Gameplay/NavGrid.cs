@@ -14,10 +14,14 @@ namespace VectorRumble
     {
         public const float DefaultCellSize = 40f;
 
+        /// <summary>How far past the clearance (pixels) a cell still costs extra for being near a wall, and the most it adds (in cell steps).</summary>
+        public const float WallPenaltyReach = 60f, WallPenaltyMax = 2f;
+
         readonly float cell;
         readonly int columns, rows;
         readonly Vector2 origin;
         readonly bool[] open;
+        readonly float[] extra;             // added to the cost of entering a cell: more the nearer a wall, so routes keep to the middle
         readonly Vector2[] walls;           // pairs of points, in pixels
 
         // A* scratch space, reused: a search allocates nothing but the path it returns
@@ -53,6 +57,7 @@ namespace VectorRumble
             columns = Math.Max(1, (int)Math.Ceiling(safe.Width / cell));
             rows = Math.Max(1, (int)Math.Ceiling(safe.Height / cell));
             open = new bool[columns * rows];
+            extra = new float[open.Length];
             cost = new float[open.Length];
             cameFrom = new int[open.Length];
             closed = new bool[open.Length];
@@ -65,6 +70,18 @@ namespace VectorRumble
                     bool inside = centre.X - clearance >= safe.Left && centre.X + clearance <= safe.Right
                                && centre.Y - clearance >= safe.Top && centre.Y + clearance <= safe.Bottom;
                     open[y * columns + x] = inside && SegmentsClear(centre, centre, clearance);
+                    if (open[y * columns + x])
+                    {
+                        float d = Math.Min(
+                            Math.Min(centre.X - safe.Left, safe.Right - centre.X),
+                            Math.Min(centre.Y - safe.Top, safe.Bottom - centre.Y));
+                        for (int i = 0; i + 1 < walls.Length; i += 2)
+                        {
+                            d = Math.Min(d, PointSegmentDistance(centre, walls[i], walls[i + 1]));
+                        }
+
+                        extra[y * columns + x] = WallPenaltyMax * MathHelper.Clamp(1f - (d - clearance) / WallPenaltyReach, 0f, 1f);
+                    }
                 }
             }
         }
@@ -79,6 +96,9 @@ namespace VectorRumble
             int y = Math.Max(0, Math.Min(rows - 1, (int)Math.Floor((p.Y - origin.Y) / cell)));
             return y * columns + x;
         }
+
+        /// <summary>What it costs (in cell steps) to enter the cell the point is in, over and above the step: 0 well away from walls.</summary>
+        internal float WallPenalty(Vector2 p) => extra[CellOf(p)];
 
         /// <summary>True if the point is in a cell a ship can be in.</summary>
         public bool IsOpen(Vector2 p) => open[CellOf(p)];
@@ -279,7 +299,7 @@ namespace VectorRumble
                     }
 
                     float step = k >= 4 ? 1.4142f : 1f;
-                    float candidate = cost[current] + step;
+                    float candidate = cost[current] + step + extra[next];
                     if (candidate < cost[next])
                     {
                         cost[next] = candidate;

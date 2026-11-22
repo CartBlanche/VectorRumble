@@ -168,5 +168,16 @@ namespace VectorRumble.Tests
                 Assert.Equal(0, MatchRules.Read(new System.IO.BinaryReader(stream)).AIPilots);
             }
         }
-    }
+    
+        [Fact]
+        public void A_chase_survives_a_short_loss_of_sight_but_not_a_long_one()
+        {
+            // two looks without sight used to end it, which on an arena with walls made the pilot flip between chasing and searching
+            Assert.False(AIPilot.LostChase(2, AIProfile.For(AIDifficulty.Medium).ReactionTime));
+            Assert.True(AIPilot.LostChase(4, AIProfile.For(AIDifficulty.Medium).ReactionTime));
+            Assert.True(AIPilot.LostChase(2, AIProfile.For(AIDifficulty.Easy).ReactionTime));    // a slow pilot's looks are far apart
+            Assert.False(AIPilot.LostChase(4, AIProfile.For(AIDifficulty.Hard).ReactionTime));
+            Assert.True(AIPilot.LostChase(7, AIProfile.For(AIDifficulty.Hard).ReactionTime));
+        }
+}
 }

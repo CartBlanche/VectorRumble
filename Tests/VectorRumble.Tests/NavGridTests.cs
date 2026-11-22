@@ -37,6 +37,21 @@ namespace VectorRumble.Tests
         }
 
         [Fact]
+        public void Cells_near_a_wall_cost_more_so_that_routes_keep_to_the_middle()
+        {
+            NavGrid grid = WithWall();
+
+            float beside = grid.WallPenalty(new Vector2(340, 300));     // 60 px from the wall: the nearest open column
+            float further = grid.WallPenalty(new Vector2(300, 300));
+            float far = grid.WallPenalty(new Vector2(100, 200));
+
+            Assert.True(beside > 0f);
+            Assert.True(beside > further);
+            Assert.Equal(0f, far);
+            Assert.True(beside <= NavGrid.WallPenaltyMax);
+        }
+
+        [Fact]
         public void A_route_goes_round_the_wall_through_the_gap()
         {
             NavGrid grid = WithWall();
