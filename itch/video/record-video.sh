@@ -8,7 +8,7 @@
 #   Back to Dominique's lobby with all four ships (Destroyer 3 thrusters, Defender 2, Blaster 1, Bat-ter Up 1).
 #   The rest is Dominique's window: the battle, then the victory screen.
 #
-# It is a real network match: four copies of the game on this Mac in a 2x2 grid of small windows, one scene each in OBS
+# It is a real network match: four copies of the game on this Mac as four windows, one scene each in OBS
 # (a window capture of that copy), and a director (itch/video/director.py) that cuts between the scenes from the games'
 # own cue lines. The computer flies every ship (VR_ALLAI) and two of the pilots hop now and then (VR_DEMOHOP).
 #
@@ -112,12 +112,14 @@ start() {   # name, window, extra environment...
     sleep 0.8       # so the windows have ascending ids: the host first
 }
 
-# a 2x2 grid of 640x360 point windows (1280x720 pixels on a Retina screen, the game's own size); ship and colour:
-# 1 Destroyer (3 thrusters) cyan, 4 Defender (2) magenta, 0 Blaster (1) green, 2 Bat-ter Up (1) yellow
+# Each window is 1280x720 points: the game draws at that size, so the picture is sharp (a small window means a small picture
+# stretched up). Dominique's fills the screen; the other three sit below it with only their top edge on the screen (the rest is
+# below the bottom of the screen), side by side, so each stays visible (a covered window is throttled) while OBS captures all
+# of its picture. Ship and colour: 1 Destroyer (3 thrusters) cyan, 4 Defender (2) magenta, 0 Blaster (1) green, 2 Bat-ter Up (1) yellow
 # 1) John, Jane and Alison start first and go to the Multiplayer screen, where they wait
-start John "640,30,640,360" VR_OPEN=browse VR_GOFILE="$OUT/go-John" VR_SHIP=4 VR_COLOUR=2 VR_DEMOHOP=1
-start Jane "0,418,640,360" VR_OPEN=browse VR_GOFILE="$OUT/go-Jane" VR_SHIP=0 VR_COLOUR=3
-start Alison "640,418,640,360" VR_OPEN=browse VR_GOFILE="$OUT/go-Alison" VR_SHIP=2 VR_COLOUR=4 VR_DEMOHOP=1
+start John "0,790,1280,720" VR_OPEN=browse VR_GOFILE="$OUT/go-John" VR_SHIP=4 VR_COLOUR=2 VR_DEMOHOP=1
+start Jane "430,790,1280,720" VR_OPEN=browse VR_GOFILE="$OUT/go-Jane" VR_SHIP=0 VR_COLOUR=3
+start Alison "860,790,1280,720" VR_OPEN=browse VR_GOFILE="$OUT/go-Alison" VR_SHIP=2 VR_COLOUR=4 VR_DEMOHOP=1
 for n in John Jane Alison; do
     for _ in $(seq 1 120); do
         grep -q "cue browser-open" "$OUT/$n.log" && break
@@ -127,8 +129,8 @@ for n in John Jane Alison; do
 done
 
 # 2) Dominique starts, on the main menu, and waits for the signal that the recording is running
-start Dominique "0,30,640,360" VR_OPEN=main VR_PICK=",,$ARENA" VR_TOUR="Play,Multiplayer,Host a game" VR_TOURFILE="$OUT/tour" VR_TOURSTART=0.6 VR_RULESHOLD=2 \
-    VR_STARTFILE="$OUT/start" VR_QUITAFTEROVER=9 VR_ENDAFTER="$CAP" VR_SHIP=1 VR_COLOUR=1
+start Dominique "0,30,1280,720" VR_OPEN=main VR_PICK=",,$ARENA" VR_TOUR="Play,Multiplayer,Host a game" VR_TOURFILE="$OUT/tour" VR_TOURSTART=0.6 VR_RULESHOLD=1.2 \
+    VR_STARTFILE="$OUT/start" VR_QUITAFTEROVER=9 VR_ENDAFTER="$CAP" VR_SHIP=1 VR_COLOUR=1 VR_SKYNAMES=1
 
 # Watchdog: whatever goes wrong, the games (and so the recording) end after the cap plus the lobby time
 MAX=$(( CAP + 90 ))

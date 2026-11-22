@@ -270,8 +270,11 @@ namespace VectorRumble
             return u < 1f;
         }
 
+        /// <summary>How much brighter than usual the name labels are drawn (1 is normal; a DevShots recording sets it higher).</summary>
+        internal static float LabelBoost = 1f;
+
         static void Label(SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color colour) =>
-            spriteBatch.DrawString(font, text, position, colour, 0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(font, text, position, colour * LabelBoost, 0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0f);
 
         static void DrawRing(LineBatch lineBatch, Vector2 centre, float radiusX, float radiusY, float tilt, Color colour)
         {

@@ -15,11 +15,11 @@ import os, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import obs as obsmod
 
-SECONDS_ALONE = 1.2     # the host's lobby, alone, before the cut to John
-AFTER_SESSION = 1.2     # John sees the game appear, then the highlight starts
-AFTER_JOIN_JOHN = 2.2   # John in the lobby before the cut to Jane
-AFTER_JOIN_QUICK = 1.6  # Jane and Alison: quicker
-LOBBY_LOOK = 7.0        # back on Dominique's lobby with the four ships, until the host starts
+SECONDS_ALONE = 1.0     # the host's lobby, alone, before the cut to John
+AFTER_SESSION = 0.8     # John sees the game appear, then the highlight starts
+AFTER_JOIN_JOHN = 1.6   # John in the lobby before the cut to Jane
+AFTER_JOIN_QUICK = 1.2  # Jane and Alison: quicker
+LOBBY_LOOK = 5.0        # back on Dominique's lobby with the four ships, until the host starts
 
 
 class Logs:

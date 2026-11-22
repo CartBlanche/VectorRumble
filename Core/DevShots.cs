@@ -48,6 +48,7 @@ namespace VectorRumble
     ///   match-start, game-over) tell a director script what is on screen
     ///   VR_DEMOHOP=1              two AI pilots hop every 10 to 15 s (for the video)
     ///   VR_ENDAFTER=<s>           quit s seconds after the match starts (VR_AUTOSTART); prints "[DEVSHOT] match-start unix-ms N" when it does
+    ///   VR_SKYNAMES=1             draw the names of the constellations, bright stars and planets, brighter than usual (the clean settings have them off)
     ///   VR_CLEANSETTINGS=1        use the default sky layers and volumes, whatever the settings file says (for the video)
     ///   VR_HOPAT=<s>              every ship hops from s seconds on, again every 2 s
     ///   VR_SKY=<n>                the sky behind the arena (0 to 4; random when not set)
@@ -177,6 +178,8 @@ namespace VectorRumble
                 graphics.PreferredBackBufferHeight = int.Parse(w[3]);
                 graphics.ApplyChanges();
                 screens.Game.Window.Position = new Point(int.Parse(w[0]), int.Parse(w[1]));
+                var pp = device.PresentationParameters;
+                Console.WriteLine($"[DEVSHOT] window {w[2]}x{w[3]} points, back buffer {pp.BackBufferWidth}x{pp.BackBufferHeight} pixels, client {screens.Game.Window.ClientBounds.Width}x{screens.Game.Window.ClientBounds.Height}");
             }
 
             if (Env("VR_CLEANSETTINGS") != null)
@@ -186,6 +189,11 @@ namespace VectorRumble
                 s.SkyStars = d.SkyStars; s.SkyConstellations = d.SkyConstellations; s.SkyNames = d.SkyNames;
                 s.SkyPlanets = d.SkyPlanets; s.SkyNebula = d.SkyNebula; s.SkyGlow = d.SkyGlow; s.SkyComet = d.SkyComet;
                 s.MusicPercent = d.MusicPercent; s.EffectsPercent = d.EffectsPercent; s.DirectionalSound = d.DirectionalSound;
+                s.SkyNames = Env("VR_SKYNAMES") != null;
+                if (s.SkyNames)
+                {
+                    Sky.LabelBoost = 1.9f;      // clearer for a video than the normal, quiet labels
+                }
                 s.PauseIdleMenus = false;      // a recording must not freeze behind a "Paused" while it waits
                 s.NeonEffect = d.NeonEffect; s.MotionBlur = d.MotionBlur; s.BlurIntensity = d.BlurIntensity;
             }
@@ -350,6 +358,7 @@ namespace VectorRumble
                     if (screen is MatchRulesScreen rules)
                     {
                         autoStarted = true;
+                        MenuCue(rules, true);
                         Call(rules, "StartHosting");
                     }
                 }
@@ -390,12 +399,14 @@ namespace VectorRumble
                         {
                             browseHighlightAt = now;
                             typeof(FrameScreen).GetProperty("SelectedIndex", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(browser, 1);
+                            MenuCue(browser, false);
                             Cue("join-highlight", now);
                         }
-                        else if (now > browseHighlightAt + 1.6)
+                        else if (now > browseHighlightAt + 0.9)
                         {
                             autoStarted = true;
                             Cue("join-pressed", now);
+                            MenuCue(browser, true);
                             typeof(LanBrowserScreen).GetMethod("Join", Hidden).Invoke(browser, new[] { sessions[0] });
                         }
                     }
@@ -416,10 +427,11 @@ namespace VectorRumble
                             joinedAt = now;
                             Cue("joined", now);
                         }
-                        else if (!readyDone && now > joinedAt + 2.5)
+                        else if (!readyDone && now > joinedAt + 1.5)
                         {
                             readyDone = true;
                             Cue("ready", now);
+                            MenuCue(room, true);
                             Call(room, "ToggleReady");
                         }
                     }
@@ -438,6 +450,7 @@ namespace VectorRumble
                             matchStartedAt = now;
                             Cue("match-start", now);
                             Console.WriteLine("[DEVSHOT] match-start unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+                            MenuCue(room, true);
                             Call(room, "StartNetworkMatch");
                         }
                     }
@@ -601,17 +614,24 @@ namespace VectorRumble
             if (tourPhase == 0)
             {
                 typeof(FrameScreen).GetProperty("SelectedIndex", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(menu, index);
+                MenuCue(menu, false);
                 tourPhase = 1;
-                tourNext = now + 1.4;
+                tourNext = now + 0.7;
             }
             else
             {
+                MenuCue(menu, true);
                 rows[index].Select();
                 tourStep++;
                 tourPhase = 0;
-                tourNext = now + 2.4;
+                tourNext = now + 0.8;
             }
         }
+
+        // what a person's key press would have sounded: the scripted walk through the menus sets the selection itself,
+        // so it plays the menu's own sounds (the highlight moving, a row pressed)
+        static void MenuCue(FrameScreen screen, bool select) =>
+            typeof(FrameScreen).GetMethod("Cue", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(screen, new object[] { select });
 
         static void Cue(string name, double now) =>
             Console.WriteLine("[DEVSHOT] cue " + name + " unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
