@@ -344,6 +344,79 @@ namespace VectorRumble
 
 #if DEVSHOT
         float devClock;
+        Random demoRandom;
+        float demoTimer, demoWaited;
+        bool demoArmed;
+
+        // The video: two of the computer's pilots (slots 1 and 3) hop every 10 to 15 s. The hop is timed to clear a shot that
+        // is about to reach the ship (a rocket, a laser, a mine drifting in), so the shot passes under it at the top of the
+        // hop; if none comes within 6 s it hops anyway.
+        void DemoHopUpdate(float elapsedTime)
+        {
+            int slot = Array.IndexOf(((World)world).Ships, this);
+            if (slot != 1 && slot != 3)
+            {
+                return;
+            }
+
+            if (demoRandom == null)
+            {
+                demoRandom = new Random((DevShots.Seed ?? 1) * 7 + slot);
+            }
+
+            if (!demoArmed)
+            {
+                demoArmed = true;
+                demoTimer = 10f + (float)demoRandom.NextDouble() * 5f;
+                demoWaited = 0f;
+            }
+
+            demoTimer -= elapsedTime;
+            if (demoTimer > 0f || !CanHop)
+            {
+                return;
+            }
+
+            demoWaited += elapsedTime;
+            Projectile over = ShotArrivingSoon();
+            if (over != null || demoWaited > 6f)
+            {
+                Console.WriteLine("[DEVSHOT] demo hop, slot " + slot + (over != null ? " over a " + over.GetType().Name : " with nothing coming"));
+                TryHop();
+                demoArmed = false;
+            }
+        }
+
+        // a shot that will pass within reach of the ship in 0.2 to 0.45 s (the top of a hop is at 0.35 s)
+        Projectile ShotArrivingSoon()
+        {
+            foreach (Actor actor in world.Actors)
+            {
+                if (actor is Projectile shot && !shot.Dead && shot.Owner != this)
+                {
+                    Vector2 toMe = position - shot.Position;
+                    Vector2 relative = shot.Velocity - velocity;
+                    float speedSquared = relative.LengthSquared();
+                    if (speedSquared < 1f)
+                    {
+                        continue;
+                    }
+
+                    float time = Vector2.Dot(toMe, relative) / speedSquared;
+                    if (time < 0.2f || time > 0.45f)
+                    {
+                        continue;
+                    }
+
+                    if ((toMe - relative * time).Length() < radius + shot.Radius + 6f)
+                    {
+                        return shot;
+                    }
+                }
+            }
+
+            return null;
+        }
 #endif
         float hopTime = -1f;            // seconds since take-off, or -1 on the ground
         float hopCooldownLeft;
@@ -538,6 +611,10 @@ namespace VectorRumble
                 if (DevShots.HopAt is float at && devClock >= at && (devClock - at) % 2f < elapsedTime)
                 {
                     TryHop();
+                }
+                if (DevShots.DemoHop && Pilot != null)
+                {
+                    DemoHopUpdate(elapsedTime);
                 }
                 if (DevShots.DieAt is float dieAt && devClock >= dieAt && devClock < dieAt + elapsedTime * 1.5f)
                 {

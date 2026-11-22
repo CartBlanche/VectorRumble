@@ -423,6 +423,13 @@ namespace VectorRumble
 
             // the match takes the session over from here, and ends it when the game is left
             new NetworkMatch(World, net, start, slot, ships);
+#if DEVSHOT
+            // a recording: the computer flies this machine's ship
+            if (DevShots.AllAI)
+            {
+                ships[slot].Pilot = new AIPilot(ships[slot], World, UserSettings.Current.AIDifficulty, (DevShots.Seed ?? Environment.TickCount) + slot);
+            }
+#endif
             DisposeLobby();
 
             LoadingScreen.Load(ScreenManager, LoadGameplayScreen, true);

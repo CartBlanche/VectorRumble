@@ -33,6 +33,14 @@ namespace VectorRumble
     ///   VR_ALLAI=1                on the "pick" screen, the human ship is flown by an AI pilot too (a match with nobody at the keyboard that still looks busy)
     ///   VR_AI=<0..3>              how many AI rivals (MatchRules.AIPilots)
     ///   VR_DIEAT=<s>              every ship is destroyed s seconds in
+    ///   VR_NAME=<name>            the player's name in the lobby and the match (instead of the computer's user name)
+    ///   VR_WIN=<x>,<y>,<w>,<h>    put the window here, this size, in points (to tile several games on one screen)
+    ///   VR_TOUR=<rows>            from VR_TOURSTART seconds (default 4), pick these menu rows in turn, as a person would: for example
+    ///                             "Play Game,Multiplayer,Host a Game" (the highlight moves, a pause, then it is pressed); after the last,
+    ///                             on the host's rules screen, start hosting VR_RULESHOLD seconds later (default 3)
+    ///   VR_DEMOHOP=1              two AI pilots hop every 10 to 15 s (for the video)
+    ///   VR_ENDAFTER=<s>           quit s seconds after the match starts (VR_AUTOSTART); prints "[DEVSHOT] match-start unix-ms N" when it does
+    ///   VR_CLEANSETTINGS=1        use the default sky layers and volumes, whatever the settings file says (for the video)
     ///   VR_HOPAT=<s>              every ship hops from s seconds on, again every 2 s
     ///   VR_SKY=<n>                the sky behind the arena (0 to 4; random when not set)
     ///   VR_SEED=<n>               the AI pilots' random seed, so a run can be repeated
@@ -51,6 +59,10 @@ namespace VectorRumble
         readonly GraphicsDevice device;
         readonly Action exit;
 
+        double matchStartedAt, tourNext;
+        int tourStep, tourPhase;
+        double tourDoneAt = -1;
+        bool hostingStarted;
         bool autoStarted, netGone, langStepped, thenDone, picked;
         int burstTaken;
         int actIndex;
@@ -96,6 +108,12 @@ namespace VectorRumble
         /// <summary>VR_DIEAT: every ship is destroyed this many seconds into the match (to see the explosions).</summary>
         public static float? DieAt => float.TryParse(Env("VR_DIEAT"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) ? v : null;
 
+        /// <summary>VR_DEMOHOP: two of the computer's pilots hop now and then (every 10 to 15 s, when a shot comes at them if one does within 3 s), for the video.</summary>
+        public static bool DemoHop => Env("VR_DEMOHOP") != null;
+
+        /// <summary>VR_ENDAFTER: the game quits this many seconds after the match starts (VR_AUTOSTART).</summary>
+        public static float? EndAfter => float.TryParse(Env("VR_ENDAFTER"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) ? v : null;
+
         /// <summary>VR_HOPAT: every ship hops this many seconds into the match, and again every 2 s (no pilot hops yet).</summary>
         public static float? HopAt => float.TryParse(Env("VR_HOPAT"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v) ? v : null;
 
@@ -120,6 +138,35 @@ namespace VectorRumble
             if (Env("VR_FIREWORKS") == "0")
             {
                 UserSettings.Current.MenuFireworks = false;
+            }
+
+            if (Env("VR_NAME") is string name)
+            {
+                // the lobby takes the player's name from the signed in gamer
+                object gamer = Microsoft.Xna.Framework.GamerServices.SignedInGamer.Current;
+                MethodInfo setName = typeof(Microsoft.Xna.Framework.GamerServices.Gamer).GetMethod("SetGamertag",
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                setName?.Invoke(gamer, new object[] { name });
+            }
+
+            if (Env("VR_WIN") is string win)
+            {
+                string[] w = win.Split(',');
+                var graphics = screens.Game.Services.GetService<GraphicsDeviceManager>();
+                graphics.PreferredBackBufferWidth = int.Parse(w[2]);
+                graphics.PreferredBackBufferHeight = int.Parse(w[3]);
+                graphics.ApplyChanges();
+                screens.Game.Window.Position = new Point(int.Parse(w[0]), int.Parse(w[1]));
+            }
+
+            if (Env("VR_CLEANSETTINGS") != null)
+            {
+                var d = new VectorRumbleSettings();
+                VectorRumbleSettings s = UserSettings.Current;
+                s.SkyStars = d.SkyStars; s.SkyConstellations = d.SkyConstellations; s.SkyNames = d.SkyNames;
+                s.SkyPlanets = d.SkyPlanets; s.SkyNebula = d.SkyNebula; s.SkyGlow = d.SkyGlow; s.SkyComet = d.SkyComet;
+                s.MusicPercent = d.MusicPercent; s.EffectsPercent = d.EffectsPercent; s.DirectionalSound = d.DirectionalSound;
+                s.NeonEffect = d.NeonEffect; s.MotionBlur = d.MotionBlur; s.BlurIntensity = d.BlurIntensity;
             }
 
             if (Env("VR_LOG") == null)
@@ -236,6 +283,16 @@ namespace VectorRumble
                 }
             }
 
+            if (Env("VR_TOUR") is string tour)
+            {
+                RunTour(now, tour.Split(','), open);
+            }
+
+            if (EndAfter is float endAfter && autoStarted && now > matchStartedAt + endAfter)
+            {
+                exit();
+            }
+
             if (Env("VR_AUTOSTART") != null && now > 8 && !autoStarted)
             {
                 foreach (var screen in screens.GetScreens())
@@ -243,6 +300,8 @@ namespace VectorRumble
                     if (screen is ShipArenaScreen pick)
                     {
                         autoStarted = true;
+                        matchStartedAt = now;
+                        Console.WriteLine("[DEVSHOT] match-start unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
                         Call(pick, "StartAlone");
                         break;
                     }
@@ -284,7 +343,10 @@ namespace VectorRumble
                     if (screen is ShipArenaScreen room)
                     {
                         netGone = true;
-                        Call(room, open == "host" ? "StartNetworkMatch" : "ToggleReady");
+                        autoStarted = true;
+                        matchStartedAt = now;
+                        Console.WriteLine("[DEVSHOT] match-start unix-ms " + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+                        Call(room, open == "host" || Env("VR_TOUR") != null ? "StartNetworkMatch" : "ToggleReady");
                     }
                 }
             }
@@ -339,6 +401,84 @@ namespace VectorRumble
             {
                 Screenshots.Save(device, path);
                 exit();
+            }
+        }
+
+        // The scripted walk through the menus: the highlight moves to the row, rests a moment, then the row is pressed
+        void RunTour(double now, string[] steps, string open)
+        {
+            if (tourNext == 0)
+            {
+                tourNext = Seconds("VR_TOURSTART", 4);
+            }
+
+            if (now < tourNext)
+            {
+                return;
+            }
+
+            var top = screens.GetScreens();
+            FrameScreen menu = null;
+            for (int i = top.Length - 1; i >= 0 && menu == null; i--)
+            {
+                menu = top[i] as FrameMenuScreen;
+            }
+
+            if (tourStep >= steps.Length)
+            {
+                // the end of the walk: on the host's rules screen, rest a moment and start hosting
+                if (menu is MatchRulesScreen rules && !hostingStarted)
+                {
+                    if (tourDoneAt < 0)
+                    {
+                        tourDoneAt = now;
+                    }
+
+                    if (now > tourDoneAt + Seconds("VR_RULESHOLD", 3))
+                    {
+                        hostingStarted = true;
+                        Call(rules, "StartHosting");
+                    }
+                }
+
+                return;
+            }
+
+            if (menu == null)
+            {
+                return;
+            }
+
+            string wanted = steps[tourStep].Trim();
+            var rows = (IList<FrameRow>)typeof(FrameScreen).GetProperty("Rows", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(menu);
+            int index = -1;
+            for (int i = 0; i < rows.Count; i++)
+            {
+                if (string.Equals(rows[i].Label, wanted, StringComparison.OrdinalIgnoreCase))
+                {
+                    index = i;
+                }
+            }
+
+            if (index < 0)
+            {
+                // the screen is still sliding in, or the row is not on this screen: look again shortly
+                tourNext = now + 0.5;
+                return;
+            }
+
+            if (tourPhase == 0)
+            {
+                typeof(FrameScreen).GetProperty("SelectedIndex", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(menu, index);
+                tourPhase = 1;
+                tourNext = now + 1.4;
+            }
+            else
+            {
+                rows[index].Select();
+                tourStep++;
+                tourPhase = 0;
+                tourNext = now + 2.4;
             }
         }
 

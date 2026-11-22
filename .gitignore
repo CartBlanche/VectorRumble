@@ -267,3 +267,6 @@ paket-files/
 
 # MonoGame Content Builder compiled content
 *.xnb
+
+# the video recordings and logs (itch/video/record-video.sh)
+/video/
