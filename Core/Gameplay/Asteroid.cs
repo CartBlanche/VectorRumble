@@ -128,7 +128,7 @@ namespace VectorRumble
             // if the asteroid didn't hit a projectile, play the asteroid-touch cue
             if ((target is Projectile) == false)
             {
-                this.world.AudioManager.PlayCue("asteroidTouch");
+                this.world.PlaySound("asteroidTouch", this.position);
             }
             return base.Touch(target);
         }

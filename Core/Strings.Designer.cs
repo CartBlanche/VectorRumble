@@ -874,5 +874,10 @@ namespace VectorRumble {
                 return ResourceManager.GetString("Sky_Comet", resourceCulture);
             }
         }
+        internal static string Label_DirectionalSound {
+            get {
+                return ResourceManager.GetString("Label_DirectionalSound", resourceCulture);
+            }
+        }
     }
 }

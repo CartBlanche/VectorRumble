@@ -81,7 +81,7 @@ namespace VectorRumble
         public override void Explode(Actor touchedActor)
         {
             // play the explosion cue
-            world.AudioManager.PlayCue("explosionLarge");
+            world.PlaySound("explosionLarge", this.position);
 
             // add a double-particle system effect
             world.Particles.Emit(ParticleEffects.Burst(64, 32f, 64f, 3f, 0.05f, explosionColors), this.position);

@@ -470,4 +470,7 @@ B/O Button, Esc = Cancel</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>Comet</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>Directional sound</value>
+  </data>
 </root>

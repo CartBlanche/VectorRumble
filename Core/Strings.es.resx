@@ -467,4 +467,7 @@ Botón B/O, Tecla Esc = Cancelar</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>Cometa</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>Sonido direccional</value>
+  </data>
 </root>

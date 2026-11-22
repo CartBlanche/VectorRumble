@@ -262,7 +262,7 @@ namespace VectorRumble
             // add a particle system for effect
             world.Particles.Emit(ParticleEffects.Burst(24, 32f, 64f, 2f, 0.1f, particleColors), this.Position);
             // play the "power-up picked up" cue
-            world.AudioManager.PlayCue("powerUpTouch");
+            world.PlaySound("powerUpTouch", this.Position);
             // kill the power-up
             Die(ship);
         }
@@ -296,7 +296,7 @@ namespace VectorRumble
             this.particleColors = new Color[] { this.color, Color.White };
             // add a particle effect and play a sound effect
             world.Particles.Emit(ParticleEffects.Burst(24, 32f, 64f, 2f, 0.1f, particleColors), this.position);
-            world.AudioManager.PlayCue("powerUpSpawn");
+            world.PlaySound("powerUpSpawn", this.position);
             AIMetrics.PowerUpSpawned();
         }
         #endregion

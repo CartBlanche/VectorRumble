@@ -470,4 +470,7 @@ B/O 버튼, Esc = 취소</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>혜성</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>방향성 사운드</value>
+  </data>
 </root>

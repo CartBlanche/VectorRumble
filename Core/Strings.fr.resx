@@ -470,4 +470,7 @@ Bouton B/O, Échap = Annuler</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>Comète</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>Son directionnel</value>
+  </data>
 </root>

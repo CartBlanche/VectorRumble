@@ -134,7 +134,7 @@ namespace VectorRumble
             // play the audio cue for firing
             if (String.IsNullOrEmpty(fireCueName) == false)
             {
-                this.owner.World.AudioManager.PlayCue(fireCueName);
+                this.owner.World.PlaySound(fireCueName, this.owner.Position);
             }
         }
 

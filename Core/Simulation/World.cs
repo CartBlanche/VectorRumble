@@ -110,6 +110,26 @@ namespace VectorRumble
             set { audioManager = value; }
         }
 
+        /// <summary>
+        /// Plays a sound effect from a place in the world: panned left or right by where it is on the screen. A cue the
+        /// positional player does not have is played the old way, from the sound bank.
+        /// </summary>
+        public void PlaySound(string cue, Vector2 position)
+        {
+            if (audioManager == null)
+            {
+                return;
+            }
+
+            VectorRumbleSettings settings = UserSettings.Current;
+            if (!sounds.Play(cue, position.X, Dimensions.X, settings.EffectsPercent / 100f, settings.DirectionalSound))
+            {
+                audioManager.PlayCue(cue);
+            }
+        }
+
+        private readonly PositionalSounds sounds = new PositionalSounds();
+
         public Starfield Starfield
         {
             get { return starfield; }

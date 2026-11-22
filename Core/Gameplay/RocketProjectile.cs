@@ -70,7 +70,7 @@ namespace VectorRumble
             }
 
             // play the explosion cue
-            world.AudioManager.PlayCue("explosionMedium");
+            world.PlaySound("explosionMedium", this.position);
 
             // add a double-particle system effect
             world.Particles.Emit(ParticleEffects.Burst(64, 32f, 64f, 3f, 0.05f, explosionColors), this.position);

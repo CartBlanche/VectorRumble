@@ -44,6 +44,14 @@ namespace VectorRumble
             Rows.Add(Volume(Strings.Label_Music, () => UserSettings.Current.MusicPercent, p => UserSettings.SetMusic(audio, p)));
             Rows.Add(Volume(Strings.Label_Effects, () => UserSettings.Current.EffectsPercent, p => UserSettings.SetEffects(audio, p)));
 
+            var directional = new FrameRow(Strings.Label_DirectionalSound, FrameRowKind.Toggle) { Value = () => OnOff(UserSettings.Current.DirectionalSound) };
+            directional.Adjusted += d =>
+            {
+                UserSettings.Current.DirectionalSound = !UserSettings.Current.DirectionalSound;
+                UserSettings.Save();
+            };
+            Rows.Add(directional);
+
 #if !USE_DEFAULT_DEVICE_SETTINGS
             if (!VectorEngine.Platform.IsMobile)
             {

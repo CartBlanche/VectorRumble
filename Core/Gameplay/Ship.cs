@@ -714,7 +714,7 @@ namespace VectorRumble
                 // hit the gamepad vibration motors
                 FireGamepadMotors(0.75f, 0.25f);
                 // play several explosion cues
-                world.AudioManager.PlayCue("playerDeath");
+                world.PlaySound("playerDeath", this.position);
                 // add several particle systems for effect
                 world.Particles.Emit(ParticleEffects.Burst(128, 64f, 256f, 3f, 0.05f, explosionColors), this.position);
                 world.Particles.Emit(ParticleEffects.Burst(64, 256f, 1024f, 3f, 0.05f, explosionColors), this.position);
@@ -800,7 +800,7 @@ namespace VectorRumble
                 weapon = new LaserWeapon(this);
                 mineWeapon = new MineWeapon(this);
                 // play the ship-spawn cue
-                world.AudioManager.PlayCue("playerSpawn");
+                world.PlaySound("playerSpawn", this.position);
                 // add a particle effect at the ship's new location
                 world.Particles.Emit(ParticleEffects.Burst(32, 32f, 64f, 2f, 0.1f, new Color[] { this.color }), this.position);
                 // remind the player that we're spawning

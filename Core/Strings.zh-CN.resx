@@ -470,4 +470,7 @@ B/O 按钮, Esc = 取消</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>彗星</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>方向性音效</value>
+  </data>
 </root>

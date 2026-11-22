@@ -17,6 +17,9 @@ namespace VectorRumble
         /// <summary>The sound effects' volume, in percent.</summary>
         public int EffectsPercent { get; set; } = 100;
 
+        /// <summary>Sound effects come from the side of the screen they happen on (stereo pan).</summary>
+        public bool DirectionalSound { get; set; } = true;
+
         public bool FullScreen { get; set; }
 
         /// <summary>The neon glow on the lines of the game.</summary>

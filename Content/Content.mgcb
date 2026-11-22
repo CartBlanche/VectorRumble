@@ -19,6 +19,42 @@
 #begin Audio/VectorRumble.xwb
 /copy:Audio/VectorRumble.xwb
 
+#begin Audio/Waves/tx0_fire1.wav
+/copy:Audio/Waves/tx0_fire1.wav
+
+#begin Audio/Waves/tx0_fire2.wav
+/copy:Audio/Waves/tx0_fire2.wav
+
+#begin Audio/Waves/tx0_fire3.wav
+/copy:Audio/Waves/tx0_fire3.wav
+
+#begin Audio/Waves/hax2_fire.wav
+/copy:Audio/Waves/hax2_fire.wav
+
+#begin Audio/Waves/hax2_fire2.wav
+/copy:Audio/Waves/hax2_fire2.wav
+
+#begin Audio/Waves/damage1.wav
+/copy:Audio/Waves/damage1.wav
+
+#begin Audio/Waves/explosion1.wav
+/copy:Audio/Waves/explosion1.wav
+
+#begin Audio/Waves/explosion2.wav
+/copy:Audio/Waves/explosion2.wav
+
+#begin Audio/Waves/explosion3.wav
+/copy:Audio/Waves/explosion3.wav
+
+#begin Audio/Waves/phase_expire_alt.wav
+/copy:Audio/Waves/phase_expire_alt.wav
+
+#begin Audio/Waves/menu_back.wav
+/copy:Audio/Waves/menu_back.wav
+
+#begin Audio/Waves/weapon_pickup_alt_retro.wav
+/copy:Audio/Waves/weapon_pickup_alt_retro.wav
+
 #begin Fonts/retroLarge.spritefont
 /importer:FontDescriptionImporter
 /processor:LocalizedFontProcessor

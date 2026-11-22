@@ -467,4 +467,7 @@ B/O Button, Esc = abbrechen</value>
   <data name="Sky_Comet" xml:space="preserve">
     <value>Komet</value>
   </data>
+  <data name="Label_DirectionalSound" xml:space="preserve">
+    <value>Richtungsklang</value>
+  </data>
 </root>
