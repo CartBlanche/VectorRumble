@@ -130,7 +130,7 @@ choice for received ones on screen; show Author in the pickers.
   language/settings code (`UserSettings`) to the engine if a third game needs it.
 - SolidOps: merge `develop` into `main` only after it is public on itch.io (unrelated histories); 720p; iOS; the Windows DirectX head.
 
-## Before v1.x: explosion shockwave, black holes, hopping over ships and the sky (asked 2026-11-22)
+## Before v1.x: explosion shockwave, black holes, hopping over ships, the sky and directional sound (asked 2026-11-22)
 
 1. **Shockwave on explosions.** A visible ripple that spreads out from a ship's (and later a mine's or rocket's) explosion. A shader is one way, not the only one:
    the game draws with `LineBatch` lines only and has no render target or effect of its own, so a first version can be expanding, fading vector rings (a
@@ -156,6 +156,20 @@ choice for received ones on screen; show Author in the pickers.
    and twinkling; (c) planets as slowly moving dots, from a few lines of orbit maths for the date. Option (b) is cheap and fits the look; (a) and (c) are cheap to
    compute but need a decision on whether the sky may differ between machines in a network match (it is only a background, so it can).
    Mockup: `docs/mockups/sky.html` (constellations, planets, nebula as faint dots plus a soft glow in violet, magenta and teal, comet). Decided direction: use both nebula layers, and pick the sky for a match from a hand-made pool of about 5 (layers, hues, cloud positions, which constellations), chosen by the host and sent in the match setup so every machine shows the same one (a protocol version bump, so bundle it with other network changes); a community arena may name its sky, otherwise it is random; draw only from a fixed seed in the pool entry. Keep the nebula dim enough that no ship colour (magenta, cyan) disappears into it. Decided 2026-11-22: random only for now, no Match Rules switch (add one later only if asked). Real sky (a later option, not for v1.x): the time of day is not the hard part, the place is. On a LAN or the same WiFi everyone shares a time zone, a place and a clock to within seconds, and the sky turns only 15 degrees an hour, so nothing needs syncing; online play across time zones would have the host send one UTC time and place. Get the place without a permission prompt from the device's time zone: its offset gives roughly the longitude, its name (for example Europe/Amsterdam) roughly the latitude, from a small table; fall back to a fixed sky when the lookup fails (phones and some systems report zones differently). Do not ask for the device's location (a prompt on phones and Steam, too much for a background).
+
+5. **Directional sound (decided 2026-11-22: take the sounds out of XACT, build it in VectorEngine so every game gets it).** Today nothing is panned: every sound goes
+   through `AudioManager.PlayCue(string cueName)` (VectorEngine, XACT sound bank: `Content/Audio/VectorRumble.xsb/.xwb/.xgs`), which takes a name only, so an explosion on the
+   left of the screen is as loud in the right ear. Checked: VectorEngine has no pan, emitter or listener code. SolidOps pans in its own game code: `Core/Gameplay/Managers/AmbientManager.cs`
+   plays loose WAV clips (`SoundEffect.FromStream`, `CreateInstance()`) and sets `SoundEffectInstance.Volume`, `.Pan` and `.Pitch` from the source's position.
+   Plan: (1) read the XACT project (`Content/Audio/VectorRumble.xap`) for what each cue does besides playing a wave: several waves per cue (random pick), volume, pitch, instance
+   limits, categories (how `AudioLevels` reaches them); (2) a positional player in VectorEngine on top of `ClipCache` and `SoundEffectInstance`, for example `Sounds.Play(cueName, position)`:
+   x position to a pan of about -0.7 to 0.7 over the play area's width (very hard pans tire in headphones), optional quieter with distance (little use in a one-screen arena),
+   multiplied by `AudioLevels.Sfx`, a cap on voices at once with finished instances recycled (loose instances are limited on some platforms), a master switch (Settings) for
+   people who dislike panning; (3) a small data file per game mapping a cue name to clips with volume and pitch variation, replacing the XACT cue list (the 16 WAVs are in
+   `Content/Audio/Waves`; the code plays `powerUpTouch`, `powerUpSpawn`, `playerSpawn`, `playerDeath`, `explosionMedium`, `explosionLarge`, `asteroidTouch`, the weapon fire cues and the
+   menu cues); (4) pass the event's position from explosions, shots, pickups and spawns; menu sounds stay centred; (5) convert those first, listen, then the rest. Music stays in
+   XACT for now (a separate job). SolidOps can move its `AmbientManager` pan code onto the engine player later. Check on Desktop, Android, iOS and in the Content build.
+   Network: each machine plays the sounds of events it simulates, so nothing is synced.
 
 ## Screenshots (F12) and the local scripted harness
 
