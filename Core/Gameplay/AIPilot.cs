@@ -171,6 +171,12 @@ namespace VectorRumble
         const float ZigzagTime = 0.45f;
 
         /// <summary>Shows what each pilot is doing: its state as a colour, and its route. Set by the VR_AIDEBUG environment variable.</summary>
+        // VR_AITRACE=<pilot's name>: log that pilot's steering every frame while it chases (the first 900 frames)
+        static readonly string TraceName = Environment.GetEnvironmentVariable("VR_AITRACE");
+        static int traceLines;
+
+        static string Angle(Vector2 v) => v.LengthSquared() < 1e-6f ? "-" : MathHelper.ToDegrees((float)Math.Atan2(v.Y, v.X)).ToString("0");
+
         internal static bool ShowDebug = Environment.GetEnvironmentVariable("VR_AIDEBUG") != null;
 
         readonly Ship ship;
@@ -212,6 +218,9 @@ namespace VectorRumble
         Vector2 unstickDirection;
         float slideSide = 1f;           // which way round an obstacle the pilot slides; swapped when it gets stuck
         int unseenLooks;
+        Vector2 debugAway, debugWant, debugShot;   // the last steering terms, for the stuck log
+        readonly List<Vector2> debugTrail = new List<Vector2>();   // the ship's position every quarter second, for the stuck log
+        float debugTrailTimer;
 
         public AIPilot(Ship ship, World world, AIDifficulty difficulty, int seed)
         {
@@ -239,6 +248,20 @@ namespace VectorRumble
             }
 
             time += elapsedTime;
+            if (ShowDebug)
+            {
+                debugTrailTimer -= elapsedTime;
+                if (debugTrailTimer <= 0f)
+                {
+                    debugTrailTimer = 0.25f;
+                    debugTrail.Add(ship.Position);
+                    if (debugTrail.Count > 9)
+                    {
+                        debugTrail.RemoveAt(0);
+                    }
+                }
+            }
+
             CheckStuck(elapsedTime);
             lookTimer -= elapsedTime;
             replanTimer -= elapsedTime;
@@ -256,6 +279,19 @@ namespace VectorRumble
             bool conflict = awayLength > 0.3f && Vector2.Dot(want, away) < -0.3f * awayLength * want.Length();   // the goal points into what it keeps away from (for the metrics)
             want = SlideAlong(away, want);
             Vector2 move = away + shot * profile.Dodge * 1.5f + want;
+            debugAway = away;
+            debugWant = want;
+            debugShot = shot;
+            if (ShowDebug && TraceName != null && state == AIState.Chase && (ship.PilotName ?? ship.Name) == TraceName && traceLines < 900)
+            {
+                // every frame while chasing: what each steering term says, and what the ship does about it (angles in degrees, 0 is east)
+                traceLines++;
+                Console.WriteLine("[AI-TRACE] t=" + time.ToString("0.000") + " sees=" + sees + " rival=" + (rival != null ? Vector2.Distance(ship.Position, rival.Position).ToString("0") : "-")
+                    + " move=" + Angle(move) + "/" + move.Length().ToString("0.00") + " want=" + Angle(want) + "/" + want.Length().ToString("0.00")
+                    + " away=" + Angle(away) + "/" + away.Length().ToString("0.00") + " shot=" + Angle(shot) + "/" + shot.Length().ToString("0.00")
+                    + " vel=" + Angle(ship.Velocity) + "/" + ship.Velocity.Length().ToString("0") + " nose=" + MathHelper.ToDegrees(MathHelper.WrapAngle(ship.Rotation - MathHelper.PiOver2)).ToString("0"));
+            }
+
             if (move.LengthSquared() > 0.0001f)
             {
                 float throttle = state == AIState.Patrol ? profile.Throttle * 0.8f : profile.Throttle;
@@ -293,7 +329,10 @@ namespace VectorRumble
                 {
                     AIMetrics.Stuck(ship);
                     Console.WriteLine("[AI] " + (ship.PilotName ?? ship.Name) + " stuck in " + state + " at " + ship.Position
-                        + " (" + Nearest() + ", want " + (hasPatrolPoint ? "patrol point" : "none") + ")");
+                        + " (" + Nearest() + ", rival " + (rival != null ? Vector2.Distance(ship.Position, rival.Position).ToString("0") : "-") + " px"
+                        + ", sees " + sees + ", speed " + ship.Velocity.Length().ToString("0") + ", away " + debugAway.Length().ToString("0.00")
+                        + ", want " + debugWant.Length().ToString("0.00") + ", shot " + debugShot.Length().ToString("0.00") + ")"
+                        + " trail " + string.Join(" ", debugTrail.ConvertAll(v => "(" + v.X.ToString("0") + "," + v.Y.ToString("0") + ")")));
                 }
 
                 Vector2 push = WallAvoidance() + AsteroidAvoidance();
