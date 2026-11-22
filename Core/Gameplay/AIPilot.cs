@@ -34,6 +34,8 @@ namespace VectorRumble
         Search,
         /// <summary>Shields gone: getting away.</summary>
         Flee,
+        /// <summary>A power-up that would upgrade its weapon is on the map: going for it.</summary>
+        Collect,
     }
 
     /// <summary>
@@ -105,7 +107,7 @@ namespace VectorRumble
                         ReactionTime = 0.9f, SightRange = 450f, SpotDelay = 1.2f, LoseSightTime = 1.5f,
                         WarningMiss = 0.5f, WarningPause = 0.9f,
                         AimError = 0.55f, FireCone = 0.45f, FireRange = 380f, Lead = 0f, Throttle = 0.6f,
-                        PowerUpRange = 150f, Dodge = 0.3f, DodgeHorizon = 150f, MineChance = 0.1f,
+                        PowerUpRange = 350f, Dodge = 0.3f, DodgeHorizon = 150f, MineChance = 0.1f,
                         FleeShield = 0.05f, Flee = FleeStyle.Straight, HitLocateError = 220f,
                     };
                 case AIDifficulty.Hard:
@@ -114,7 +116,7 @@ namespace VectorRumble
                         ReactionTime = 0.2f, SightRange = 1000f, SpotDelay = 0.25f, LoseSightTime = 3f,
                         WarningMiss = 0.3f, WarningPause = 0.35f,
                         AimError = 0.05f, FireCone = 0.2f, FireRange = 640f, Lead = 1f, Throttle = 1f,
-                        PowerUpRange = 450f, Dodge = 1f, DodgeHorizon = 450f, MineChance = 1.2f,
+                        PowerUpRange = 2000f, Dodge = 1f, DodgeHorizon = 450f, MineChance = 1.2f,
                         FleeShield = 0.25f, Flee = FleeStyle.Cover, HitLocateError = 0f,
                     };
                 default:
@@ -123,7 +125,7 @@ namespace VectorRumble
                         ReactionTime = 0.45f, SightRange = 700f, SpotDelay = 0.6f, LoseSightTime = 2f,
                         WarningMiss = 0.4f, WarningPause = 0.6f,
                         AimError = 0.2f, FireCone = 0.3f, FireRange = 500f, Lead = 0.7f, Throttle = 0.85f,
-                        PowerUpRange = 300f, Dodge = 0.6f, DodgeHorizon = 300f, MineChance = 0.5f,
+                        PowerUpRange = 900f, Dodge = 0.6f, DodgeHorizon = 300f, MineChance = 0.5f,
                         FleeShield = 0.1f, Flee = FleeStyle.Zigzag, HitLocateError = 90f,
                     };
             }
@@ -207,6 +209,7 @@ namespace VectorRumble
         Vector2 cover;
 
         PowerUp powerUp;
+        float collectLockUntil;         // after changing between collecting and fighting, the pilot sticks with it until this time
         Vector2 patrolPoint;
         bool hasPatrolPoint;
 
@@ -359,6 +362,12 @@ namespace VectorRumble
                 }
             }
 
+            return "wall " + wall.ToString("0") + " px, asteroid edge " + NearestAsteroidEdge().ToString("0") + " px";
+        }
+
+        // how far (pixels) the ship is from the edge of the nearest asteroid
+        float NearestAsteroidEdge()
+        {
             float rock = float.MaxValue;
             var actors = world.Actors;
             for (int i = 0; i < actors.Count; i++)
@@ -369,7 +378,7 @@ namespace VectorRumble
                 }
             }
 
-            return "wall " + wall.ToString("0") + " px, asteroid edge " + rock.ToString("0") + " px";
+            return rock;
         }
 
         /// <summary>
@@ -430,7 +439,8 @@ namespace VectorRumble
             if (next != state && ShowDebug)
             {
                 Console.WriteLine("[AI] " + (ship.PilotName ?? ship.Name) + ": " + state + " -> " + next
-                    + " (sees " + sees + ", shield " + ship.ShieldFraction.ToString("0.00") + ")");
+                    + " (sees " + sees + ", shield " + ship.ShieldFraction.ToString("0.00") + ", t " + time.ToString("0.0") + ", asteroid edge "
+                    + NearestAsteroidEdge().ToString("0") + " px)");
             }
 
             state = next;
@@ -447,7 +457,9 @@ namespace VectorRumble
             FindPowerUp();
 
             float distance = rival != null ? Vector2.Distance(ship.Position, rival.Position) : float.MaxValue;
-            sees = rival != null && distance <= profile.SightRange && ClearBetween(ship.Position, rival.Position, ShotRadius);
+            // sight is blocked by walls, not by asteroids: a rival behind a drifting rock has not gone anywhere, and the pilot
+            // would otherwise change its mind each time one crossed the line (it still does not shoot through a rock: see Fight)
+            sees = rival != null && distance <= profile.SightRange && WallsClearBetween(ship.Position, rival.Position, ShotRadius);
             if (sees)
             {
                 lastKnown = rival.Position;
@@ -462,8 +474,37 @@ namespace VectorRumble
                 hasCover = false;
             }
 
+            // a power-up that would upgrade the weapon is a goal in its own right: go for it unless a fight is the better use of the moment
+            if (powerUp != null && (state == AIState.Patrol || state == AIState.Search || state == AIState.Chase)
+                && time >= collectLockUntil
+                && PreferCollect(Vector2.Distance(ship.Position, powerUp.Position), sees, distance))
+            {
+                Switch(AIState.Collect);
+                collectLockUntil = time + CollectHold;
+                path.Clear();
+            }
+
             switch (state)
             {
+                case AIState.Collect:
+                    if (powerUp == null)
+                    {
+                        Switch(AIState.Patrol);
+                        hasPatrolPoint = false;
+                        path.Clear();
+                    }
+                    else if (time >= collectLockUntil && !PreferCollect(Vector2.Distance(ship.Position, powerUp.Position), sees, distance))
+                    {
+                        // a rival has come close in sight: fight it first
+                        Switch(AIState.Chase);
+                        collectLockUntil = time + CollectHold;
+                        unseenLooks = 0;
+                        warningPending = true;
+                        warningDeadline = time + 0.6f;
+                        path.Clear();
+                    }
+                    break;
+
                 case AIState.Patrol:
                     if (sees)
                     {
@@ -570,11 +611,12 @@ namespace VectorRumble
                 return;
             }
 
+            int have = Worth(ship.CurrentWeapon);
             float best = profile.PowerUpRange * profile.PowerUpRange;
             var actors = world.Actors;
             for (int i = 0; i < actors.Count; i++)
             {
-                if (actors[i] is PowerUp found && !found.Dead)
+                if (actors[i] is PowerUp found && !found.Dead && WantsPowerUp(have, Worth(found.Kind)))
                 {
                     float d = Vector2.DistanceSquared(ship.Position, found.Position);
                     if (d < best)
@@ -633,6 +675,9 @@ namespace VectorRumble
                 case AIState.Flee:
                     return FleeWant(elapsedTime);
 
+                case AIState.Collect:
+                    return powerUp != null && !powerUp.Dead ? GoTo(powerUp.Position) : Vector2.Zero;
+
                 default:
                     return PatrolWant();
             }
@@ -676,12 +721,6 @@ namespace VectorRumble
 
         Vector2 PatrolWant()
         {
-            // a power-up in reach is worth a detour
-            if (powerUp != null && !powerUp.Dead)
-            {
-                return GoTo(powerUp.Position);
-            }
-
             if (!hasPatrolPoint || Vector2.Distance(ship.Position, patrolPoint) < ArriveDistance)
             {
                 ChoosePatrolPoint();
@@ -866,6 +905,13 @@ namespace VectorRumble
             holdFireUntil = time + profile.WarningPause;
         }
 
+        // true if no wall lies between the two points
+        bool WallsClearBetween(Vector2 a, Vector2 b, float radius)
+        {
+            NavGrid nav = world.Navigation;
+            return nav == null || nav.LineClear(a, b, radius);
+        }
+
         // true if nothing a shot would hit lies between the two points: no wall, no asteroid
         bool ClearBetween(Vector2 a, Vector2 b, float radius)
         {
@@ -978,6 +1024,7 @@ namespace VectorRumble
                 case AIState.Chase: colour = Color.Red; break;
                 case AIState.Search: colour = Color.Yellow; break;
                 case AIState.Flee: colour = Color.Cyan; break;
+                case AIState.Collect: colour = Color.White; break;
                 default: colour = Color.LimeGreen; break;
             }
 
@@ -998,6 +1045,34 @@ namespace VectorRumble
         #endregion
 
         #region The arithmetic (static, so that it can be tested)
+
+        /// <summary>How good a weapon is, for deciding whether a power-up is an upgrade: the laser 0, the double laser 1, the triple laser and the rocket 2.</summary>
+        internal static int Worth(Weapon weapon)
+        {
+            if (weapon is TripleLaserWeapon || weapon is RocketWeapon)
+            {
+                return 2;
+            }
+
+            return weapon is DoubleLaserWeapon ? 1 : 0;
+        }
+
+        internal static int Worth(PowerUpKind kind) => kind == PowerUpKind.DoubleLaser ? 1 : 2;
+
+        /// <summary>A power-up is worth fetching only if it is better than the weapon the pilot has (not a swap for one as good).</summary>
+        internal static bool WantsPowerUp(int haveWorth, int offeredWorth) => offeredWorth > haveWorth;
+
+        /// <summary>
+        /// Whether to go for a power-up rather than fight: yes if no rival is in sight or the rival is far (<see cref="CollectFightRange"/>),
+        /// or if the power-up is much nearer than the rival.
+        /// </summary>
+        internal static bool PreferCollect(float powerUpDistance, bool rivalSeen, float rivalDistance) =>
+            !rivalSeen || rivalDistance > CollectFightRange || powerUpDistance < rivalDistance * 0.5f;
+
+        const float CollectFightRange = 350f;
+
+        // how long (seconds) a pilot sticks with collecting or fighting once it has changed between them
+        const float CollectHold = 1f;
 
         // how long (seconds) a pilot keeps a rival before it may turn to another, and how much nearer the other must be (as a share of the distance)
         const float RivalHold = 2.5f;

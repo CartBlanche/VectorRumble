@@ -188,5 +188,25 @@ namespace VectorRumble.Tests
             Assert.True(AIPilot.ShouldSwitchRival(5f, 300f, 150f));        // held long enough and the other is much nearer
             Assert.False(AIPilot.ShouldSwitchRival(5f, 300f, 400f));       // never to one that is further
         }
+
+        [Fact]
+        public void A_power_up_is_wanted_only_if_it_is_better_than_the_weapon_in_hand()
+        {
+            Assert.Equal(0, AIPilot.Worth((Weapon)null));
+            Assert.True(AIPilot.Worth(PowerUpKind.TripleLaser) > AIPilot.Worth(PowerUpKind.DoubleLaser));
+            Assert.True(AIPilot.WantsPowerUp(0, AIPilot.Worth(PowerUpKind.DoubleLaser)));      // a plain laser takes any of them
+            Assert.True(AIPilot.WantsPowerUp(AIPilot.Worth(PowerUpKind.DoubleLaser), AIPilot.Worth(PowerUpKind.Rocket)));
+            Assert.False(AIPilot.WantsPowerUp(AIPilot.Worth(PowerUpKind.TripleLaser), AIPilot.Worth(PowerUpKind.DoubleLaser)));   // never a step down
+            Assert.False(AIPilot.WantsPowerUp(AIPilot.Worth(PowerUpKind.Rocket), AIPilot.Worth(PowerUpKind.TripleLaser)));        // nor a swap for one as good
+        }
+
+        [Fact]
+        public void A_pilot_goes_for_a_power_up_unless_a_rival_is_close_and_in_sight()
+        {
+            Assert.True(AIPilot.PreferCollect(500f, false, 100f));     // no rival in sight
+            Assert.True(AIPilot.PreferCollect(500f, true, 900f));      // rival far off
+            Assert.False(AIPilot.PreferCollect(300f, true, 250f));     // a rival in sight and close, the power-up not much nearer
+            Assert.True(AIPilot.PreferCollect(80f, true, 250f));       // the power-up is within a step
+        }
 }
 }

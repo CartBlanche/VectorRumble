@@ -616,6 +616,9 @@ namespace VectorRumble
         }
 
 
+        /// <summary>The weapon the ship fires now (a laser until it picks up another), for the computer's pilots to judge a power-up by.</summary>
+        internal Weapon CurrentWeapon => weapon;
+
         /// <summary>
         /// Assigns the new weapon to the ship.
         /// </summary>

@@ -28,6 +28,7 @@ namespace VectorRumble
         static int spawned;
         static float lastReport;
         static float clock;
+        static float spawnClock;
 
         static bool On => AIPilot.ShowDebug;
 
@@ -47,6 +48,7 @@ namespace VectorRumble
             if (On)
             {
                 spawned++;
+                spawnClock = clock;
             }
         }
 
@@ -55,6 +57,7 @@ namespace VectorRumble
             if (On)
             {
                 Of(ship).Pickups++;
+                Console.WriteLine("[AI-METRICS] power-up taken by " + (ship.PilotName ?? ship.Name) + " " + (clock - spawnClock).ToString("0.0") + " s after it appeared");
             }
         }
 
