@@ -62,7 +62,7 @@ namespace VectorRumble
         double matchStartedAt, tourNext;
         int tourStep, tourPhase;
         double tourDoneAt = -1;
-        bool hostingStarted;
+        bool hostingStarted, arenaToLobby;
         bool autoStarted, netGone, langStepped, thenDone, picked;
         int burstTaken;
         int actIndex;
@@ -144,8 +144,13 @@ namespace VectorRumble
             {
                 // the lobby takes the player's name from the signed in gamer
                 object gamer = Microsoft.Xna.Framework.GamerServices.SignedInGamer.Current;
-                MethodInfo setName = typeof(Microsoft.Xna.Framework.GamerServices.Gamer).GetMethod("SetGamertag",
+                MethodInfo setName = typeof(Microsoft.Xna.Framework.GamerServices.SignedInGamer).GetMethod("SetGamertag",
                     BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                if (setName == null)
+                {
+                    Console.WriteLine("[DEVSHOT] VR_NAME: SignedInGamer.SetGamertag not found");
+                }
+
                 setName?.Invoke(gamer, new object[] { name });
             }
 
@@ -260,7 +265,21 @@ namespace VectorRumble
                         {
                             var arenas = FrameMenuScreen.World.ArenaManager.Arenas;
                             typeof(ShipArenaScreen).GetMethod("SetArena", Hidden).Invoke(room, new object[] { arenas[Math.Max(0, Math.Min(arenas.Length - 1, arena))] });
+                            arenaToLobby = true;
                         }
+                    }
+                }
+            }
+
+            // in a network lobby the host's arena choice also goes to the lobby, as the screen's own arena buttons do
+            if (arenaToLobby)
+            {
+                foreach (var screen in screens.GetScreens())
+                {
+                    if (screen is ShipArenaScreen room && typeof(ShipArenaScreen).GetField("lobby", Hidden).GetValue(room) is Networking.LanLobby lobby)
+                    {
+                        lobby.SetRules(MatchRules.Current.Clone());
+                        arenaToLobby = false;
                     }
                 }
             }

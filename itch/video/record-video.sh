@@ -50,7 +50,7 @@ if [[ $OBS -eq 1 && -z "${OBS_PASSWORD:-}" ]]; then
     exit 1
 fi
 
-PIDS=(); RECORDING=0
+PIDS=(); RECORDING=0; WATCHDOG=""
 stop_recording() {
     if [[ $RECORDING -eq 1 ]]; then
         sleep 2
@@ -58,9 +58,20 @@ stop_recording() {
         echo "Recording: $FILE"
         echo "recording_file=$FILE" >> "$OUT/timing.txt"
         RECORDING=0
+        # look at what was written: the streams and the length (then look at a few frames before trusting it)
+        if [[ -n "$FILE" ]]; then
+            # OBS finishes writing the file a moment after "stop": try for up to 30 s
+            for _ in $(seq 1 15); do
+                if ffprobe -v error -show_entries stream=codec_type,codec_name,width,height -show_entries format=duration -of compact "$FILE" 2>/dev/null; then
+                    break
+                fi
+                sleep 2
+            done
+        fi
     fi
 }
 cleanup() {
+    [[ -n "$WATCHDOG" ]] && kill "$WATCHDOG" 2>/dev/null || true
     stop_recording
     for p in "${PIDS[@]:-}"; do kill "$p" 2>/dev/null || true; done
 }
@@ -69,8 +80,14 @@ trap cleanup EXIT INT TERM
 if pkill -f "[V]ectorRumble.dll" 2>/dev/null; then echo "Stopped a leftover game window" >&2; sleep 2; fi
 
 if [[ $OBS -eq 1 ]]; then
-    obs status >/dev/null     # fail early if OBS cannot be reached
+    # fail early if OBS cannot be reached, and never touch a recording somebody else started
+    if obs status | grep -q "^recording"; then
+        echo "OBS is already recording: stop that first (this script only stops a recording it started)" >&2
+        exit 1
+    fi
     obs scene "Vector Rumble"
+    # the mic stays out of the recording
+    obs call SetInputMute '{"inputName":"Mic/Aux","inputMuted":true}' >/dev/null 2>&1 || true
 fi
 
 # What every copy shares. VR_CLEANSETTINGS: the default sky layers and volumes, whatever this Mac's settings file says.
@@ -90,8 +107,13 @@ start() {   # name, delay, window, extra environment...
 }
 : > "$OUT/Dominique.log"; : > "$OUT/John.log"; : > "$OUT/Jane.log"; : > "$OUT/Alison.log"
 
+# Watchdog: whatever goes wrong, the games (and so the recording) end after the battle plus the lobby time and some spare
+MAX=$(( HOST_GO + SECONDS_OF_BATTLE + 40 ))
+( sleep "$MAX"; echo "Took longer than ${MAX}s: stopping" >&2; pkill -f "[V]ectorRumble.dll" ) &
+WATCHDOG=$!
+
 # the host: the recorded window
-start Dominique 0 "0,30,1024,576" VR_OPEN=main VR_TOUR="Play,Multiplayer,Host a game" VR_TOURSTART=5 VR_RULESHOLD=3 VR_NETGO="$HOST_GO" VR_ENDAFTER="$ENDS" VR_DEMOHOP=1
+start Dominique 0 "0,30,1024,576" VR_OPEN=main VR_PICK=",,$ARENA" VR_TOUR="Play,Multiplayer,Host a game" VR_TOURSTART=5 VR_RULESHOLD=3 VR_NETGO="$HOST_GO" VR_ENDAFTER="$ENDS" VR_DEMOHOP=1
 if [[ $OBS -eq 1 ]]; then
     sleep 4
     obs bind

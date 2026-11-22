@@ -20,8 +20,8 @@ Host, port and password come from --host/--port and the OBS_PASSWORD environment
 (OBS_HOST / OBS_PORT also work). The password is never stored in the repo.
 In OBS: Tools > WebSocket Server Settings > enable it, and set a password.
 OBS_WINDOW_MATCH (default "Vector Rumble") is the text a window's "[process] title" must contain.
-Sound: add a macOS "Audio Output Capture" or "Application Audio Capture" source for the game to the scene yourself
-(OBS makes it, this script does not); bind warns when the scene has no audio source.
+Sound: the window capture carries the game's own sound. Keep the mic (Mic/Aux) muted (record-video.sh does).
+Source names are global to the whole OBS: only the "Vector Rumble ..." ones here are made, changed or removed.
 """
 import base64, hashlib, json, os, socket, struct, sys, time, uuid
 
@@ -184,9 +184,6 @@ def bind(obs):
         "positionX": (width - src_w * scale) / 2, "positionY": (height - src_h * scale) / 2,
         "scaleX": scale, "scaleY": scale, "cropTop": TITLE_BAR, "cropLeft": 0, "cropRight": 0, "cropBottom": 0,
         "alignment": 5, "boundsType": "OBS_BOUNDS_NONE"}})
-    inputs = obs.request("GetSceneItemList", {"sceneName": SCENE})["sceneItems"]
-    if not any("audio" in (i.get("inputKind") or "") or "sck_audio" in (i.get("inputKind") or "") for i in inputs):
-        print("warning: the %r scene has no audio capture source; the recording will have no game sound" % SCENE, file=sys.stderr)
     print("capturing window %d of %d matching %r" % (window, len(windows), WINDOW_MATCH))
 
 
