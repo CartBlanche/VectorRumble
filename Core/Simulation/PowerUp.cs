@@ -256,6 +256,7 @@ namespace VectorRumble
         {
             // give it the weapon
             ship.SetWeapon(CreateWeapon(ship));
+            AIMetrics.PowerUpTaken(ship);
             // tickle the ship's vibration motors
             ship.FireGamepadMotors(0f, 0.25f);
             // add a particle system for effect
@@ -296,6 +297,7 @@ namespace VectorRumble
             // add a particle effect and play a sound effect
             world.Particles.Emit(ParticleEffects.Burst(24, 32f, 64f, 2f, 0.1f, particleColors), this.position);
             world.AudioManager.PlayCue("powerUpSpawn");
+            AIMetrics.PowerUpSpawned();
         }
         #endregion
     }

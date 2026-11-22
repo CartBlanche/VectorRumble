@@ -130,6 +130,18 @@ choice for received ones on screen; show Author in the pickers.
   language/settings code (`UserSettings`) to the engine if a third game needs it.
 - SolidOps: merge `develop` into `main` only after it is public on itch.io (unrelated histories); 720p; iOS; the Windows DirectX head.
 
+## Before v1.x: explosion shockwave and black holes (asked 2026-11-22)
+
+1. **Shockwave on explosions.** A visible ripple that spreads out from a ship's (and later a mine's or rocket's) explosion. A shader is one way, not the only one:
+   the game draws with `LineBatch` lines only and has no render target or effect of its own, so a first version can be expanding, fading vector rings (a
+   few circles of `LineBatch` lines, ring radius growing with time), which also keeps the vector look. A real screen-space distortion needs a render target
+   plus an `Effect`, which has to build for every head (Desktop, Android, iOS), so check the MonoGame content pipeline for each before choosing it.
+   Network: explosions are already told to every machine, so the ring can be drawn locally from the same event.
+2. **Black holes.** Spawn at random for a period of time, then go away, and pull nearby objects toward them (ships, asteroids, shots, mines, power-ups; decide
+   which). Questions to settle: whether touching one kills a ship; the pull curve and range; whether the AI knows to keep away from them (it would
+   need a new thing to avoid in `AIPilot`); a Match Rules switch; and the network (the host would decide where and when, and the pull must be the same on every
+   machine, as asteroids sync at about 5 Hz). Draw it as a spinning vector spiral with a faint ring showing its reach.
+
 ## Screenshots (F12) and the local scripted harness
 
 F12 or Print Screen on desktop saves a PNG of the game (`Core/Screenshots.cs`, 1280x720 area without letterbox bars or the mouse pointer) to
