@@ -10,6 +10,7 @@
   "settle_seconds": 4,
   "pre_roll": 1.5,
   "release_file": "tour",
+  "transition": {"name": "Cut"},
 
   "env": {
     "VR_CLEANSETTINGS": "1",
