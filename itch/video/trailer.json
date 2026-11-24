@@ -1,0 +1,74 @@
+{
+  "name": "pretend LAN match",
+  "window_match": "Vector Rumble",
+  "scene_prefix": "Vector Rumble",
+  "work_dir": "video",
+  "build": "dotnet build Desktop -c Release -p:DevShots=true -v q --nologo",
+  "launch": "caffeinate -d -i dotnet Desktop/bin/Release/net10.0/VectorRumble.dll",
+  "kill_pattern": "[V]ectorRumble.dll",
+  "max_seconds": 420,
+  "settle_seconds": 4,
+  "pre_roll": 1.5,
+  "release_file": "tour",
+
+  "env": {
+    "VR_CLEANSETTINGS": "1",
+    "VR_ALLAI": "1",
+    "VR_AI": "3",
+    "VR_SEED": "3",
+    "VR_SKY": "0",
+    "VR_FIREWORKS": "1",
+    "VR_SCORELIMIT": "5"
+  },
+
+  "instances": [
+    {"name": "Maria", "window": "0,790,1280,720", "ready_cue": "browser-open",
+     "env": {"VR_NAME": "{name}", "VR_WIN": "{window}", "VR_OPEN": "browse", "VR_GOFILE": "{work}/go-Maria", "VR_SHIP": "4", "VR_COLOUR": "2", "VR_DEMOHOP": "1"}},
+    {"name": "David", "window": "430,790,1280,720", "ready_cue": "browser-open",
+     "env": {"VR_NAME": "{name}", "VR_WIN": "{window}", "VR_OPEN": "browse", "VR_GOFILE": "{work}/go-David", "VR_SHIP": "0", "VR_COLOUR": "3"}},
+    {"name": "Luisa", "window": "860,790,1280,720", "ready_cue": "browser-open",
+     "env": {"VR_NAME": "{name}", "VR_WIN": "{window}", "VR_OPEN": "browse", "VR_GOFILE": "{work}/go-Luisa", "VR_SHIP": "2", "VR_COLOUR": "4", "VR_DEMOHOP": "1"}},
+    {"name": "Alexander", "window": "0,30,1280,720",
+     "env": {"VR_NAME": "{name}", "VR_WIN": "{window}", "VR_OPEN": "main", "VR_PICK": ",,2",
+             "VR_TOUR": "Play,Multiplayer,Host a game", "VR_TOURFILE": "{work}/tour", "VR_TOURSTART": "0.6", "VR_RULESHOLD": "1.2",
+             "VR_STARTFILE": "{work}/start", "VR_QUITAFTEROVER": "9", "VR_ENDAFTER": "420", "VR_SHIP": "1", "VR_COLOUR": "1", "VR_SKYNAMES": "1"}}
+  ],
+
+  "story": [
+    {"cut": "Alexander"},
+    {"wait": "Alexander:host-lobby", "timeout": 90},
+    {"sleep": 1.0},
+    {"cut": "Maria"},
+    {"wait": "Maria:session-visible", "timeout": 20},
+    {"sleep": 0.8},
+    {"signal": "go-Maria"},
+    {"wait": "Maria:joined", "timeout": 30},
+    {"sleep": 1.6},
+    {"cut": "David"},
+    {"sleep": 0.4},
+    {"signal": "go-David"},
+    {"wait": "David:joined", "timeout": 30},
+    {"sleep": 1.2},
+    {"cut": "Luisa"},
+    {"sleep": 0.4},
+    {"signal": "go-Luisa"},
+    {"wait": "Luisa:joined", "timeout": 30},
+    {"sleep": 1.2},
+    {"cut": "Alexander"},
+    {"sleep": 5.0},
+    {"signal": "start"},
+    {"wait": "Alexander:match-start", "timeout": 20},
+    {"wait": "Alexander:game-over", "timeout": 900}
+  ],
+
+  "edit": {
+    "card": {"text": "COMING UP...", "font": "Content/Fonts/Orbitron.ttf", "color": "#ff9a1f"},
+    "credits": {"directed_by": "Dominique (SoftSavage) Louis", "implemented_by": "Claude", "at": "end",
+                "after": {"player": "Alexander", "cue": "game-over", "hold": 5.0}, "seconds": 4, "font": "Content/Fonts/Orbitron.ttf", "color": "#ffffff"},
+    "teaser": {"before": 2.55, "length": 3.3},
+    "cut": {
+      "start": {"cue": "ready", "players": ["Maria", "David", "Luisa"], "pick": "last", "offset": 0.85},
+      "end": {"player": "Alexander", "cue": "match-start", "offset": -0.05}
+    }
+  }
+}
