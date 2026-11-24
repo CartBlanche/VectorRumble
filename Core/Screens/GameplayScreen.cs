@@ -208,7 +208,8 @@ namespace VectorRumble
                 string message = string.Format(Strings.Score, ship.ScoreName, ship.Score);
                 Vector2 size = spriteFont.MeasureString(message) * scale;
                 position.X = ((int)ship.PlayerStringToIndex + 1) * offset - size.X / 2;
-                spriteBatch.DrawString(spriteFont, message, position, Color.Yellow, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1.0f);
+                // drawn in the pilot's own ship colour, so it is easy to tell who is who
+                spriteBatch.DrawString(spriteFont, message, position, ship.Color, 0.0f, Vector2.Zero, scale, SpriteEffects.None, 1.0f);
             }
 
             spriteBatch.End();
